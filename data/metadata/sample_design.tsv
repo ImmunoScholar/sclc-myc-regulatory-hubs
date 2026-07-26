@@ -1,0 +1,58 @@
+dataset	gsm	assay	cell_line	build	role	source	paralog_status
+GSE230649	GSM7230493	H3K27ac	COLO668	hg19	keystone	parsed from file name	MYCL-amp
+GSE230649	GSM7230494	H3K27ac	H1048	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230495	H3K27ac	H196	hg19	keystone	parsed from file name	non-amplified
+GSE230649	GSM7230496	H3K27ac	H211	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230497	H3K27ac	H524	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230498	H3K27ac	H526	hg19	keystone	parsed from file name	MYCN-amp
+GSE230649	GSM7230499	H3K27ac	H69	hg19	keystone	parsed from file name	MYCN-amp
+GSE230649	GSM7230500	H3K27ac	H847	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230501	H3K27ac	H889	hg19	keystone	parsed from file name	MYCL-amp
+GSE230649	GSM7230502	H3K27ac	SHP77	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230503	MYC	H1048	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230504	MYC	H211	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230505	MYC	H524	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230506	MYC	H847	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230507	MYC	SHP77	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230508	MYCL1	COLO668	hg19	keystone	parsed from file name	MYCL-amp
+GSE230649	GSM7230509	MYCL1	H889	hg19	keystone	parsed from file name	MYCL-amp
+GSE230649	GSM7230510	MYCN	H526	hg19	keystone	parsed from file name	MYCN-amp
+GSE230649	GSM7230511	MYCN	H69	hg19	keystone	parsed from file name	MYCN-amp
+GSE230649	GSM7230512	ATAC	COLO668	hg19	keystone	parsed from file name	MYCL-amp
+GSE230649	GSM7230513	ATAC	H1048	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230514	ATAC	H196	hg19	keystone	parsed from file name	non-amplified
+GSE230649	GSM7230515	ATAC	H524	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230516	ATAC	H526	hg19	keystone	parsed from file name	MYCN-amp
+GSE230649	GSM7230517	ATAC	H69	hg19	keystone	parsed from file name	MYCN-amp
+GSE230649	GSM7230518	ATAC	H847	hg19	keystone	parsed from file name	MYC-amp
+GSE230649	GSM7230519	ATAC	H889	hg19	keystone	parsed from file name	MYCL-amp
+GSE230649	GSM7230520	ATAC	SHP77	hg19	keystone	parsed from file name	MYC-amp
+GSE269424	GSM8315376	ATAC	H524	hg38	atac_support	parsed from file name	MYC-amp
+GSE269424	GSM8315377	ATAC	H524	hg38	atac_support	parsed from file name	MYC-amp
+GSE269424	GSM8315378	ATAC	Lu139	hg38	atac_support	parsed from file name	NA
+GSE269424	GSM8315379	ATAC	Lu139	hg38	atac_support	parsed from file name	NA
+GSE256345	NA	ATAC	H146	hg38	atac_support	parsed from file name	NA
+GSE256345	NA	ATAC	H82	hg38	atac_support	parsed from file name	NA
+GSE281524	GSM8622663	ASCL1	SHP77	hg38	lineage_tf	parsed from file name	MYC-amp
+GSE281524	GSM8622664	ASCL1	SHP77	hg38	lineage_tf	parsed from file name	MYC-amp
+GSE281524	GSM8622665	ASCL1	SHP77	hg38	lineage_tf	parsed from file name	MYC-amp
+GSE281524	GSM8622666	ASCL1	SHP77	hg38	lineage_tf	parsed from file name	MYC-amp
+GSE281524	GSM8622667	ASCL1	SHP77	hg38	lineage_tf	parsed from file name	MYC-amp
+GSE249362	GSM8209574	POU2F3	H1048	hg19	lineage_tf	parsed from file name	MYC-amp
+GSE249362	GSM8209575	POU2F3	H1048	hg19	lineage_tf	parsed from file name	MYC-amp
+GSE249362	GSM8209576	POU2F3	H1048	hg19	lineage_tf	parsed from file name	MYC-amp
+GSE249362	GSM8209584	POU2F3	H526	hg19	lineage_tf	parsed from file name	MYCN-amp
+GSE249362	GSM8209588	POU2F3	H211	hg19	lineage_tf	parsed from file name	MYC-amp
+GSE210113	NA	NEUROD1	H446	hg19	lineage_tf	!Sample_source_name_ch1 (not in file name)	NA
+GSE281523	GSM8622646	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622647	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622648	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622649	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622650	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622651	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622652	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622653	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622654	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622655	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622656	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
+GSE281523	GSM8622657	ATAC	(primary/PDX)	hg38	atac_support	GEO record: primary lung / PDX	NA
