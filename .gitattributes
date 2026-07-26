@@ -1,0 +1,19 @@
+# Normalise line endings. The repository is authored from a Windows host but
+# executed on the WSL2 Linux filesystem; without this, CRLF can leak into shell
+# scripts and make them unexecutable inside WSL.
+* text=auto eol=lf
+
+# Shell and R scripts must always be LF.
+*.sh   text eol=lf
+*.R    text eol=lf
+*.Rmd  text eol=lf
+*.qmd  text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+
+# Never touch these.
+*.png  binary
+*.pdf  binary
+*.jpg  binary
+*.tiff binary

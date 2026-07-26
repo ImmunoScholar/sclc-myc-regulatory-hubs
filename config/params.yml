@@ -1,0 +1,168 @@
+# =============================================================================
+# Analysis parameters.
+#
+# Thresholds live here, not scattered through the code. Changing a number here
+# and re-running must be sufficient to change the analysis — if a threshold is
+# hard-coded in a script, that is a bug.
+#
+# Every value carries a justification. "It is the default" is an acceptable
+# justification only when the default is a genuine field convention.
+# =============================================================================
+
+project:
+  name: sclc-myc-regulatory-hubs
+  genome_build: hg19          # MANDATED by GSE230649 source alignment. Asserted
+                              # at every coordinate-handling step. Do not change
+                              # without a decision-log entry and a lift-over QC.
+  seed: 20260726              # Set explicitly in every stochastic script.
+  paralogs: [MYC, MYCN, MYCL1]
+
+# -----------------------------------------------------------------------------
+# Memory discipline. The machine has ~10 GB RAM (risk R-13); bedGraph signal
+# MUST be processed chromosome by chromosome. These are not tuning knobs, they
+# are the reason the pipeline fits in memory at all.
+# -----------------------------------------------------------------------------
+compute:
+  chromosome_wise: true
+  chromosomes: [chr1, chr2, chr3, chr4, chr5, chr6, chr7, chr8, chr9, chr10,
+                chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18, chr19,
+                chr20, chr21, chr22, chrX]
+                              # chrY excluded: SCLC lines are of mixed sex and
+                              # chrY is unreliable in cancer lines.
+                              # chrM excluded: no regulatory interpretation here.
+  drop_nonstandard_seqlevels: true   # random/alt/unplaced contigs
+  max_workers: 4              # of 6 cores; leaves headroom so the machine stays usable
+
+# -----------------------------------------------------------------------------
+# Aim 1 — regulatory layer
+# -----------------------------------------------------------------------------
+regions:
+  # Consensus accessible-region universe built from ATAC-seq, then used as the
+  # quantification grid for ChIP bedGraph signal. Replaces de novo peak calling,
+  # which is impossible here (deposit ships bedGraph only). See D-004.
+  min_datasets_supporting: 2  # a region must be seen in >=2 independent ATAC
+                              # datasets to enter the universe — guards against
+                              # single-study artefacts
+  min_width: 150              # below ~1 nucleosome is not an interpretable
+                              # regulatory element
+  max_width: 10000            # wider intervals are almost always merged
+                              # artefacts; SEs are handled separately by stitching
+  merge_gap: 100              # merge regions closer than this
+
+active_regions:
+  # A region is "active" for a paralog if it carries paralog signal AND H3K27ac.
+  # Mirrors Plotnik's logic (binding ∩ H3K27ac) so our counts are comparable to
+  # their published 18,823 / 4,017 / 5,688 at the M5 gate.
+  signal_quantile: 0.75       # per-sample quantile a region must exceed
+  require_h3k27ac: true
+  min_replicates: 2           # of the 2 lines per paralog — i.e. both
+
+super_enhancers:
+  # ROSE-style: stitch nearby H3K27ac regions, rank by total signal, cut at the
+  # inflection point of the ranked curve. Genuine white space — Plotnik did a
+  # 1 kb promoter/distal binary split only.
+  stitch_distance: 12500      # ROSE convention (Whyte et al. 2013)
+  exclude_tss_window: 2500    # ROSE convention: ignore promoter-proximal signal
+                              # when stitching, so SEs are not just big promoters
+  ranking_metric: total_signal
+
+peak_to_gene:
+  # Replaces "nearest gene", which is a known weak assignment.
+  max_distance: 100000        # 100 kb — conventional enhancer search window
+  method: distance_weighted_expression_correlated
+  min_abs_correlation: 0.3    # region signal vs. gene expression across lines
+  correlation_method: spearman  # robust to the non-normality of signal data
+  tss_source: TxDb.Hsapiens.UCSC.hg19.knownGene
+
+regulons:
+  min_size: 10                # smaller regulons give unstable enrichment scores
+  max_size: 500               # larger ones are too diffuse to be a "hub"
+
+# -----------------------------------------------------------------------------
+# Aim 2 — patient-tumour translation
+# -----------------------------------------------------------------------------
+tumour_scoring:
+  method: singscore           # rank-based, single-sample, no dependence on
+                              # cohort composition — important when comparing
+                              # across two cohorts of different design
+  secondary_method: gsva      # sensitivity check only; agreement is reported
+  min_expressed_fraction: 0.2 # drop genes expressed in <20% of samples
+
+lineage_confounding:
+  # PRIMARY analysis, not a robustness check (risk R-01). MYC-amp correlates
+  # with subtype, so paralog-specific hubs may be lineage-TF targets in disguise.
+  lineage_tfs: [ASCL1, NEUROD1, POU2F3, YAP1]
+  report_overlap_fraction: true
+  partial_correlation: true   # paralog association adjusted for lineage-TF score
+
+# -----------------------------------------------------------------------------
+# Aim 3 — functional and network evidence
+# -----------------------------------------------------------------------------
+depmap:
+  release: null               # MUST be pinned before use. DepMap re-releases
+                              # quarterly and gene-effect values change between
+                              # releases (risk R-08). null here is a deliberate
+                              # tripwire: scripts fail rather than run unpinned.
+  selective_dependency_threshold: -0.5   # Chronos gene effect; -1 ~ median
+                                         # essential, 0 ~ non-essential
+  lineage_filter: small_cell_lung_carcinoma
+
+genie3:
+  regulators: [MYC, MYCN, MYCL1]
+  n_trees: 1000               # GENIE3 default; stable importance estimates
+  tree_method: RF
+
+# -----------------------------------------------------------------------------
+# Aim 4 — MOES evidence integration
+# -----------------------------------------------------------------------------
+moes:
+  method: robust_rank_aggregation
+  stages: 2                   # RRA within domain, then RRA across domains
+  domains: [cis_regulatory, transcriptional, network, functional]
+  # NO WEIGHTS. Layers are non-independent (chromatin evidence is correlated by
+  # construction), so a weighted sum would multiply-count it. See D-003.
+  permutations: 10000         # empirical FDR
+  fdr_threshold: 0.05
+  leave_one_domain_out: true  # stability check — a hub that depends on a single
+                              # domain is not multi-evidence supported
+  report_layer_correlation: true
+
+controls:
+  # PRE-REGISTERED. Declared before any result exists so they cannot be tuned
+  # after the fact. Hard gate at M8.
+  negative_control_genes: [RPS26]   # Plotnik's paralog-SHARED housekeeping
+                                    # promoters. Must NOT rank as
+                                    # paralog-specific hubs. Failure = the
+                                    # framework lacks specificity, and is
+                                    # reported as failed.
+  positive_control_axis: [BCL2, MCL1]  # Dammert et al. 2019 apoptotic priming
+  benchmark_signatures: [HALLMARK_MYC_TARGETS_V1, HALLMARK_MYC_TARGETS_V2,
+                         JUNG2017_MYC_ACTIVITY]
+
+# -----------------------------------------------------------------------------
+# Aim 5 — spatial (restricted)
+# -----------------------------------------------------------------------------
+spatial:
+  enabled: true
+  panel_size_approx: 1800
+  report_coverage_fraction: true   # on EVERY spatial figure — most regulon
+                                   # members are not on the panel
+  min_genes_measured: 5            # below this, do not score a regulon at all
+  # Prognostic, survival and immune-exclusion analyses are OUT OF SCOPE (D-001,
+  # Zhang et al. 2025). Enforced by review at M9, not by a parameter.
+
+# -----------------------------------------------------------------------------
+# Figures
+# -----------------------------------------------------------------------------
+figures:
+  dpi: 300
+  device: ragg_png
+  width_single: 90            # mm, single-column
+  width_double: 180           # mm, double-column
+  base_font_size: 8
+  palette_paralog:
+    MYC:   "#B2182B"
+    MYCN:  "#2166AC"
+    MYCL1: "#1B7837"
+  palette_sequential: viridis
+  colourblind_safe: true

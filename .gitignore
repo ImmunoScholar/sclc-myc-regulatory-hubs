@@ -1,0 +1,180 @@
+# =============================================================================
+# .gitignore — written BEFORE any download or generated output exists.
+#
+# Rationale: GSE230649 alone is 8.6 GB of bedGraph. A single accidental commit
+# of a large file is painful to remove from history and may exceed GitHub's
+# hard 100 MB per-file limit. Data are reproduced by download scripts +
+# checksum manifest, never by version control. Git LFS is deliberately NOT
+# used (free-tier quota is too small for this volume).
+#
+# Policy: data directories are excluded wholesale, then specific small,
+# human-authored metadata files are re-included with '!' exceptions.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Data — excluded wholesale
+# -----------------------------------------------------------------------------
+data/raw/**
+data/processed/**
+
+# Keep the directory structure in a fresh clone so scripts do not fail on
+# missing paths. .gitkeep files are the only thing tracked inside them.
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# data/metadata/ IS tracked — it holds small, hand-curated or script-emitted
+# provenance files (manifests, checksums, sample sheets). Guard it anyway:
+data/metadata/**/*.rds
+data/metadata/**/*.RData
+data/metadata/**/*.h5
+
+# -----------------------------------------------------------------------------
+# 2. Genomics file formats — blocked ANYWHERE in the tree (belt and braces)
+#    These catch a stray download into the repo root or a scripts/ subdirectory.
+# -----------------------------------------------------------------------------
+*.bedGraph
+*.bedgraph
+*.bg
+*.bw
+*.bigWig
+*.bigwig
+*.wig
+*.bam
+*.bai
+*.cram
+*.crai
+*.sam
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.fasta
+*.fa
+*.fa.gz
+*.2bit
+*.vcf
+*.vcf.gz
+*.gtf
+*.gtf.gz
+*.gff
+*.gff3
+*.narrowPeak
+*.broadPeak
+*.gappedPeak
+*.mtx
+*.mtx.gz
+*.h5
+*.h5ad
+*.loom
+*.rds
+*.RDS
+*.RData
+*.rda
+*.qs
+*.feather
+*.parquet
+
+# Re-include tiny tracked exceptions if ever needed (none at present):
+# !config/example_small.rds
+
+# -----------------------------------------------------------------------------
+# 3. Archives and bulk downloads
+# -----------------------------------------------------------------------------
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.gz
+*.bz2
+*.xz
+*.7z
+# GEO supplementary bundles
+*_RAW.tar
+GSE*_RAW*
+
+# -----------------------------------------------------------------------------
+# 4. Large intermediates and results objects
+#    results/tables/ (CSV/TSV) and figures/ ARE tracked — they are deliverables.
+# -----------------------------------------------------------------------------
+results/objects/**
+!results/objects/.gitkeep
+cache/
+.cache/
+tmp/
+temp/
+scratch/
+
+# -----------------------------------------------------------------------------
+# 5. R / renv
+#    renv.lock IS tracked (it is the reproducibility contract).
+#    The package library is NOT — it is restored from the lockfile.
+# -----------------------------------------------------------------------------
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/sandbox/
+renv/staging/
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj.user
+.Renviron.local
+
+# -----------------------------------------------------------------------------
+# 6. Quarto / knitr / rendered output caches
+# -----------------------------------------------------------------------------
+/.quarto/
+*_cache/
+*_files/
+!docs/*_files/
+*.knit.md
+*.utf8.md
+/_site/
+/_book/
+/_freeze/
+
+# -----------------------------------------------------------------------------
+# 7. Logs
+# -----------------------------------------------------------------------------
+logs/**
+!logs/.gitkeep
+*.log
+!docs/**/*.log
+
+# -----------------------------------------------------------------------------
+# 8. Python (only relevant if the optional arboreto/GRNBoost2 path is taken)
+# -----------------------------------------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.Python
+
+# -----------------------------------------------------------------------------
+# 9. Credentials — must never be committed
+# -----------------------------------------------------------------------------
+.Renviron
+.env
+*.pem
+*.key
+!*.pub
+secrets/
+credentials*
+token*
+!config/*.example
+
+# -----------------------------------------------------------------------------
+# 10. OS and editor cruft
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+*.swp
+*.swo
+.vscode/
+.idea/

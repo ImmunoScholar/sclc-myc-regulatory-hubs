@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software or its outputs, please cite it as below, and cite the original data sources separately."
+title: "MYC-paralog regulatory hubs in small cell lung cancer"
+abstract: >-
+  A reproducible multi-omics analysis that translates paralog-resolved MYC,
+  MYCN and MYCL1 regulatory programs from small cell lung cancer cell lines
+  into patient tumours, and prioritises candidate regulatory hubs using a
+  weight-free, two-stage rank-aggregation evidence-integration framework.
+  Regulons are anchored on measured paralog binding rather than motif
+  inference, because all three paralogs share the canonical E-box and
+  motif-based methods cannot distinguish them.
+type: software
+authors:
+  - family-names: Dharshani
+    given-names: Priya
+repository-code: "https://github.com/ImmunoScholar/sclc-myc-regulatory-hubs"
+license: MIT
+keywords:
+  - small cell lung cancer
+  - MYC
+  - MYCN
+  - MYCL1
+  - gene regulatory networks
+  - super-enhancers
+  - multi-omics integration
+  - rank aggregation
+  - reproducible research
+references:
+  - type: article
+    title: "MYC Family Amplification Dictates Sensitivity to BET Bromodomain Protein Inhibitor Mivebresib (ABBV-075) in Small-Cell Lung Cancer"
+    authors:
+      - family-names: Plotnik
+        given-names: Joshua P.
+    journal: "Molecular Cancer Research"
+    year: 2024
+    doi: "10.1158/1541-7786.MCR-23-0599"
+    notes: "Source of GSE230649. Establishes paralog-specific enhancer binding; this project builds on that finding rather than re-deriving it."
