@@ -38,10 +38,46 @@ Verified via API: only mutations, mRNA expression, structural variants. MYC-para
 
 ---
 
-### R-05 · Technical · MED · OPEN
-**Genome build mismatch (hg19 vs hg38).**
-GSE230649 is hg19. Other ATAC datasets and annotation resources may be hg38. Silent coordinate mismatch would produce plausible-looking but entirely wrong peak-to-gene links.
-**Mitigation:** build assertions at the entry of every coordinate-handling script; a single declared project build (hg19); all lifts explicit, logged, and QC'd for loss rate.
+### R-05 · Technical · **HIGH** (escalated 2026-07-26 from MED) · OPEN
+**Genome build mismatch (hg19 vs hg38) — now confirmed, not hypothetical.**
+Builds were verified at M4 from each series' own `!Sample_data_processing` declaration. The keystone (GSE230649), NEUROD1 (GSE210113) and POU2F3 (GSE249362) are hg19. **All three supporting ATAC datasets (GSE269424, GSE256345, GSE281523) and the ASCL1 ChIP (GSE281524) are hg38.** **23 of 66 manifest files require lifting.**
+
+Escalated because the consensus region universe requires ≥2 independent ATAC datasets and only one of them is in the project build — so the central Aim 1 object cannot be built without crossing builds. The lineage-TF controls are also split across builds, and that analysis is *primary* (R-01), not a robustness check.
+
+**Mitigation (policy D-014):** never lift continuous signal; call intervals in the native build and lift only intervals; report per-dataset lift loss rate; prefer sources publishing intervals over signal; assert build at load — `04_qc_report.R` fails any hg19-declared file containing an interval past its chromosome's length in `hg19.chrom.sizes`.
+**Residual risk:** liftOver loses intervals in regions restructured between builds, non-uniformly across the genome. Loss is reported per dataset, and a lifted region universe is never presented as equivalent to a natively-hg19 one.
+
+---
+
+### R-14 · Scientific · **HIGH** · OPEN *(opened 2026-07-26)*
+**The lineage-TF controls barely overlap the keystone cell lines, so the confounding analysis cannot be fully within-line.**
+
+Verified cell-line composition:
+
+| Control | Lines | Overlap with keystone MYC-family ChIP lines | Build |
+|---|---|---|---|
+| POU2F3 (GSE249362) | NCIH1048, NCIH211, NCIH526 | **3 lines, 2 paralogs** (H1048/H211 MYC-amp, H526 MYCN-amp) | hg19 ✓ |
+| ASCL1 (GSE281524) | H1836, SHP77 | **1 line** (SHP77, MYC-amp) | hg38 |
+| NEUROD1 (GSE210113) | H446 only | **none** | hg19 |
+
+Keystone MYC ChIP lines are H1048, H211, H524, H847, SHP77; MYCL1 COLO668, H889; MYCN H526, H69.
+
+**Why it matters.** R-01 is that "paralog-specific" hubs may be lineage-TF targets in disguise. The cleanest test is within-line co-occupancy: is a MYC-bound region also lineage-TF-bound *in the same cells*? That is available for POU2F3 (3 lines) and marginally for ASCL1 (1 line), and **not at all for NEUROD1**.
+
+**Mitigation.** The confounding analysis is stratified by the evidence actually available, and its resolution is stated per TF rather than implied uniform:
+- **POU2F3** — within-line co-occupancy in 3 keystone lines. The strongest arm, and in the project's own build.
+- **ASCL1** — within-line in SHP-77 only; n=1, descriptive, no inference from it.
+- **NEUROD1** — **subtype-level only.** H446 is SCLC-N and the MYC-amplified keystone lines are NEUROD1-high, so the comparison is "does the MYC-specific region set overlap the NEUROD1 repertoire measured in a different SCLC-N line", which cannot separate line-specific from subtype-specific effects.
+
+**This does not change the frozen design** — the lineage-TF confounding analysis remains a primary analysis using ASCL1/NEUROD1/POU2F3 references (D-002 era decision). What changes is that its **resolution is heterogeneous**, and any claim of lineage-independence must be qualified per TF. A uniform "we controlled for lineage TFs" statement would be false.
+**If it bites:** if paralog-specific hubs cannot be distinguished from POU2F3/ASCL1 targets in the lines where within-line data exist, that is the R-01 negative result and is reported as such.
+
+---
+
+### R-15 · Data · LOW · **CLOSED 2026-07-26**
+**GSE60052 deposits no raw counts.**
+Verified by reading the file header: the only matrix is `normalized.log2`, gene-symbol rows, 86 columns.
+**Outcome:** DESeq2 cannot be used on this cohort (it requires raw integer counts). Differential analysis uses **limma** on the log2 matrix. Both packages were already in the dependency inventory, so this selects between existing options rather than changing the design. Two parsing traps recorded and handled at load: sample headers carry leading whitespace, and normals are encoded by a `.normal` suffix (7 normal / 79 tumour, asserted in QC).
 
 ---
 

@@ -268,3 +268,142 @@ the dangerous kind of failure.
 
 **Side benefit.** Every setup step is now a committed, re-runnable, reviewable
 script rather than a shell command that existed only in a transcript.
+
+---
+
+### D-014 · METH · 2026-07-26 — liftOver policy: lift intervals, never signal
+
+**Context.** Verification at M4 established the genome build of every dataset from
+its own `!Sample_data_processing` declaration rather than from file names:
+
+| Series | Assay | Build |
+|---|---|---|
+| GSE230649 (keystone) | MYC/MYCN/MYCL1/H3K27ac ChIP + ATAC | **hg19** |
+| GSE210113 | NEUROD1 / H3K27ac ChIP | **hg19** |
+| GSE249362 | POU2F3 ChIP | **hg19** |
+| GSE60052 | bulk RNA-seq (gene level) | hg19 |
+| GSE269424 | ATAC | **hg38** |
+| GSE256345 | ATAC | **hg38** |
+| GSE281523 | ATAC (FFPE/PDX) | **GRCh38** |
+| GSE281524 | ASCL1 ChIP | **GRCh38** |
+
+**The problem this creates.** The project build is hg19, frozen because the
+keystone is hg19 (D-004). But **all three supporting ATAC datasets are hg38**, and
+the consensus region universe requires support from ≥2 independent ATAC datasets
+(`config/params.yml`, `regions.min_datasets_supporting`). So the region universe
+cannot be built without crossing builds. Risk R-05 has stopped being hypothetical:
+**23 of 66 files require lifting.**
+
+**Decision — the policy, not a design change.** R-05's frozen mitigation already
+required that "all lifts are explicit, logged, and QC'd for loss rate". This
+records *how*:
+
+1. **Never lift continuous signal.** Lifting a bigWig or bedGraph across builds is
+   not well defined — bases are added, removed and rearranged, so a lifted signal
+   track silently misattributes coverage.
+2. **Call intervals in the NATIVE build first, then lift only the intervals.**
+   Interval liftOver is well defined and its failure mode (an interval that does
+   not map) is observable and countable.
+3. **Report the loss rate** for every lift, per dataset, in the QC output. A lift
+   that loses an unreasonable fraction of intervals halts the step.
+4. **Prefer sources that publish intervals.** This is why the acquisition takes
+   narrowPeak/BED files rather than bigWigs wherever both exist — see D-015.
+5. **Assert build at load.** `04_qc_report.R` fails any hg19-declared file
+   containing an interval that extends past its chromosome's length in
+   `hg19.chrom.sizes`. Coordinates past the end of a chromosome are proof of a
+   build mismatch and cannot be argued with.
+
+**Consequence.** `hg38ToHg19.over.chain.gz` is now load-bearing infrastructure and
+is in the manifest as a first-class resource with its own licence record.
+
+---
+
+### D-015 · DATA · 2026-07-26 — five dataset-composition corrections found by M4 verification
+
+Filenames and inventory labels were checked against GEO's own records before
+downloading. Five things were not what the frozen inventory implied. None changes
+a frozen scientific decision; all change **which files are fetched**.
+
+**1. GSE269424 is not native ATAC — it is a TF-overexpression experiment.**
+Sample titles are `H524_ASCL1_1/2`, `H524_EGFP_1/2`, `Lu139_EGFP_1/2`,
+`Lu139_NEUROD1_1/2`. The ASCL1/NEUROD1 tokens are **ectopically expressed
+transgenes**, not ChIP antibodies (library strategy is ATAC-seq; no antibody
+characteristic exists). The overexpression arms have deliberately remodelled
+chromatin. **Only the four EGFP control arms are used.** Taking this series at its
+"ATAC-seq of SCLC cell lines" label would have let engineered accessibility
+contaminate the region universe underpinning Aim 1.
+
+**2. GSE249362 is the best lineage-TF control and the cheapest.** Triage of its 185
+supplementary files found POU2F3 peak **BED** files for NCIH1048, NCIH211 and
+NCIH526 — three keystone lines spanning two paralogs, already in hg19. Taking the
+5 BEDs costs ~1.5 MB; taking the 125 bigWigs would have cost ~20 GB. Only DMSO /
+untreated arms serve as the reference repertoire; the FHD286 arm's peak file is
+4,606 bytes versus 181,493 for DMSO, i.e. the drug abolishes binding.
+
+**3. GSE281524 (ASCL1) is restricted to SHP-77.** Its 10 samples are H1836 and
+SHP77 only. H1836 is not in the keystone set, so its ASCL1 tracks cannot support a
+within-line comparison. Fetching 5 SHP-77 files (~2.1 GB) instead of all 10
+(~6 GB) avoids 3 GB of data that could not have been used for this purpose.
+
+**4. GSE210113 (NEUROD1) has zero cell-line overlap with the keystone.** All 14
+samples are H446 (a NEUROD1-knockout experiment). See risk R-14.
+
+**5. GSE60052 has no raw counts.** Verified by reading the file header: the only
+deposited matrix is `normalized.log2`. **DESeq2 therefore cannot be used on this
+cohort** — it requires raw integer counts. Differential analysis uses limma on the
+log2 matrix. The dependency inventory lists both, so this selects between existing
+options rather than changing the design. Two parsing traps also confirmed: sample
+headers carry leading whitespace, and normals are encoded by a `.normal` suffix.
+
+**Method note.** Three representative sample IDs used in an early probe were
+*guessed* rather than read from the series records, and returned unrelated samples
+(mouse liver, a kidney biopsy, MCF7). They were re-derived from each series'
+`!Series_sample_id` lines. Accessions are never guessed; the failure is silent
+because a wrong accession still returns a valid-looking record.
+
+---
+
+### D-016 · DATA · 2026-07-26 — DepMap is acquired manually, by design
+
+**Decision.** DepMap is **not** downloaded by script. `03_verify.R` reports its
+files as manual-required and does not count them as failures.
+
+**Why.** `depmap.org` serves a Cloudflare Turnstile bot check, and the page states
+plainly: "Need DepMap data in bulk? ... please don't scrape the portal." Automated
+fetching is both technically blocked and against the operator's stated wishes, so
+it is not attempted. The Bioconductor `depmap` package is not a workaround either —
+it routes through ExperimentHub to bioconductor.org, which is unroutable from this
+network (D-006).
+
+**What this requires.** Three files downloaded by hand into `data/raw/depmap/`:
+`CRISPRGeneEffect.csv`, `Model.csv`, `OmicsCNGene.csv`. The release must then be
+pinned in `config/params.yml` (`depmap.release`), which is `null` as a deliberate
+tripwire so Aim 3 scripts fail rather than run against an unpinned release (R-08).
+
+**Impact.** None on M4–M6. DepMap is Aim 3 (M7) evidence only.
+
+---
+
+### D-017 · DATA · 2026-07-26 — integrity policy, and an honest account of its limits
+
+**Decision.** File integrity rests on three checks, in this order:
+
+1. **Exact byte size** against GEO's published `filelist.txt` value — the only
+   *independent* check available.
+2. **SHA256 trust-on-first-use** — computed at first successful download, recorded
+   in `data/metadata/checksums.sha256`, enforced on every later run.
+3. **`gzip -t`** on every gzipped file, which catches truncation that a correct
+   size can mask on a resumed transfer.
+
+**The limitation, stated rather than buried.** GEO publishes **no MD5 or SHA256**
+for supplementary files — verified across every series used here. So TOFU proves a
+file has not changed or corrupted *since we fetched it*; it does **not** prove we
+fetched what the authors deposited. The published byte size is the only guard
+against that, and it is a weak one. The manifest records
+`checksum_algorithm = "none_published"` rather than leaving the field blank, so the
+absence is visible instead of looking like an oversight.
+
+**Additional guard.** `03_verify.R` also rejects any "data" file that is really an
+HTML error page. NCBI returns HTML on 403 and DepMap returns a Cloudflare
+challenge; a naive downloader saves both as data, and a small HTML file can pass a
+size check if the size was itself recorded from a failed request.

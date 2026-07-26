@@ -164,6 +164,100 @@ verified, repository pushed.
 
 ---
 
+## 2026-07-26 · M4 · Data acquisition — verification before download
+
+**Goal.** Manifest first, then resumable checksum-aware downloads, then QC.
+
+**The decision to verify everything against GEO's own records before fetching a
+byte turned out to be the most valuable hour of the project so far.** Five things
+were not what the frozen inventory implied. None of them would have thrown an
+error; all of them would have quietly produced wrong results.
+
+**1. Genome builds are split, badly.** Builds were read from each series'
+`!Sample_data_processing` "Assembly" declaration rather than from file names. The
+keystone, NEUROD1 and POU2F3 datasets are hg19. **All three supporting ATAC
+datasets and the ASCL1 ChIP are hg38.** 23 of 66 files need lifting.
+
+That matters more than a routine liftOver, because the consensus region universe
+requires ≥2 independent ATAC datasets and only one of them is in the project
+build. Risk R-05 escalated MED → HIGH. Policy set in D-014: **never lift signal;
+call intervals in the native build and lift only intervals; report loss rate.**
+Lifting a bigWig across builds silently misattributes coverage, which is exactly
+the kind of error that produces a plausible figure.
+
+**2. GSE269424 is not native ATAC.** Its titles are `H524_ASCL1`, `H524_EGFP`,
+`Lu139_NEUROD1`, `Lu139_EGFP` — the TF names are **overexpressed transgenes**, not
+antibodies. It is a chromatin-remodelling experiment. Had the "ATAC-seq of SCLC
+cell lines" label been taken at face value, engineered accessibility would have
+contaminated the region universe underpinning Aim 1. Only the four EGFP control
+arms are used now.
+
+**3. The lineage-TF controls barely share cell lines with the keystone.** This is
+the finding with real scientific consequences (new risk R-14, HIGH). POU2F3 covers
+NCIH1048, NCIH211 and NCIH526 — three keystone lines across two paralogs, in hg19,
+with peak BEDs. ASCL1 covers SHP-77 and nothing else usable. **NEUROD1 covers only
+H446, which has zero keystone overlap.**
+
+So the R-01 confounding analysis cannot be uniformly within-line. Its resolution is
+now stated per TF: within-line for POU2F3, n=1 descriptive for ASCL1, subtype-level
+only for NEUROD1. The frozen design is unchanged; what changes is that a blanket
+"we controlled for lineage TFs" claim would be false, and the report must say so.
+
+**4. GSE249362 is both the best control and the cheapest.** Triaging its 185
+supplementary files found POU2F3 peak BEDs at ~1.5 MB total. Taking the bigWigs
+instead would have been ~20 GB for strictly less usable information.
+
+**5. GSE60052 has no raw counts.** Only `normalized.log2` is deposited, confirmed
+by reading the header. DESeq2 is therefore unusable on this cohort; limma on the
+log2 matrix it is. Both were already in the dependency inventory, so this selects
+between existing options rather than changing anything. Header whitespace and the
+`.normal` suffix are both asserted in QC.
+
+**My own errors, recorded because the pattern matters more than the instances:**
+
+- Three representative sample IDs in an early probe were **guessed** rather than
+  read from the series records, and returned unrelated data — mouse liver, a kidney
+  biopsy, MCF7. A wrong accession still returns a valid-looking record, so the
+  failure is silent. Re-derived from `!Series_sample_id`.
+- A `SHP77` file pattern matched **nothing**, because the file names spell it
+  `SHP-77` while the sample titles say `SHP77`. That would have silently dropped
+  the only keystone-overlapping ASCL1 samples in the project. `expected_files` is
+  now asserted per dataset so a zero match is a hard failure, never an empty
+  success.
+- The manifest builder wrote a **16-row manifest instead of 65** when NCBI
+  rate-limited enumeration, and still printed "manifest built". Same silent-partial
+  -success class as the WSL mangling at M3. It now caches filelists and HEAD sizes
+  on disk, and refuses to write at all if any dataset fails to enumerate.
+- `!isTRUE(vector)` reported all 70 endpoints as non-resumable. Second
+  vectorisation bug of this project after the version-string comparison; worth
+  remembering that `isTRUE`/`identical` silently collapse vectors.
+
+**Also settled:** DepMap serves a Cloudflare bot check and explicitly asks users
+not to scrape it, so it is a documented manual download (D-016) rather than
+something to work around. cBioPortal's `sclc_ucologne_2015` re-confirmed to carry
+**no copy-number profile** — only mutations, expression and structural variants.
+
+**Integrity, honestly.** GEO publishes **no MD5 or SHA256** for any of these
+supplementary files. So the manifest records `checksum_algorithm =
+"none_published"` rather than an empty field, and integrity rests on GEO's
+published byte size (the only independent check) plus SHA256 trust-on-first-use
+plus `gzip -t`. TOFU proves nothing has changed since we fetched it; it does not
+prove we fetched what was deposited. Stated in D-017 rather than glossed.
+
+**Built:** `config/datasets.yml` (curated registry), `01_build_manifest.R`
+(generates the manifest — sizes and URLs never hand-typed), `02_download.sh`
+(resumable, size-verified, gzip-tested, deliberately serial), `03_verify.R` (the
+gate: size + SHA256 + gzip + HTML-error-page detection), `04_qc_report.R`
+(structural QC, build assertion, cell-line alias map).
+
+**Verified working:** manifest builds to 70 rows / 66 automated files / 12.08 GB,
+all endpoints confirmed resumable (HTTP 206). Verify gate correctly reports 66
+missing and exits non-zero while separating manual-required items from failures.
+
+**Next:** download completes (~12 GB, serial by choice), then verify, then QC.
+
+---
+
 <!-- Template for future entries:
 
 ## YYYY-MM-DD · Mn · Short title

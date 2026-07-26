@@ -1,0 +1,12 @@
+url	size	resumable
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE256nnn/GSE256345/suppl/GSE256345_H146_Peaks_merge500.bed.gz	1428946	TRUE
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE256nnn/GSE256345/suppl/GSE256345_H82_Peaks_merge500.bed.gz	1691187	TRUE
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE60nnn/GSE60052/suppl/GSE60052_79tumor.7normal.normalized.log2.data.Rda.tsv.gz	9871615	TRUE
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE261nnn/GSE261348/suppl/GSE261348_IMfirst_DSP_rawcounts.xlsx	5371667	TRUE
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE261nnn/GSE261348/suppl/GSE261348_IMfirst_DSP_normalizedcounts.xlsx	5377687	TRUE
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE261nnn/GSE261348/suppl/GSE261348_GeoMx_Hs_CTA_v1.0.pkc.gz	571413	TRUE
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE261nnn/GSE261345/suppl/GSE261345_CANTABRICO_DSP_rawcounts.xlsx	4042148	TRUE
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE261nnn/GSE261345/suppl/GSE261345_CANTABRICO_DSP_normalizedcounts.xlsx	4050424	TRUE
+https://ftp.ncbi.nlm.nih.gov/geo/series/GSE261nnn/GSE261345/suppl/GSE261345_GeoMx_Hs_CTA_v1.0.pkc.gz	571413	TRUE
+https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz	1246411	TRUE
+https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes	1971	TRUE

@@ -1,0 +1,475 @@
+# =============================================================================
+# Dataset registry — the curated source of truth for M4 acquisition.
+#
+# This file holds facts a human verified. The machine-readable manifest
+# (data/metadata/dataset_manifest.csv) is GENERATED from this plus live GEO
+# filelists by scripts/01_data/01_build_manifest.R — file names, byte sizes and
+# URLs are never hand-typed, because transcription errors in a manifest are
+# indistinguishable from corruption.
+#
+# ALL FIELDS BELOW WERE VERIFIED AGAINST GEO/UCSC/cBioPortal ON 2026-07-26.
+# Genome builds come from each series' own !Sample_data_processing "Assembly"
+# declaration, not from file names.
+#
+# CRITICAL: the project build is hg19 (frozen, D-004). Four coordinate-level
+# series are hg38 and REQUIRE an explicit, QC'd liftOver. See D-014 / risk R-05.
+# =============================================================================
+
+project_build: hg19
+
+# -----------------------------------------------------------------------------
+# Integrity policy — stated plainly because it is weaker than it looks.
+# -----------------------------------------------------------------------------
+integrity:
+  # VERIFIED 2026-07-26: GEO filelist.txt publishes only Name/Time/Size/Type.
+  # It publishes NO MD5 or SHA256. Checked for all series used here.
+  published_checksums_available: false
+  # Therefore integrity rests on two things:
+  #   1. exact byte size, published by GEO and authoritative
+  #   2. SHA256 computed on first successful download (trust-on-first-use),
+  #      recorded in data/metadata/checksums.sha256 and enforced thereafter
+  # TOFU proves a file has not changed or corrupted SINCE we fetched it. It does
+  # NOT prove we fetched what the authors deposited. Do not overstate it.
+  primary_check: size_bytes
+  secondary_check: sha256_tofu
+  gzip_integrity_check: true    # gzip -t on every .gz — catches truncation that
+                                # a size match alone would miss on resume
+
+# =============================================================================
+# D1 · KEYSTONE — paralog-resolved binding + accessibility
+# =============================================================================
+datasets:
+
+  - id: GSE230649
+    accession: GSE230649
+    role: keystone
+    layer: cis_regulatory
+    assay: [ChIP-seq, ATAC-seq]
+    targets: [MYC, MYCN, MYCL1, H3K27ac, ATAC]
+    n_samples: 28
+    genome_build: hg19          # !Sample_data_processing = Assembly: hg19
+    build_matches_project: true
+    organism: Homo sapiens
+    publication:
+      pmid: 38747975
+      doi: 10.1158/1541-7786.MCR-23-0599
+      citation: >-
+        Plotnik JP et al. (2024) MYC family amplification dictates sensitivity to
+        BET bromodomain protein inhibitor Mivebresib (ABBV-075) in small cell lung
+        cancer. Mol Cancer Res.
+      note: >-
+        Foundation of this project. Paralog-specific enhancer binding is THEIR
+        finding and is cited, never re-claimed (decision D-001).
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE230649
+    acquisition:
+      method: per_sample            # 28 individual GSM files, NOT the 8.6 GB tar
+      rationale: >-
+        The series tar is 9,223,034,880 bytes. Individual GSM supplementary files
+        are separately addressable and the endpoint returns HTTP 206 to range
+        requests (verified), so per-sample fetching is genuinely resumable and
+        avoids needing ~17 GB of transient disk to untar. A failed download costs
+        one file, not the whole set.
+      file_pattern: '\.bedgraph\.gz$'
+      expected_files: 28
+    preprocessing_status: >-
+      MACS2 treat_pileup signal tracks (bedGraph, gzipped). Aligned with BWA to
+      hg19. NOT peak calls — the deposit contains no peak files, which is why the
+      architecture quantifies signal over an ATAC-defined region universe (D-004).
+    licence: >-
+      NCBI GEO public data. No stated restriction; cite the original publication.
+      Not redistributed by this repository.
+    design_note: >-
+      Composition verified from sample titles: H3K27ac x10 lines; MYC ChIP x5
+      (H1048, H211, H524, H847, SHP77); MYCL1 ChIP x2 (COLO668, H889); MYCN ChIP
+      x2 (H526, H69); ATAC x9. NOTE H211 has MYC ChIP but NO ATAC, and H196 has
+      H3K27ac + ATAC but no MYC-family ChIP.
+
+# =============================================================================
+# D2 · SUPPORTING ACCESSIBILITY — all hg38, all require liftOver
+# =============================================================================
+
+  - id: GSE269424
+    accession: GSE269424
+    role: atac_support
+    layer: cis_regulatory
+    assay: [ATAC-seq]
+    n_samples: 8
+    genome_build: hg38          # Assembly: hg38
+    build_matches_project: false
+    liftover_required: true
+    organism: Homo sapiens
+    publication:
+      pmid: null
+      citation: "GEO series 'ATAC-seq of small cell lung cancer cell lines' (no linked PubMed ID as of 2026-07-26)."
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE269424
+    acquisition:
+      method: per_sample
+      file_pattern: '_EGFP_.*_peaks\.narrowPeak\.gz$'
+      expected_files: 4
+      rationale: >-
+        Two restrictions, both deliberate.
+        (1) narrowPeak calls, not bigWigs — ~2.7 MB versus ~250 MB, and only
+        interval boundaries are needed for the consensus region universe. It also
+        makes liftOver well defined: intervals lift, continuous signal does not.
+        (2) EGFP control arms ONLY. See the caution below.
+    preprocessing_status: MACS2 narrowPeak calls, hg38.
+    licence: NCBI GEO public data. Cite the series.
+    caution: >-
+      RESOLVED 2026-07-26 — this series is NOT native SCLC accessibility. Sample
+      titles are H524_ASCL1_1/2, H524_EGFP_1/2, Lu139_EGFP_1/2, Lu139_NEUROD1_1/2.
+      The ASCL1 and NEUROD1 tokens are ECTOPICALLY EXPRESSED TRANSGENES, not ChIP
+      antibodies (library strategy is ATAC-seq, no antibody characteristic). The
+      series is a TF-overexpression chromatin-remodelling experiment.
+      Consequence: the ASCL1/NEUROD1 arms have deliberately remodelled chromatin
+      and MUST NOT enter a consensus universe intended to represent native SCLC
+      accessibility. Only the four EGFP control arms are used. Line overlap with
+      the keystone: H524 yes, Lu139 no.
+      Had this been taken at face value from the frozen inventory's "ATAC-seq"
+      label, engineered accessibility would have silently contaminated the region
+      universe underpinning Aim 1.
+
+  - id: GSE256345
+    accession: GSE256345
+    role: atac_support
+    layer: cis_regulatory
+    assay: [ATAC-seq]
+    n_samples: 13
+    genome_build: hg38
+    build_matches_project: false
+    liftover_required: true
+    organism: Homo sapiens
+    publication:
+      pmid: 39080761
+      citation: >-
+        SMARCA4 controls state plasticity in small cell lung cancer through
+        regulation of neuroendocrine transcription factors and REST splicing.
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE256345
+    acquisition:
+      method: series_supplementary
+      files:
+        - GSE256345_H146_Peaks_merge500.bed.gz
+        - GSE256345_H82_Peaks_merge500.bed.gz
+      rationale: >-
+        Series-level merged peak BEDs are published directly (1.4 MB and 1.6 MB),
+        so neither the 4.7 GB tar nor the per-sample bigWigs are needed.
+    preprocessing_status: Merged peak calls (500 bp merge), hg38.
+    licence: NCBI GEO public data. Cite the publication.
+
+  - id: GSE281523
+    accession: GSE281523
+    role: atac_support
+    layer: cis_regulatory
+    assay: [ATAC-seq]
+    n_samples: 12
+    genome_build: hg38          # Assembly: Human GRCh38
+    build_matches_project: false
+    liftover_required: true
+    organism: Homo sapiens
+    publication:
+      pmid: 40419484
+      citation: FFPE-ATAC and PDX-ATAC sequence data of small cell lung cancer.
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE281523
+    acquisition:
+      method: per_sample
+      file_pattern: '\.bw$'
+      rationale: >-
+        This series publishes PeakNorm bigWigs only — no peak files. Included as
+        primary-tissue accessibility support. Lower priority than the cell-line
+        ATAC because signal, not intervals, must be lifted.
+      optional: true
+    preprocessing_status: PeakNorm bigWig signal, GRCh38. No peak calls deposited.
+    licence: NCBI GEO public data. Cite the publication.
+
+# =============================================================================
+# D3 · LINEAGE-TF ChIP — confounder controls for the PRIMARY analysis (R-01)
+# =============================================================================
+
+  - id: GSE281524
+    accession: GSE281524
+    role: lineage_tf_control
+    layer: cis_regulatory
+    assay: [ChIP-seq]
+    targets: [ASCL1]
+    n_samples: 10
+    genome_build: hg38          # Assembly: Human GRCh38
+    build_matches_project: false
+    liftover_required: true
+    organism: Homo sapiens
+    publication:
+      pmid: 40419484
+      citation: ASCL1-ChIP sequence data of small cell lung cancer cell lines.
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE281524
+    acquisition:
+      method: per_sample
+      # NOTE the hyphen: sample TITLES say "SHP77" but FILE NAMES say "SHP-77".
+      # A 'SHP77' pattern silently matches nothing and would have dropped the only
+      # keystone-overlapping ASCL1 samples in the project without erroring. This
+      # is why expected_files is asserted — a zero match must be a hard failure,
+      # never an empty success.
+      file_pattern: 'SHP-?77.*\.bw$'
+      expected_files: 5
+      rationale: >-
+        SHP77 samples only (ASCL1 rep1/rep2, IgG rep1/rep2, input) — 5 files of
+        ~600 MB rather than all 10 (~6 GB). Verified sample composition: H1836
+        (ASCL1 x2, IgG x2, input) and SHP77 (ASCL1 x2, IgG x2, input). SHP77 is a
+        keystone MYC-ChIP line; H1836 is not in the keystone set at all, so its
+        ASCL1 tracks cannot contribute to a within-line confounding comparison.
+        Downloading 3 GB of unusable-for-this-purpose data would be waste.
+    preprocessing_status: 10M-normalised bigWig, hg38. IgG and input controls included.
+    licence: NCBI GEO public data. Cite the publication.
+    caution: >-
+      Two issues, both verified 2026-07-26.
+      (1) BUILD SPLIT: the three lineage-TF controls do NOT share a genome build —
+      ASCL1 is hg38, NEUROD1 and POU2F3 are hg19. Lineage-TF confounding is a
+      PRIMARY analysis (R-01), so an undetected mismatch here would corrupt the
+      project's central claim. Build is asserted per file.
+      (2) SIGNAL ONLY: this series deposits bigWigs and no peak calls. Since signal
+      cannot be lifted across builds meaningfully, intervals are called in the
+      NATIVE hg38 space first and only the resulting intervals are lifted to hg19
+      (policy D-014).
+
+  - id: GSE210113
+    accession: GSE210113
+    role: lineage_tf_control
+    layer: cis_regulatory
+    assay: [ChIP-seq]
+    targets: [NEUROD1, H3K27ac]
+    n_samples: 14
+    genome_build: hg19          # Assembly: hg19
+    build_matches_project: true
+    liftover_required: false
+    organism: Homo sapiens
+    publication:
+      pmid: 36378541
+      citation: >-
+        BET inhibitors target the SCLC-N subtype of small cell lung cancer by
+        blocking NEUROD1 transactivation.
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE210113
+    acquisition:
+      method: series_tar        # whole tar is only 12,523,520 bytes
+      files: [GSE210113_RAW.tar]
+    preprocessing_status: MACS2 narrowPeak/broadPeak calls, hg19.
+    licence: NCBI GEO public data. Cite the publication.
+
+  - id: GSE249362
+    accession: GSE249362
+    role: lineage_tf_control
+    layer: cis_regulatory
+    assay: [ChIP-seq, RNA-seq]
+    targets: [POU2F3, BRD9, H3K27ac, RPB1]
+    n_samples: 125
+    genome_build: hg19          # Assembly: hg19
+    build_matches_project: true
+    liftover_required: false
+    organism: Homo sapiens
+    publication:
+      pmid: 39029464
+      citation: >-
+        Non-canonical BAF and mSWI/SNF regulates POU2F3 and are selective
+        targetable dependencies for POU2F3-positive small cell lung cancer.
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE249362
+    acquisition:
+      method: per_sample
+      file_pattern: 'POU2F3.*\.bed\.gz$'
+      expected_files: 5
+      rationale: >-
+        TRIAGE COMPLETE 2026-07-26 from filelist.txt (185 entries: 125 BW, 24 BED,
+        36 TAB, 1 TAR). Taking the POU2F3 peak BED files only — 5 files totalling
+        roughly 1.5 MB, versus ~20 GB if the 125 bigWigs were fetched. The BEDs are
+        interval calls in hg19, so they need no liftOver and are directly usable.
+        This is the single most efficient dataset in the project: the best
+        lineage-TF control and the cheapest.
+    preprocessing_status: >-
+      POU2F3 ChIP peak calls (BED), hg19. Series also holds BRD9/H3K27ac/RPB1 ChIP
+      and RNA-seq across DMSO / FHD286 / FHD609 treatment arms, none of which are
+      downloaded.
+    licence: NCBI GEO public data. Cite the publication.
+    design_note: >-
+      BEST cell-line overlap of any lineage-TF control. POU2F3 ChIP covers NCIH1048
+      (= keystone H1048, MYC-amplified), NCIH211 (= H211, MYC-amplified) and NCIH526
+      (= H526, MYCN-amplified) — three keystone lines spanning two paralogs, in the
+      project's own build.
+      Only the DMSO / untreated arms enter the confounding analysis. FHD286 and
+      FHD609 are BRM/BRG1 inhibitor arms; note GSM8209575 (FHD286) has a 4,606-byte
+      peak file versus 181,493 bytes for DMSO, i.e. the drug largely abolishes
+      POU2F3 binding. Treated arms are retained for context, never as the reference
+      lineage-TF repertoire.
+
+# =============================================================================
+# D4 · BULK TUMOUR EXPRESSION — the translation layer
+# =============================================================================
+
+  - id: GSE60052
+    accession: GSE60052
+    role: tumour_primary
+    layer: transcriptional
+    assay: [RNA-seq]
+    n_samples: 86              # 79 SCLC + 7 normal
+    genome_build: hg19         # gene-level; build not coordinate-critical
+    build_matches_project: true
+    organism: Homo sapiens
+    publication:
+      pmid: 27093186
+      citation: RNA-seq of 79 small cell lung cancer and 7 normal control samples.
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE60052
+    acquisition:
+      method: series_supplementary
+      files: [GSE60052_79tumor.7normal.normalized.log2.data.Rda.tsv.gz]
+    preprocessing_status: >-
+      ALREADY NORMALISED, log2 scale, gene-symbol rows. VERIFIED by reading the
+      file header. Raw counts are NOT deposited.
+    licence: NCBI GEO public data. Cite the publication.
+    caution: >-
+      Because only log2-normalised values exist, DESeq2 CANNOT be used on this
+      cohort — it requires raw integer counts. Differential analysis uses limma
+      on the log2 matrix. The dependency inventory lists both, so this selects
+      between them rather than changing the design. Also: column headers carry
+      leading whitespace and normals are flagged by a '.normal' suffix, both of
+      which are parsing traps handled explicitly at load.
+
+  - id: cbioportal_sclc_ucologne_2015
+    accession: sclc_ucologne_2015
+    role: tumour_replication
+    layer: transcriptional
+    assay: [RNA-seq, WGS]
+    genome_build: hg19
+    organism: Homo sapiens
+    publication:
+      pmid: 26168399
+      citation: George J et al. (2015) Comprehensive genomic profiles of small cell lung cancer. Nature.
+    source_url: https://www.cbioportal.org/study/summary?id=sclc_ucologne_2015
+    api_url: https://www.cbioportal.org/api/studies/sclc_ucologne_2015
+    acquisition:
+      method: rest_api
+    preprocessing_status: Processed expression (continuous + z-score), mutations (MAF), structural variants.
+    licence: cBioPortal public data. Cite George et al. 2015.
+    caution: >-
+      RE-VERIFIED 2026-07-26 via the molecular-profiles API. Available profiles are
+      ONLY: MUTATION_EXTENDED, MRNA_EXPRESSION (CONTINUOUS), MRNA_EXPRESSION
+      (Z-SCORE), STRUCTURAL_VARIANT. There is NO copy-number profile. MYC-paralog
+      amplification status therefore cannot come from cBioPortal and must be taken
+      from the paper's supplement. Never substitute expression for amplification —
+      Plotnik's own data show MYC-amplified behaves differently from MYC-expressing.
+
+# =============================================================================
+# D5 · SPATIAL — restricted orthogonal validation only
+# =============================================================================
+
+  - id: GSE261348
+    accession: GSE261348
+    role: spatial
+    layer: spatial
+    assay: [GeoMx DSP]
+    n_samples: 175             # ROIs
+    genome_build: GRCh38.p13   # gene-level targeted panel; not coordinate-based
+    build_matches_project: not_applicable
+    organism: Homo sapiens
+    publication:
+      pmid: 38630755
+      citation: >-
+        Spatially preserved multi-region transcriptomic subtyping and biomarkers of
+        outcome with chemoimmunotherapy in extensive-stage small cell lung cancer.
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261348
+    acquisition:
+      method: series_supplementary
+      files:
+        - GSE261348_IMfirst_DSP_rawcounts.xlsx
+        - GSE261348_IMfirst_DSP_normalizedcounts.xlsx
+        - GSE261348_GeoMx_Hs_CTA_v1.0.pkc.gz
+      rationale: >-
+        Count matrices are 5.1 MB each. The series also contains ~1.5 GB of
+        per-patient PNG images which serve no analytical purpose here and are
+        deliberately NOT downloaded.
+    preprocessing_status: Raw and Q3-normalised counts, GeoMx CTA panel.
+    licence: NCBI GEO public data. Cite the publication.
+    caution: >-
+      Targeted ~1,800-gene CTA panel, not whole transcriptome. Most regulon members
+      will be unmeasurable. Panel-coverage fraction is reported on every spatial
+      figure. Prognostic and immune-exclusion analyses are OUT OF SCOPE (Zhang 2025).
+
+  - id: GSE261345
+    accession: GSE261345
+    role: spatial
+    layer: spatial
+    assay: [GeoMx DSP]
+    n_samples: 121
+    genome_build: GRCh38.p13
+    build_matches_project: not_applicable
+    organism: Homo sapiens
+    publication:
+      pmid: 38630755
+      citation: As GSE261348 (CANTABRICO cohort).
+    source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE261345
+    acquisition:
+      method: series_supplementary
+      files:
+        - GSE261345_CANTABRICO_DSP_rawcounts.xlsx
+        - GSE261345_CANTABRICO_DSP_normalizedcounts.xlsx
+        - GSE261345_GeoMx_Hs_CTA_v1.0.pkc.gz
+    preprocessing_status: Raw and normalised counts, GeoMx CTA panel.
+    licence: NCBI GEO public data. Cite the publication.
+
+# =============================================================================
+# D6 · REFERENCE RESOURCES
+# =============================================================================
+
+  - id: ucsc_chain_hg38_to_hg19
+    accession: hg38ToHg19.over.chain.gz
+    role: reference
+    layer: infrastructure
+    genome_build: hg38->hg19
+    source_url: https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz
+    mirror_url: https://hgdownload2.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz
+    expected_size_bytes: 1246411    # verified 2026-07-26
+    acquisition:
+      method: direct
+    preprocessing_status: UCSC liftOver chain.
+    licence: >-
+      UCSC Genome Browser data. Free for academic, non-profit and personal use;
+      see https://genome.ucsc.edu/license/ . Not redistributed by this repository.
+    criticality: >-
+      LOAD-BEARING. Four of seven coordinate datasets are hg38 and cannot enter the
+      analysis without this. Lift loss rate is QC'd and reported (D-014).
+
+  - id: ucsc_hg19_chrom_sizes
+    accession: hg19.chrom.sizes
+    role: reference
+    layer: infrastructure
+    genome_build: hg19
+    source_url: https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes
+    expected_size_bytes: 1971
+    acquisition:
+      method: direct
+    preprocessing_status: Plain text chromosome sizes.
+    licence: UCSC Genome Browser data; see https://genome.ucsc.edu/license/ .
+    purpose: >-
+      Ground truth for build assertions. Any interval exceeding its chromosome
+      length is proof of a build mismatch and halts the pipeline.
+
+  - id: depmap
+    accession: PENDING_PIN          # config/params.yml depmap.release must be set
+    role: functional
+    layer: functional
+    source_url: https://depmap.org/portal/data_page/
+    acquisition:
+      method: MANUAL                # cannot be automated — see below
+      manual_reason: >-
+        VERIFIED 2026-07-26: depmap.org serves a Cloudflare Turnstile bot check and
+        the page explicitly asks users not to scrape the portal. Automated fetching
+        is therefore both technically blocked and against the site's stated wishes,
+        so it is not attempted. The Bioconductor `depmap` package is not an
+        alternative either — it routes through ExperimentHub to bioconductor.org,
+        which is unroutable from this network (D-006).
+      required_files:
+        - CRISPRGeneEffect.csv        # Chronos gene effect
+        - Model.csv                   # cell line metadata incl. lineage
+        - OmicsCNGene.csv             # copy number, for paralog amplification
+      destination: data/raw/depmap/
+    preprocessing_status: Processed Chronos gene-effect scores.
+    licence: >-
+      DepMap data released under CC BY 4.0. Attribution and release citation
+      required. Not redistributed by this repository.
+    caution: >-
+      Release MUST be pinned. Gene-effect values change between quarterly releases
+      (risk R-08). config/params.yml sets depmap.release to null as a deliberate
+      tripwire so scripts fail rather than run against an unpinned release.
