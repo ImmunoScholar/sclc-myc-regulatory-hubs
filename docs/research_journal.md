@@ -123,6 +123,31 @@ weights.
 data payload, no data-format extension, no file over 5 MB, and no credential
 file was staged.
 
+**Clean-clone test run early, not saved for M11.** Cloned the pushed remote into
+a throwaway directory, ran `renv::restore()` (196 packages, all linked from
+cache), and ran the environment suite *inside the clone* — all passing. This is a
+fair test of the lockfile rather than of a cold machine, since the renv cache is
+shared, but it catches the failures that actually happen: an incomplete lockfile,
+a file never committed, a hard-coded absolute path.
+
+**Two reconciliation false alarms, both chased down and both benign.** Recording
+them so neither is investigated twice:
+
+1. `renv.lock` holds 213 packages but the project library has 198. The 15
+   "missing" are all R **recommended** packages (MASS, Matrix, lattice, survival,
+   mgcv…). renv deliberately does not duplicate base/recommended packages into
+   the project library — they come from the R installation. All 15 verified
+   loadable.
+2. My own diagnostic then reported 13 of those 15 as VERSION DIFFERS. That was a
+   bug in the diagnostic, not the environment: the lockfile stores `7.3-65` while
+   `packageVersion()` returns `7.3.65`, and I was comparing strings. Fixed to
+   compare `package_version()` objects. Worth flagging as a general trap — a
+   naive string comparison of R version numbers will manufacture mismatches.
+
+`renv::status()` also reports packages as `used = n`. Expected: the snapshot used
+`type = "all"` and no analysis scripts exist yet to `library()` them. Resolves as
+scripts are written.
+
 ---
 
 <!-- Template for future entries:
