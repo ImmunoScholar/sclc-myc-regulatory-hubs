@@ -25,9 +25,13 @@ Project brief, gap statement, dataset inventory, analysis architecture, dependen
 
 ---
 
-## M3 — Repository & environment (Phase 3)
-Scaffold, `renv` init + snapshot, `.gitignore`, README skeleton, apt dependencies installed, first commit and push.
-**Gate:** `renv::restore()` works from a clean clone; `sessionInfo()` captured; no data files tracked by git.
+## 🟡 M3 — Repository & environment (Phase 3) — SUBSTANTIALLY COMPLETE, 2026-07-26
+Scaffold, `.gitignore` (written first, verified adversarially), git init + remote, `renv` init + snapshot, package install, project contract / decision log / research journal, environment tests, first commit.
+**Done:** 34/35 packages installed and locked; `renv.lock`, `data/metadata/session_info.txt` and `data/metadata/environment.yml` written; `tests/test_environment.R` passing; commit `9e9daa6` — 39 files, 662 KB, no data tracked.
+**Outstanding (2 items, both need Priya):**
+1. `sudo apt install libmagick++-dev` → unblocks GSVA (secondary scoring method only; critical path is clear). Re-snapshot `renv.lock` afterwards. See D-012.
+2. `git push -u origin main` — not pushed yet, awaiting review.
+**Gate (not yet passed):** `renv::restore()` verified from a *clean clone*. That test happens once the repo is pushed.
 
 ---
 

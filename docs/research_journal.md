@@ -93,6 +93,38 @@ were phantom renames on noble (`libfreetype6-dev`, `libtiff5-dev` — the real
 
 ---
 
+**Environment built and locked.** R 4.6.1, Bioconductor 3.23, **34 of 35
+packages installed**, `renv.lock` written with `type = "all"` so every installed
+package is pinned rather than only those renv can infer from code.
+
+Much of the install linked from an existing renv cache, so it took minutes rather
+than the hours a cold source build would have needed.
+
+**One genuine failure: GSVA.** It hard-depends on `SpatialExperiment` →
+`magick` → the system library `libmagick++-dev`. Verified by walking the
+dependency tree rather than guessing — `magick` is in GSVA's recursive *hard*
+dependency set, not Suggests. GSVA is the secondary scoring method only, so
+nothing on the critical path is blocked (D-012).
+
+Two package names in the original inventory were also wrong for noble
+(`libfreetype6-dev`, `libtiff5-dev` do not exist under those names) and the real
+packages were already installed — worth checking before ever reporting a
+dependency as missing.
+
+**Environment tests written and passing** (`tests/test_environment.R`): 61
+assertions covering directory structure, package loading, and — more usefully —
+config invariants. The tests assert that `genome_build` is hg19, that
+`chromosome_wise` processing stays enabled, and that **MOES has no weights
+field**. That last one turns decision D-003 from a note in a document into
+something that fails a test if someone later "improves" the framework by adding
+weights.
+
+**First commit:** 39 files, 662 KB, no data. Verified before committing that no
+data payload, no data-format extension, no file over 5 MB, and no credential
+file was staged.
+
+---
+
 <!-- Template for future entries:
 
 ## YYYY-MM-DD · Mn · Short title

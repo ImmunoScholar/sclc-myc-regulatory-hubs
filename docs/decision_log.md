@@ -209,3 +209,52 @@ the scripts in order. Reproducibility is served by `renv.lock` plus explicit
 script ordering.
 
 **Overturned if.** Re-running expensive stages becomes a real bottleneck.
+
+---
+
+### D-012 · ENV · 2026-07-26 — GSVA outstanding; needs one system library
+
+**Decision.** The M3 environment is locked with **34 of 35 packages**. `GSVA`
+alone failed and is deferred pending a single `sudo apt install`.
+
+**Why it failed.** `GSVA` hard-depends on `SpatialExperiment`, which hard-depends
+on the R package `magick`, which fails to build without the system library
+`libmagick++-dev`. Confirmed by dependency-tree analysis
+(`scripts/00_setup/diag_magick.R`), not guessed: `magick` is in GSVA's recursive
+**hard** dependency set, not merely Suggests.
+
+**Impact assessment.** Low. GSVA is the *secondary* tumour-scoring method — a
+sensitivity check on the primary, `singscore` (`config/params.yml`,
+`tumour_scoring`). `singscore` and `AUCell` both installed successfully, so the
+critical path is unblocked. Nothing in Aims 1–5 is stalled by this.
+
+**Preference, with reasoning.** Install it. `singscore` and `AUCell` are both
+rank-based, so using AUCell as the sensitivity check would compare two methods
+that share the same assumptions. GSVA's kernel-density approach is
+methodologically distinct, which is what makes it a *useful* cross-check rather
+than a restatement.
+
+**If declined.** Drop GSVA, set `tumour_scoring.secondary_method: aucell`, and
+state in the report that the sensitivity analysis compares two rank-based methods
+— a weaker but honest check. Log the change here.
+
+**Note.** `renv.lock` currently reflects the 34-package set. It must be
+re-snapshotted after GSVA installs.
+
+---
+
+### D-013 · ENV · 2026-07-26 — All WSL invocation goes through script files
+
+**Decision.** Multi-step shell work is written to a file in `scripts/` and
+executed as `bash <path>`, never passed as an inline command string.
+
+**Why.** Two distinct, silent mangling behaviours were hit during M3:
+a Git-Bash-backed shell rewrote `/home/priya/...` into
+`C:/Program Files/Git/home/priya/...` (MSYS2 path conversion), creating an empty
+directory tree in the wrong filesystem; and PowerShell strips `|`, `$()`, `!` and
+embedded double quotes from arguments passed to native executables, silently
+truncating commands. Both produce *plausible-looking* partial success, which is
+the dangerous kind of failure.
+
+**Side benefit.** Every setup step is now a committed, re-runnable, reviewable
+script rather than a shell command that existed only in a transcript.
