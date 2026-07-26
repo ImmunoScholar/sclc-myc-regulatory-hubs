@@ -25,13 +25,11 @@ Project brief, gap statement, dataset inventory, analysis architecture, dependen
 
 ---
 
-## 🟡 M3 — Repository & environment (Phase 3) — SUBSTANTIALLY COMPLETE, 2026-07-26
-Scaffold, `.gitignore` (written first, verified adversarially), git init + remote, `renv` init + snapshot, package install, project contract / decision log / research journal, environment tests, first commit.
-**Done:** 34/35 packages installed and locked; `renv.lock`, `data/metadata/session_info.txt` and `data/metadata/environment.yml` written; `tests/test_environment.R` passing; commit `9e9daa6` — 39 files, 662 KB, no data tracked.
-**Outstanding (2 items, both need Priya):**
-1. `sudo apt install libmagick++-dev` → unblocks GSVA (secondary scoring method only; critical path is clear). Re-snapshot `renv.lock` afterwards. See D-012.
-2. `git push -u origin main` — not pushed yet, awaiting review.
-**Gate (not yet passed):** `renv::restore()` verified from a *clean clone*. That test happens once the repo is pushed.
+## ✅ M3 — Repository & environment (Phase 3) — COMPLETE, 2026-07-26
+Scaffold, `.gitignore` (written first, verified adversarially), git init + remote, `renv` init + snapshot, package install, project contract / decision log / research journal, environment tests, commits pushed.
+**Done:** **35/35 packages** installed, **231 locked** in `renv.lock`; `data/metadata/session_info.txt` and `environment.yml` written; `tests/test_environment.R` passing (64 assertions, including config invariants: hg19, chromosome-wise processing, no MOES weights, GSVA as the secondary scorer); pushed to `github.com/ImmunoScholar/sclc-myc-regulatory-hubs`; no data tracked.
+**System deps:** `libmagick++-dev` + `pandoc` installed — the latter satisfies the M10 reporting dependency ahead of schedule.
+**Gate PASSED:** clean-clone test run and passing — fresh `git clone` → `renv::restore()` → full test suite green, executed inside the clone (`scripts/00_setup/06_clean_clone_test.sh`). Caveat: the renv cache is shared, so this validates the lockfile, not a cold-machine source build.
 
 ---
 

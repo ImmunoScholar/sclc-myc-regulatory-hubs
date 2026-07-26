@@ -148,6 +148,20 @@ them so neither is investigated twice:
 `type = "all"` and no analysis scripts exist yet to `library()` them. Resolves as
 scripts are written.
 
+**GSVA resolved the same day.** `libmagick++-dev` and `pandoc` installed; `magick`
+2.9.1 then came down as a prebuilt P3M binary rather than compiling, and GSVA
+2.6.3 built cleanly. Environment is **35/35, 231 packages locked**. `pandoc`
+3.1.3 also means the M10 reporting dependency is satisfied early.
+
+Rather than just note that GSVA is back, the test suite now asserts
+`tumour_scoring.secondary_method == "gsva"`. The reasoning for keeping GSVA is
+that `singscore` and `AUCell` are both rank-based — pairing them would make the
+sensitivity analysis a restatement rather than an independent check. That
+argument now fails a test if someone later swaps in AUCell for convenience.
+
+**M3 closed:** 35/35 packages, 64 test assertions passing, clean-clone restore
+verified, repository pushed.
+
 ---
 
 <!-- Template for future entries:

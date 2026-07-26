@@ -212,7 +212,17 @@ script ordering.
 
 ---
 
-### D-012 · ENV · 2026-07-26 — GSVA outstanding; needs one system library
+### D-012 · ENV · 2026-07-26 — GSVA outstanding; needs one system library — **RESOLVED same day**
+
+> **RESOLUTION (2026-07-26).** `sudo apt install -y libmagick++-dev pandoc` was
+> run. `magick` 2.9.1 then installed as a prebuilt P3M binary (no compile) and
+> `GSVA` 2.6.3 built successfully. The environment is now **35 of 35**, with 231
+> packages locked in `renv.lock`. `pandoc` 3.1.3 is also in place, so the M10
+> reporting dependency is satisfied ahead of time. GSVA is retained as the
+> secondary scoring method; no fallback to AUCell was needed. `tests/test_environment.R`
+> now asserts that `tumour_scoring.secondary_method` stays `gsva`, so the
+> methodological-distinctness argument below is enforced rather than merely
+> documented.
 
 **Decision.** The M3 environment is locked with **34 of 35 packages**. `GSVA`
 alone failed and is deferred pending a single `sudo apt install`.

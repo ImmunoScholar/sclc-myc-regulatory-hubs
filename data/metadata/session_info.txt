@@ -9,7 +9,7 @@
  ctype    C.UTF-8
  tz       Etc/UTC
  date     2026-07-26
- pandoc   NA
+ pandoc   3.1.3 @ /usr/bin/pandoc
  quarto   NA
 
 ─ Packages ───────────────────────────────────────────────────────────────────
@@ -21,18 +21,22 @@
    annotatr                            1.38.0    2026-04-28 [1] Bioconduc~
    askpass                             1.2.1     2024-10-04 [1] RSPM
    assertthat                          0.2.1     2019-03-21 [1] RSPM
+   assorthead                          1.6.3     2026-05-25 [1] Bioconduc~
    AUCell                              1.34.0    2026-04-29 [1] Bioconduc~
    babelgene                           22.9      2022-09-29 [1] RSPM
    base                              * 4.6.1     2026-06-26 [2] local
    base64enc                           0.1-6     2026-02-02 [1] RSPM
+   beachmat                            2.28.0    2026-04-28 [1] Bioconduc~
    BH                                  1.90.0-1  2025-12-14 [1] RSPM
    Biobase                             2.72.0    2026-04-28 [1] Bioconduc~
    BiocBaseUtils                       1.14.2    2026-05-28 [1] Bioconduc~
    BiocFileCache                       3.2.0     2026-04-28 [1] Bioconduc~
    BiocGenerics                        0.58.1    2026-05-14 [1] Bioconduc~
    BiocIO                              1.22.0    2026-04-28 [1] Bioconduc~
+   biocmake                            1.4.0     2026-04-28 [1] Bioconduc~
  P BiocManager                         1.30.27   2025-11-14 [?] RSPM
    BiocParallel                        1.46.0    2026-04-29 [1] Bioconduc~
+   BiocSingular                        1.28.0    2026-04-28 [1] Bioconduc~
    BiocVersion                         3.23.1    2025-10-30 [1] Bioconduc~
    Biostrings                          2.80.1    2026-05-22 [1] Bioconduc~
    bit                                 4.6.0     2025-03-06 [1] RSPM
@@ -71,6 +75,7 @@
    DESeq2                              1.52.0    2026-04-28 [1] Bioconductor 3.23 (R 4.6.1)
    diffobj                             0.3.8     2026-07-17 [1] RSPM
    digest                              0.6.39    2025-11-19 [1] RSPM
+   dir.expiry                          1.20.0    2026-04-28 [1] Bioconduc~
    doParallel                          1.0.17    2022-02-07 [1] RSPM
    dplyr                               1.2.1     2026-04-03 [1] RSPM
    edgeR                               4.10.1    2026-05-24 [1] Bioconduc~
@@ -103,7 +108,10 @@
  P grDevices                         * 4.6.1     2026-06-26 [?] local
    grid                                4.6.1     2026-06-26 [2] local
    GSEABase                            1.74.0    2026-04-28 [1] Bioconduc~
+   GSVA                                2.6.3     2026-07-16 [1] Bioconduc~
    gtable                              0.3.6     2024-10-25 [1] RSPM
+   h5mread                             1.4.0     2026-04-28 [1] Bioconduc~
+   HDF5Array                           1.40.0    2026-04-28 [1] Bioconduc~
    here                                1.0.2     2025-09-15 [1] RSPM
    highr                               0.12      2026-03-06 [1] RSPM
    hms                                 1.1.4     2025-10-17 [1] RSPM
@@ -113,6 +121,7 @@
    httr2                               1.3.0     2026-07-13 [1] RSPM
    igraph                              2.3.3     2026-06-26 [1] RSPM
    IRanges                             2.46.0    2026-04-28 [1] Bioconduc~
+   irlba                               2.3.7     2026-01-30 [1] RSPM
    isoband                             0.3.0     2025-12-07 [1] RSPM
    iterators                           1.0.14    2022-02-05 [1] RSPM
    jquerylib                           0.1.4     2021-04-26 [1] RSPM
@@ -129,12 +138,14 @@
    lifecycle                           1.0.5     2026-01-08 [1] RSPM
    limma                               3.68.4    2026-05-31 [1] Bioconduc~
    locfit                              1.5-9.12  2025-03-05 [1] RSPM
+   magick                              2.9.1     2026-02-28 [1] RSPM
    magrittr                            2.0.5     2026-04-04 [1] RSPM
    MASS                                7.3-65    2025-02-28 [2] CRAN (R 4.4.3)
    Matrix                              1.7-5     2026-03-21 [2] CRAN (R 4.5.3)
    MatrixGenerics                      1.24.0    2026-04-28 [1] Bioconduc~
    matrixStats                         1.5.0     2025-01-07 [1] RSPM
    memoise                             2.0.1     2021-11-26 [1] RSPM
+   memuse                              4.2-3     2023-01-24 [1] RSPM
  P methods                           * 4.6.1     2026-06-26 [?] local
    mgcv                                1.9-4     2025-11-07 [2] CRAN (R 4.5.2)
    mime                                0.13      2025-03-17 [1] RSPM
@@ -180,6 +191,9 @@
    reshape                             0.8.10    2025-06-19 [1] RSPM
    reshape2                            1.4.5     2025-11-12 [1] RSPM
    restfulr                            0.0.17    2026-06-11 [1] RSPM
+   rhdf5                               2.56.0    2026-04-28 [1] Bioconduc~
+   rhdf5filters                        1.24.0    2026-04-28 [1] Bioconduc~
+   Rhdf5lib                            2.0.0     2026-04-28 [1] Bioconduc~
    Rhtslib                             3.8.0     2026-04-28 [1] Bioconduc~
    rjson                               0.2.23    2024-09-16 [1] RSPM
    rlang                               1.3.0     2026-07-05 [1] RSPM
@@ -189,23 +203,27 @@
    rprojroot                           2.1.1     2025-08-26 [1] RSPM
    Rsamtools                           2.28.0    2026-04-28 [1] Bioconduc~
    RSQLite                             3.53.3    2026-06-30 [1] RSPM
+   rsvd                                1.0.5     2021-04-16 [1] RSPM
    rtracklayer                         1.72.0    2026-04-28 [1] Bioconduc~
    rvest                               1.0.5     2025-08-29 [1] RSPM
    S4Arrays                            1.12.0    2026-04-28 [1] Bioconduc~
    S4Vectors                           0.50.1    2026-05-13 [1] Bioconduc~
    S7                                  0.2.2     2026-04-22 [1] RSPM
    sass                                0.4.10    2025-04-11 [1] RSPM
+   ScaledMatrix                        1.20.0    2026-04-28 [1] Bioconduc~
    scales                              1.4.0     2025-04-24 [1] RSPM
    segmented                           2.2-1     2026-01-29 [1] RSPM
    selectr                             0.6-0     2026-06-23 [1] RSPM
    Seqinfo                             1.2.0     2026-04-28 [1] Bioconduc~
  P sessioninfo                         1.2.4     2026-06-04 [?] RSPM
    shape                               1.4.6.1   2024-02-23 [1] RSPM
+   SingleCellExperiment                1.34.0    2026-04-28 [1] Bioconductor 3.23 (R 4.6.1)
    singscore                           1.32.0    2026-04-28 [1] Bioconduc~
    snow                                0.4-4     2021-10-27 [1] RSPM
    SparseArray                         1.12.2    2026-05-01 [1] Bioconduc~
    sparseMatrixStats                   1.24.0    2026-04-28 [1] Bioconduc~
    spatial                             7.3-17    2023-07-20 [2] CRAN (R 4.4.0)
+   SpatialExperiment                   1.22.0    2026-04-28 [1] Bioconduc~
    splines                             4.6.1     2026-06-26 [2] local
    statmod                             1.5.2     2026-05-17 [1] RSPM
  P stats                             * 4.6.1     2026-06-26 [?] local

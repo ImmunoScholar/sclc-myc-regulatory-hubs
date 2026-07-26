@@ -32,7 +32,7 @@ test_that("core packages load", {
   core <- c("here", "sessioninfo", "GenomicRanges", "rtracklayer", "GenomeInfoDb",
             "IRanges", "S4Vectors", "SummarizedExperiment", "org.Hs.eg.db",
             "TxDb.Hsapiens.UCSC.hg19.knownGene", "annotatr", "DESeq2", "limma",
-            "edgeR", "sva", "singscore", "AUCell", "msigdbr", "GENIE3", "igraph",
+            "edgeR", "sva", "singscore", "GSVA", "AUCell", "msigdbr", "GENIE3", "igraph",
             "RobustRankAggreg", "GEOquery", "readxl", "data.table", "ggplot2",
             "ComplexHeatmap", "circlize", "patchwork", "ggrepel", "scales",
             "ragg", "viridisLite", "colorspace")
@@ -59,6 +59,12 @@ test_that("config parses and its critical invariants hold", {
 
   # Pre-registered controls must be present before any result exists.
   expect_true("RPS26" %in% cfg$controls$negative_control_genes)
+
+  # The secondary scoring method must be methodologically distinct from the
+  # primary. singscore and AUCell are both rank-based, so pairing them would
+  # make the sensitivity analysis a restatement rather than a cross-check.
+  expect_identical(cfg$tumour_scoring$method, "singscore")
+  expect_identical(cfg$tumour_scoring$secondary_method, "gsva")
 
   # DepMap release must be pinned before use — null is a deliberate tripwire
   # (risk R-08). This test documents the tripwire; it does not enforce a value.
