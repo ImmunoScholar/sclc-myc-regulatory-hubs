@@ -33,15 +33,37 @@ Scaffold, `.gitignore` (written first, verified adversarially), git init + remot
 
 ---
 
-## M4 — Data acquisition & QC (Phase 4)
-Download scripts with checksums, manifest (incl. pinned DepMap release), file-existence / dimension / sample-count / genome-build assertions, a rendered QC report.
-**Gate:** every dataset in the inventory either downloaded and QC-passed, or formally dropped with a logged reason. Genome build asserted for every coordinate file.
+## ✅ M4 — Data acquisition & QC (COMPLETE, 2026-07-26)
+Manifest generated from live GEO filelists, resumable checksum-aware downloads, verify gate, QC pipeline.
+**Delivered:** 66 automated files / **12 GB** acquired in 6 h 22 m (2 concurrent, zero failures); `03_verify.R` 66/66 pass with the SHA256 ledger established; `04_qc_report.R` **167/167 checks pass** including full-stream hg19 build assertions on all 28 bedGraphs.
+**Gate PASSED.** Every dataset downloaded and QC-passed, or formally dropped with a logged reason. Genome build asserted for every hg19 coordinate file — and the assertion is now capable of failing (see R-16).
+
+**Five findings that changed the analysis, none of which raised an error on their own:**
+1. **Ensembl seqnames in the keystone** (`20`, not `chr20`) against UCSC annotation everywhere else. Mixing them returns zero overlaps, not an error. `R/genome_utils.R` now mandatory for every coordinate join (D-019, R-16).
+2. **The build assertion was passing on nothing** — it compared `20` to `chr20`, matched zero rows, found zero violations, reported success. It guarded R-05, the highest-consequence technical risk. Now refuses to pass on fewer than 20 compared chromosomes.
+3. **GSE269424 is a TF-overexpression experiment**, not native ATAC. Only the four EGFP control arms are used; the ASCL1/NEUROD1 arms have deliberately remodelled chromatin (D-015).
+4. **Lineage-TF controls barely overlap the keystone** — POU2F3 3 lines, ASCL1 1, NEUROD1 none. R-01's confounding test has heterogeneous resolution (R-14).
+5. **GSE261348 has a deposit gap** — 9 high-depth unflagged segments annotated but not deposited, while a 40×-under-sequenced flagged one was. Characterised and pinned; slide `IMF-001/002` excluded at M9 (R-17).
+
+**Outstanding, non-blocking:** DepMap manual download + release pin, needed only at M7 (D-016).
 
 ---
 
 ## M5 — Regulatory layer & regulons (Aim 1)
-Consensus regions → signal quantification → active regions → super-enhancers → peak-to-gene linking → paralog regulons.
-**Gate (hard):** our active-region counts are within a defensible range of Plotnik's reported 18,823 / 4,017 / 5,688. **Substantial discordance halts the project for method review — it is not explained away.** MYCN/MYC overlap should approximate their reported ~84%.
+liftOver of hg38 intervals → consensus regions → chunked signal quantification → active regions → super-enhancers → peak-to-gene linking → paralog regulons.
+
+**Gate (hard) — REBUILT 2026-07-26, see D-020.** The original gate (counts near Plotnik's 18,823 / 4,017 / 5,688) was **circular**: our count is `|universe| × P(signal>quantile) × P(H3K27ac⁺)`, and a 0.75 quantile passes 25% of regions by construction, so any universe near 125k reproduces those numbers whether or not the pipeline works. It could not fail.
+
+Replaced with **relative, threshold-invariant** criteria:
+1. **MYCN ⊂ MYC at 0.84 ± 0.15**, held across the sensitivity range.
+2. **MYCL1 not a MYC subset** (overlap < 0.50).
+3. **Distal-fraction contrast**, MYC-amplified > MYC-expressing, difference ≥ 0.10 (published 0.39 vs 0.12).
+4. **Motif validation**: paralog E-box central dinucleotides enriched over shuffled background — the only criterion independent of every parameter we chose.
+
+Counts are reported across `sensitivity_quantiles`, descriptively, never as pass/fail.
+**Substantial discordance on 1–4 halts the project for method review — it is not explained away.**
+
+**Additional gate before M6:** regulon internal validity — each paralog regulon must separate amplified from non-amplified lines *in its own source cells* (AUC ≥ 0.70) and track its paralog's expression (Spearman ≥ 0.30). A regulon that fails is not scored in tumours (D-021 E).
 
 ---
 

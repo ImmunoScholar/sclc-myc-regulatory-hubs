@@ -469,3 +469,226 @@ the skip **as a failure**, so a fast run cannot be mistaken for a clean one.
 **Standing rule.** A QC check must be observed failing on data known to violate it
 before it is trusted. Two defects in this project have been checks that passed
 because they examined nothing.
+
+---
+
+### D-020 · METH · 2026-07-26 — the M5 gate was circular and has been rebuilt
+
+**This supersedes the M5 gate defined at M1.** It is a correction, not a
+relaxation: the replacement is harder to pass, not easier.
+
+**The defect.** The original gate required our re-derived active-region counts to
+fall near Plotnik's 18,823 MYC / 4,017 MYCN / 5,688 MYCL1. But our count is
+
+```
+count ≈ |ATAC universe| × P(signal > quantile) × P(H3K27ac⁺)
+```
+
+and `signal_quantile = 0.75` passes **25% of regions by construction**. With
+H3K27ac⁺ covering roughly 60% of accessible regions, the count is ~15% of the
+universe — so any consensus universe near 125,000 regions reproduces Plotnik's
+number whether or not the pipeline is correct. Typical SCLC ATAC universes are
+50k–150k regions. **The gate could not distinguish a working implementation from a
+broken one**, because both numbers are set by parameters we chose.
+
+This is the third check in this project that could not fail (after the vacuous
+hg19 build assertion and the `!isTRUE(vector)` resumability test). The pattern is
+consistent enough to be a design smell: *a check whose expected value is
+determined by our own free parameters is decoration.*
+
+**The replacement — relative properties we cannot tune.**
+
+1. **MYCN regions ⊂ MYC regions at ~0.84.** Both sets are thresholded identically,
+   so the overlap *ratio* is a property of the data. Moving the threshold moves
+   both sets together and largely cancels.
+2. **MYCL1 must NOT look like a MYC subset** (`max_expected: 0.50`), matching
+   Plotnik's "largely non-overlapping".
+3. **Distal-fraction contrast**, MYC-amplified vs MYC-expressing lines (published
+   0.39 vs 0.12). A between-group contrast is immune to universe size. Direction
+   is required; magnitude is secondary.
+4. **Sequence-level motif validation** (D-021/D-022) — the only check that is
+   fully independent of every parameter we set.
+
+**Counts are still reported**, prominently and across a range of thresholds
+(`sensitivity_quantiles`), because the shape and stability of that curve is
+informative. They are simply never used as pass/fail.
+
+---
+
+### D-021 · METH · 2026-07-26 — four quality upgrades adopted for M5 onward
+
+Adopted after an explicit mid-project audit. Each addresses a specific weakness
+rather than adding polish.
+
+**B · Independent motif validation.** Test whether our derived paralog regions
+recover Plotnik's E-box central dinucleotides (MYC `CAGATG`, MYCN `CACATG`,
+MYCL `CACCTG`) against shuffled-sequence backgrounds. *Why it matters:* region
+counts are set by our thresholds; sequence content is not. This is the only
+available check that is independent of every parameter we chose, and it
+distinguishes "we found paralog-specific binding" from "we found accessible
+chromatin and labelled it".
+
+**C · Bootstrap rank stability for MOES.** 2,000 resamples, rank confidence
+intervals for every hub, and an explicit UNSTABLE flag when an interval spans
+more than 25% of the list. *Why it matters:* the evidence-integration framework is
+offered as this project's methodological contribution. A point rank implies a
+precision the data may not support — "hub #3" and "hub #17" can be
+indistinguishable under resampling, and a ranked list that hides that is
+misleading.
+
+**D · Publication output system.** Vector PDF alongside PNG; embedded fonts; an
+automated minimum-text-size check at final print dimensions; colourblind safety
+*verified* by deutan/protan/tritan simulation with a minimum perceptual-distance
+threshold rather than asserted; tables with explicit precision, effect sizes
+beside every p-value, mandatory footnotes for non-obvious columns, exported as
+both CSV and rendered tables; and a figure manifest linking every figure to its
+script and inputs. *Why it matters:* "colourblind safe" and "publication quality"
+are testable claims, and untested claims of accessibility are worth nothing.
+
+**E · Regulon internal-validity gate before tumour scoring.** Each paralog regulon
+must separate amplified from non-amplified lines *in the cells it was derived
+from* (AUC ≥ 0.70) and track its paralog's own expression (Spearman ≥ 0.30).
+*Why it matters:* cheapest of the four, and it catches the failure mode where a
+regulon that does not behave in its source data is nevertheless scored in tumours
+and interpreted.
+
+**Cost.** Roughly 15–20% additional effort on the remaining work, plus ~700 MB
+disk for the genome package.
+
+---
+
+### D-022 · ENV · 2026-07-26 — reverses D-008: install `BSgenome.Hsapiens.UCSC.hg19`
+
+**Decision.** The hg19 BSgenome package is installed after all.
+
+**Why the reversal.** D-008 deferred it on the explicit condition *"overturned if
+a step genuinely requires sequence retrieval — install then, and log the reason
+here."* Motif validation (D-021, B) is now such a step. The condition D-008 set
+for its own reversal has been met, so this is the decision working as designed
+rather than being overridden.
+
+**Verification.** The install script asserts `seqlengths(hg19)[["chr1"]] ==
+249250621` before reporting success, so a wrong-build package cannot pass
+silently.
+
+---
+
+### D-023 · METH · 2026-07-26 — the region universe comes from keystone ATAC, with the threshold calibrated on H524
+
+**Supersedes** the frozen `regions.min_datasets_supporting: 2` rule as a *filter*.
+Taken against measured numbers, not assumption.
+
+**What the candidates actually looked like** (`results/tables/m5_universe_options.md`):
+
+| universe | regions | % genome | H524-supported |
+|---|---|---|---|
+| union of external peaks | 290,862 | **7.01%** | 34.4% |
+| ≥2 datasets | 84,020 | 3.47% | 83.2% |
+| ≥2 cell lines | 148,245 | 5.16% | 48.8% |
+| ≥3 cell lines | 58,831 | 2.89% | 83.0% |
+
+**Two findings from those numbers.**
+
+1. The union is implausible as accessible chromatin — 7.0% of the genome against a
+   typical ATAC range of 1–5%, inflated by GSE256345's `merge500` peaks merging
+   across 500 bp gaps.
+2. My prior concern that a `≥2` rule would preferentially discard keystone-relevant
+   regions was **only half right**. Of the 206,842 regions it drops, just 14.5% are
+   H524-supported. But 14.5% of 206,842 is still **~30,000 regions accessible in a
+   MYC-amplified keystone line**, discarded because two unrelated lines do not
+   share them — precisely where line-specific MYC enhancers would sit.
+
+**The problem no support rule fixes.** The external peak sources cover H524,
+Lu139, H146 and H82. **Only H524 is a keystone MYC-family ChIP line.** Quantifying
+MYC binding in COLO668 or H1048 over a grid defined by H146 and H82 accessibility
+is a cellular mismatch, whatever threshold is applied to it.
+
+**Decision.**
+- The universe is derived from the **nine keystone ATAC tracks** — the same cells
+  as the ChIP, native hg19, no liftOver.
+- Because those ship as bedGraph signal with no control track, the signal
+  threshold is **calibrated against H524's external MACS2 peak set**. H524 is the
+  one line with both keystone ATAC signal and independent peak calls, so the
+  cutoff is *fitted to reproduce a real peak caller in matched cells* rather than
+  chosen. The calibration curve is reported.
+- External peaks are demoted from **filter** to **per-region annotation**, so
+  corroboration can be reported about each hub without silently removing the
+  line-specific regions the hypothesis is about.
+- `min_datasets_supporting` is **reinterpreted, not deleted**: support is counted
+  across the nine keystone ATAC lines, which is a meaningful independence unit
+  because all nine are ChIP-matched.
+
+**Why this is better than honouring the frozen spec literally.** The spec assumed
+several independent ATAC datasets in matched cells. That assumption did not
+survive contact with the data — GSE269424 lost half its samples to the
+TF-overexpression finding (D-015), and three of four remaining lines are not in
+the keystone. Applying the rule as written would have produced a defensible-looking
+universe built mostly from the wrong cells.
+
+**Residual weakness, stated.** Signal thresholding without a control track is
+cruder than MACS2 with input. The calibration against H524 bounds that weakness
+but does not remove it; regions are corroborated against external peak calls and
+the agreement statistic is reported per line.
+
+> **SUPERSEDED IN PART by D-024.** The external calibration described above was
+> the wrong validation target and has been replaced. The rest of D-023 — universe
+> from keystone ATAC, external peaks as annotation not filter — stands.
+
+---
+
+### D-024 · METH · 2026-07-26 — the ATAC threshold is validated intrinsically, and made non-load-bearing
+
+**What went wrong first.** D-023 calibrated the ATAC threshold against GSE269424's
+H524 MACS2 peaks. Best F1 was 0.372. Two attempts to explain the poor agreement
+both failed:
+
+1. *"Single-line noise is dragging precision down."* Wrong — recall stayed pinned
+   at ~0.35 under every support rule (≥1, ≥2, ≥3, external-corroborated). Filtering
+   changed nothing about what was missed.
+2. *"Copy number inflates calls under a global threshold."* Wrong — MACS2-style
+   local background made agreement **worse** (F1 0.333 vs 0.372).
+
+The assay identity was then verified directly, because an unverified label had
+already burned this project once (GSE269424, D-015). The nine tracks are genuinely
+ATAC: `!Sample_title = ATAC_<line>`, `library_strategy = ATAC-seq`,
+`chip antibody: none`. The labelling was right.
+
+**The actual error: a bad validation target.** GSE269424's H524 is an independent
+experiment — different lab, protocol and pipeline, in EGFP-transduced rather than
+parental cells. Cross-laboratory ATAC concordance runs Jaccard 0.3–0.5; we saw
+0.22 against a threshold-called set from a modest-depth track. Optimising against
+it measured inter-laboratory reproducibility, not fitness for purpose. **Three
+rounds were spent fixing a method that was not broken.**
+
+**Intrinsic validation instead.** The universe exists to be a quantification grid
+for MYC and H3K27ac ChIP in these nine lines, so it is judged on properties of
+these data: TSS enrichment (the standard ATAC metric) and H3K27ac fold-enrichment
+in **matched cells**. Result for H524/chr1: **TSS enrichment 8.9–26.0 and H3K27ac
+fold 2.8–7.5** across the threshold range. These are good ATAC data. The region
+calling was never the problem.
+
+**Threshold: ×2.5 of each line's mean signal over covered bases.** Chosen, not
+fitted — marginal enrichment degrades smoothly (new-region TSS 6.14 → 3.56 → 2.05
+→ 1.28) with no cliff, so any value in ×2–×3 is defensible and the automatic pick
+of ×2 was an artefact of an arbitrary TSS≥2 cutoff. ×2.5 keeps marginal regions
+clearly enriched (TSS 3.56, H3K27ac 1.82) rather than borderline.
+
+**The consideration that mattered more than the value.** TSS windows cover 2.21%
+of chr1, so enrichment converts directly into promoter fraction: ×8 → 57%
+promoter-proximal, ×3 → 28%, ×2.5 → 20%, ×2 → 11%. **The threshold sets the
+promoter/distal balance of the universe, and distal fraction is one of the four
+M5 gate criteria (D-020).** An over-strict threshold would produce a
+promoter-biased grid and bias the exact quantity being tested. For a project built
+on Plotnik's *enhancer* finding, over-stringency is the more dangerous error —
+which is why the choice sits at the permissive end of the defensible band.
+
+**Made non-load-bearing.** Every M5 gate metric is computed across ×2, ×2.5, ×3
+and ×4. If MYCN-in-MYC holds near 0.84 across that range, the threshold is
+irrelevant to the conclusion and robustness is demonstrated rather than assumed.
+If the gate metrics move with threshold, that fragility is itself a reportable
+finding. This applies the D-020 lesson properly: do not defend a parameter, make
+the conclusion independent of it.
+
+**Process note.** Two confident wrong diagnoses in succession, with the real error
+one level up in the choice of question. The verification instinct was right but
+aimed late — the premise worth checking first was the *yardstick*, not the *input*.

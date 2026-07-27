@@ -1,0 +1,5 @@
+"multiple","primary","n_regions","median_width","total_mb","pct_genome","pct_promoter","pct_distal","pct_multiline","pct_ext_corrob"
+2,FALSE,897764,270,383.2,12.619,3.4,96.6,34.8,28.2
+2.5,TRUE,478619,292,212.4,6.995,5.3,94.7,33.8,42.4
+3,FALSE,331613,313,152.2,5.014,6.7,93.3,35,50.8
+4,FALSE,174430,410,95,3.13,9.7,90.3,36,62.7

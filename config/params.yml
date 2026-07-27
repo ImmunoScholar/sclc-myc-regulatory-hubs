@@ -51,11 +51,81 @@ regions:
 
 active_regions:
   # A region is "active" for a paralog if it carries paralog signal AND H3K27ac.
-  # Mirrors Plotnik's logic (binding ∩ H3K27ac) so our counts are comparable to
-  # their published 18,823 / 4,017 / 5,688 at the M5 gate.
+  # Mirrors Plotnik's logic (binding ∩ H3K27ac).
   signal_quantile: 0.75       # per-sample quantile a region must exceed
   require_h3k27ac: true
-  min_replicates: 2           # of the 2 lines per paralog — i.e. both
+  min_replicates: 2           # of the lines assayed for that paralog
+
+  # Counts are reported ACROSS a range of thresholds, not at one value. A single
+  # count is not evidence of anything (see m5_gate below) but the shape of the
+  # curve is informative and its stability is worth showing.
+  sensitivity_quantiles: [0.50, 0.60, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
+
+# -----------------------------------------------------------------------------
+# M5 GATE — corrected 2026-07-26. See decision D-020.
+#
+# The original gate required our active-region counts to land near Plotnik's
+# 18,823 / 4,017 / 5,688. That gate was CIRCULAR and could not fail:
+#
+#     count ≈ |ATAC universe| × P(signal > quantile) × P(H3K27ac+)
+#
+# signal_quantile 0.75 passes ~25% of regions BY CONSTRUCTION. With H3K27ac+
+# covering ~60% of accessible regions, the count is ~15% of the universe, so any
+# universe near 125,000 regions reproduces Plotnik's number regardless of whether
+# the pipeline is correct. Matching it would have validated nothing.
+#
+# The gate is therefore rebuilt from RELATIVE, threshold-invariant properties —
+# quantities we cannot move by tuning our own parameters.
+# -----------------------------------------------------------------------------
+m5_gate:
+  # 1. Paralog region-set relationships. Both sets are thresholded identically,
+  #    so their OVERLAP RATIO is a property of the data, not of the threshold.
+  mycn_in_myc_fraction:
+    published: 0.84           # Plotnik et al. 2024
+    tolerance: 0.15           # pass if within +/- 0.15 across the sensitivity range
+  mycl1_in_myc_fraction:
+    published_direction: low  # "largely non-overlapping" — no exact figure given
+    max_expected: 0.50        # fail if MYCL1 looks like a MYC subset
+
+  # 2. Between-group contrast in distal fraction. Immune to universe size because
+  #    it compares two groups processed identically.
+  distal_fraction_contrast:
+    myc_amplified_published: 0.39
+    myc_expressing_published: 0.12
+    require_direction: true   # amplified MUST exceed expressing; magnitude is secondary
+    min_difference: 0.10
+
+  # 3. Sequence-level validation — the check we cannot tune (D-021/D-022).
+  #    Plotnik's paralog-specific E-box central dinucleotides.
+  motif_validation:
+    enabled: true
+    ebox_canonical: CACGTG
+    paralog_ebox:
+      MYC:   CAGATG
+      MYCN:  CACATG
+      MYCL1: CACCTG
+    flank_bp: 250             # window around region summit for motif scanning
+    require_enrichment_over_shuffled: true
+    n_shuffles: 100
+
+  # Counts ARE reported, prominently, but as description — never as pass/fail.
+  report_counts_descriptively: true
+  published_counts_for_reference:
+    MYC: 18823
+    MYCN: 4017
+    MYCL1: 5688
+
+# -----------------------------------------------------------------------------
+# Regulon internal validity — must pass BEFORE any tumour scoring (D-021, E).
+# A regulon that does not behave in the cells it was derived from cannot be
+# meaningfully scored in tumours.
+# -----------------------------------------------------------------------------
+regulon_validity:
+  require_source_line_separation: true   # paralog regulon score must separate
+                                         # amplified from non-amplified source lines
+  min_auc: 0.70                          # separation of amplified vs not, in source lines
+  require_expression_correlation: true   # score should track the paralog's own expression
+  min_spearman: 0.30
 
 super_enhancers:
   # ROSE-style: stitch nearby H3K27ac regions, rank by total signal, cut at the
@@ -127,6 +197,18 @@ moes:
                               # domain is not multi-evidence supported
   report_layer_correlation: true
 
+  # Rank uncertainty (D-021, C). A prioritisation offered as a contribution must
+  # say how precise it is. A point rank implies a confidence the data may not
+  # support: "hub #3" and "hub #17" can be indistinguishable under resampling.
+  bootstrap:
+    enabled: true
+    n_resamples: 2000
+    ci: 0.95
+    report_rank_interval: true    # every hub carries a rank CI, not just a rank
+    # A hub whose rank interval spans more than this fraction of the list is
+    # reported as UNSTABLE regardless of its point rank.
+    max_relative_interval_width: 0.25
+
 controls:
   # PRE-REGISTERED. Declared before any result exists so they cannot be tuned
   # after the fact. Hard gate at M8.
@@ -194,4 +276,37 @@ figures:
     MYCN:  "#2166AC"
     MYCL1: "#1B7837"
   palette_sequential: viridis
+
+  # ---------------------------------------------------------------------------
+  # Publication output standards (D-021, D). Each of these is CHECKED, not
+  # asserted — an unverified claim of accessibility is worth nothing.
+  # ---------------------------------------------------------------------------
+  vector_output: true         # every figure emitted as PDF as well as PNG;
+                              # raster-only figures cannot be rescaled for print
+  embed_fonts: true
+  min_text_pt: 6              # smallest permitted text AT FINAL PRINT SIZE.
+                              # Automatically checked; a figure that violates it
+                              # fails rather than being shipped illegible.
   colourblind_safe: true
+  colourblind_check:
+    enabled: true
+    simulate: [deutan, protan, tritan]   # via colorspace
+    min_perceptual_distance: 15          # CIE dE between any two series colours
+                                         # under every simulation; below this the
+                                         # palette is rejected
+  figure_manifest: true       # every figure recorded with its generating script,
+                              # inputs and caption, so no figure is untraceable
+
+tables:
+  # Numbers are formatted deliberately. Precision that exceeds what the data
+  # support is a form of overclaiming.
+  significant_digits: 3
+  p_value_format: scientific
+  p_value_floor: 1e-16        # report "< 1e-16" rather than an implausible exact value
+  always_report_effect_size: true   # effect size + CI accompany every p-value
+  require_n_in_caption: true
+  export_formats: [csv, gt_html]    # machine-readable AND publication-rendered
+  footnote_required_for:
+    - any column whose interpretation is not obvious from its name
+    - any filtered or excluded subset
+    - any value derived under an assumption

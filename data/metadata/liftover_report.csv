@@ -1,0 +1,7 @@
+"dataset","file","n_input","n_unmapped","n_split","n_width_distorted","n_retained","loss_rate","out"
+"GSE269424","GSM8315376_H524_EGFP_1_peaks.narrowPeak.gz",101773,148,264,7,101354,0.0041,"GSE269424__GSM8315376_H524_EGFP_1_peaks.narrowPeak.hg19.rds"
+"GSE269424","GSM8315377_H524_EGFP_2_peaks.narrowPeak.gz",96051,143,242,8,95658,0.0041,"GSE269424__GSM8315377_H524_EGFP_2_peaks.narrowPeak.hg19.rds"
+"GSE269424","GSM8315378_Lu139_EGFP_1_peaks.narrowPeak.gz",52765,103,151,9,52502,0.005,"GSE269424__GSM8315378_Lu139_EGFP_1_peaks.narrowPeak.hg19.rds"
+"GSE269424","GSM8315379_Lu139_EGFP_2_peaks.narrowPeak.gz",62925,104,172,6,62643,0.0045,"GSE269424__GSM8315379_Lu139_EGFP_2_peaks.narrowPeak.hg19.rds"
+"GSE256345","GSE256345_H146_Peaks_merge500.bed.gz",173956,867,1249,65,171775,0.0125,"GSE256345__GSE256345_H146_Peaks_merge500.bed.hg19.rds"
+"GSE256345","GSE256345_H82_Peaks_merge500.bed.gz",206776,1070,1597,79,204030,0.0133,"GSE256345__GSE256345_H82_Peaks_merge500.bed.hg19.rds"
