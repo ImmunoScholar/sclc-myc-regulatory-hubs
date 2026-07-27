@@ -6,7 +6,33 @@ Severity: **HIGH** = threatens the central claim · **MED** = threatens an aim �
 
 ---
 
-### R-01 · Scientific · HIGH · OPEN
+### R-01 · Scientific · HIGH · **MATERIALISED 2026-07-26** — the anticipated outcome occurred
+
+**The risk as written at M1:** "MYC-amp correlates with subtype (MYC↔NEUROD1, MYCL↔ASCL1), so paralog-specific hubs may just be lineage-TF targets. If it fails, the negative result is the finding."
+
+**It failed. Quantitatively, at n = 79.**
+
+| regulon | R² paralog only | R² lineage only | **unique paralog** | **unique lineage** |
+|---|---|---|---|---|
+| MYC | 0.048 | 0.386 | **0.000** | 0.338 |
+| MYCN | 0.012 | 0.424 | **0.001** | 0.414 |
+| MYCL1 | 0.098 | 0.490 | **0.016** | 0.408 |
+
+Lineage/NE state explains 39–49% of regulon score variance; the paralog's own expression explains essentially **nothing unique** (0.000–0.016). Lineage dominates in **3/3**.
+
+Partial correlations after regressing out NE score and all four lineage TFs collapse to zero: MYC −0.202 → **0.029** (p 0.80), MYCN 0.135 → **0.035** (p 0.76), MYCL1 0.268 → **0.138** (p 0.23). **0 of 3 survive.**
+
+**The mechanism is identified, not assumed.** MYC expression is strongly anti-correlated with the neuroendocrine programme: **ρ = −0.590, p = 1.1×10⁻⁸** against NE score, −0.460 against ASCL1, and positively with the non-NE markers POU2F3 (+0.407) and YAP1 (+0.447). That independently reproduces Ireland et al. 2020 (MYC drives SCLC away from the NE state). Our MYC regulon is neurogenesis-enriched (D-029), so MYC-high tumours score low on it — the negative correlation is real biology running opposite to the naive expectation.
+
+MYCN↔NEUROD1 (+0.371, p = 7.7×10⁻⁴) also reproduces the known MYCN/SCLC-N association. MYCL1 shows no lineage association at all.
+
+**Consequence.** Paralog-resolved regulatory programmes are constructible from cell-line chromatin and internally valid there, but **do not retain paralog identity in patient tumours independently of neuroendocrine lineage state.** This is the negative result the gap statement pre-committed to reporting (§5).
+
+**What this does NOT invalidate:** the M5 gate (threshold-invariant criteria, 3/4 passed), MYC's neurogenesis programme reproducing Plotnik at p = 7×10⁻⁶, the MYCN-with-housekeeping discordance, and the framework itself. See D-032 for the effect on M7–M8.
+
+---
+
+### R-01-orig · Scientific · HIGH · superseded by the entry above
 **"Paralog-specific" hubs turn out to be lineage-TF targets in disguise.**
 MYC-amplification correlates with SCLC subtype (Plotnik: MYC-amp correlates with NEUROD1 expression; MYCL with ASCL1). A hub attributed to MYC may simply be an ASCL1/NEUROD1 target in a co-varying background.
 **Mitigation:** the lineage-TF confounding analysis is a *primary* planned analysis, not a robustness check — using ASCL1 (GSE281524), NEUROD1 (GSE210113) and POU2F3 (GSE249362) ChIP references. Report the overlap fraction openly.

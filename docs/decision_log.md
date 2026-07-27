@@ -927,6 +927,72 @@ decision log, which captures decisions made. Run `audit_decisions.sh` and
 
 ---
 
+### D-032 · SCI · 2026-07-26 — R-01 materialised: the project's conclusion changes, its scope does not collapse
+
+**The finding.** Paralog-resolved regulatory programmes are constructible from
+cell-line chromatin and internally valid there, but **do not retain paralog
+identity in patient tumours independently of neuroendocrine lineage state.**
+Lineage explains 39–49% of regulon score variance against 0.0–1.6% uniquely
+attributable to the paralog's own expression; no paralog association survives
+adjustment (0/3, all p > 0.2). See R-01.
+
+**This was pre-committed.** Gap statement §5: *"Paralog-specific regulons show no
+separation in tumour cohorts → report as a negative result with power analysis;
+the framework and the audit trail remain the contribution."* The response was
+agreed before the data were touched, which is why it is being followed rather
+than negotiated.
+
+**Adequately powered, so the null is informative.** n = 79; |ρ| ≥ 0.31 detectable
+at 80% power. Observed unique-paralog contributions are an order of magnitude
+below that. The exception is MYCN, whose expression median is 1.34 (IQR 0–3.26) —
+for MYCN specifically, absent dynamic range is a competing explanation to absent
+biology and must be stated as such.
+
+**The mechanism is a positive result in its own right.** MYC vs NE score
+ρ = −0.590, p = 1.1×10⁻⁸, independently reproducing Ireland et al. 2020. MYCN↔NEUROD1
++0.371 reproduces the MYCN/SCLC-N association. The negative result therefore has an
+explanation rather than being an unexplained null, which makes it far more
+defensible.
+
+**What survives unchanged:**
+- M5 gate: 3/4 evaluable criteria on threshold-invariant measures (MYCN⊂MYC 0.912
+  with spread 0.037 across a 50× set-size change; paralog E-box specificity 3/3,
+  χ² p = 1.6×10⁻¹⁰¹)
+- MYC regulon → neurogenesis, p = 7×10⁻⁶, reproducing Plotnik from a pipeline
+  sharing no method with theirs
+- The MYCN-with-housekeeping discordance against Plotnik (D-029)
+- Super-enhancers, peak-to-gene (6.06× over null; 32.6% nearest-gene)
+
+**Effect on M7–M8 — the framework's purpose is sharpened, not lost.** MOES was
+designed to integrate four evidence domains. The transcriptional domain is now known
+to be lineage-confounded at the regulon level, so integrating it naively would
+produce lineage-driven hubs dressed as paralog-specific ones.
+
+Two changes follow:
+
+1. **The transcriptional domain becomes lineage-adjusted by construction.** Evidence
+   enters as the per-gene partial association with paralog expression after
+   regressing out NE score and all four lineage TFs — not the raw association. The
+   regulon-level aggregate is null, but individual genes may carry
+   lineage-independent signal, and that is the level MOES operates at. This must be
+   tested before M8 rather than assumed.
+2. **The framework's contribution is reframed honestly.** It was proposed as
+   evidence integration for hub prioritisation. Its demonstrated value is now
+   *detecting and quantifying confounding that a single-layer analysis would have
+   reported as a finding.* A weighted-sum framework over these layers would have
+   returned confident paralog-specific hubs. That is a more useful methodological
+   claim than the original and it is supported by this project's own data.
+
+**Honest statement of what the project can now claim.** Not "here are validated
+paralog-specific MYC hubs in SCLC". Rather: paralog-resolved programmes are
+recoverable from chromatin and reproduce known enhancer biology, but their
+tumour-level signal is dominated by lineage state; any prioritisation must be
+lineage-adjusted, and the framework quantifies how much apparent paralog signal is
+in fact lineage. **No result may be reported as paralog-specific without the
+lineage-adjusted figure alongside it.**
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,

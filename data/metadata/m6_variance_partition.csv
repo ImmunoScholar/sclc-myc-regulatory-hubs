@@ -1,0 +1,4 @@
+"regulon","r2_paralog_only","r2_lineage_only","r2_both","unique_paralog","unique_lineage"
+"MYC",0.048,0.386,0.386,0,0.338
+"MYCN",0.012,0.424,0.426,0.001,0.414
+"MYCL1",0.098,0.49,0.506,0.016,0.408

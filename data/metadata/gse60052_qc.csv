@@ -1,0 +1,10 @@
+"metric","value"
+"genes_raw",51131
+"genes_dedup",51131
+"genes_expressed",33683
+"n_tumour",79
+"n_normal",7
+"value_min",0
+"value_max",23.3
+"pct_zero",51
+"whitespace_names_trimmed",0
