@@ -83,6 +83,21 @@ datasets:
       (H1048, H211, H524, H847, SHP77); MYCL1 ChIP x2 (COLO668, H889); MYCN ChIP
       x2 (H526, H69); ATAC x9. NOTE H211 has MYC ChIP but NO ATAC, and H196 has
       H3K27ac + ATAC but no MYC-family ChIP.
+    amplification_status: >-
+      CORRECTED 2026-07-26, see D-026. An earlier version of this registry listed
+      all five MYC ChIP lines as MYC-amplified. That conflicts with Plotnik's
+      "two cell lines harboring the alteration for each amplification type", so
+      two of the five are amplified and three are the MYC-EXPRESSING comparator.
+      The paper does not name them and GEO declares no amplification field.
+      Measured from amplicon coverage (scripts/02_regulatory/17_infer_amplification.R):
+        CONFIRMED MYCN-amplified : H526, H69      (ATAC 8-15x, H3K27ac 38-44x, broad)
+        CONFIRMED MYCL-amplified : COLO668, H889  (ATAC 20-22x, H3K27ac 37-71x, broad)
+        UNVERIFIED MYC          : all five MYC ChIP lines. Assays contradict
+          (H524 H3K27ac 82x vs ATAC 1.6x; H196 ATAC 28x vs H3K27ac 4x) and every
+          MYC-locus ratio collapses in the +/-1 Mb window, indicating focal
+          regulatory elements rather than copy gain. H211 has no ATAC at all.
+      DO NOT use MYC-amplified vs MYC-expressing groupings until DepMap
+      OmicsCNGene.csv is available at M7. M5 gate criterion 3 is blocked on this.
 
 # =============================================================================
 # D2 · SUPPORTING ACCESSIBILITY — all hg38, all require liftOver

@@ -692,3 +692,63 @@ the conclusion independent of it.
 **Process note.** Two confident wrong diagnoses in succession, with the real error
 one level up in the choice of question. The verification instinct was right but
 aimed late — the premise worth checking first was the *yardstick*, not the *input*.
+
+---
+
+### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
+
+**Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,
+MYC-amplified vs MYC-expressing) needs a grouping the project did not reliably
+have. Plotnik states *"we profiled two cell lines harboring the alteration for each
+amplification type"*, but GSE230649 contains **five** MYC ChIP samples (H1048,
+H211, H524, H847, SHP77). So two are amplified and three are the MYC-expressing
+comparator — yet the project registry listed **all five as MYC-amplified**, which
+cannot be correct.
+
+The paper does not name them (Methods say only "representative SCLC cell lines"),
+and the GEO records carry no amplification field. Both were checked directly
+rather than assumed.
+
+**Measured instead.** Amplification adds DNA copies, inflating pileup across an
+amplicon in any assay, so amplicon coverage relative to each track's genome-wide
+median is a copy-number proxy. Computed from the existing signal matrix at ±200 kb
+and ±1 Mb.
+
+**CONFIRMED — MYCN and MYCL1:**
+
+| locus | line | ATAC | H3K27ac | ±1 Mb |
+|---|---|---|---|---|
+| MYCN | H69 | 15.1 | 44.0 | elevated |
+| MYCN | H526 | 8.3 | 37.9 | 9.4 |
+| MYCL1 | COLO668 | 22.2 | 71.2 | 12.4 |
+| MYCL1 | H889 | 19.6 | 36.6 | 5.0 |
+
+Both assays agree, and elevation **persists in the broad window** — the signature
+of a real amplicon. All other lines near 1. Registry correct for these paralogs,
+which is what the gate criteria actually depend on.
+
+**UNRESOLVED — MYC.** The assays contradict each other: H524 gives H3K27ac 82.1
+against ATAC 1.55; H196 gives ATAC 27.8 against H3K27ac 4.0. And every MYC-locus
+ratio **collapses to ~1–4 in the ±1 Mb window** while MYCN and MYCL1 stay high.
+Focal elevation that disappears when the window widens indicates a strong
+regulatory element, not copy gain. On this evidence no line shows convincing MYC
+amplification — which contradicts the published status of H524 and marks the limit
+of the method, not a finding about the biology.
+
+Additional weaknesses: **H211 has no ATAC track**, so its call rests on one assay;
+and the MYC window may contain few universe regions, destabilising a median. The
+accessibility/copy-number confound was flagged before running this and is where it
+failed.
+
+**Decision.** Criterion 3 remains **BLOCKED and is deferred to M7**, when DepMap
+`OmicsCNGene.csv` provides direct copy-number calls. It is not dropped, and it is
+not resolved by inference. The registry is corrected to mark MYC-amplification
+status as **unverified** for all five MYC ChIP lines.
+
+**Consequence for reporting criterion 1.** Because the five MYC ChIP lines may mix
+amplified and non-amplified contexts while Plotnik's 18,823 came from two
+amplified lines, **the similarity between our 17,693 and their 18,823 must not be
+presented as replication** — the two may not be the same construct. Criteria 1, 2
+and 4 are unaffected: they define paralog sets by which antibody was used, not by
+amplification status. The MYCN-in-MYC value of 0.886 and its stability across a
+50-fold change in set size stand on their own.
