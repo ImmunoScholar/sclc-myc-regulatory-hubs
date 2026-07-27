@@ -695,6 +695,58 @@ aimed late — the premise worth checking first was the *yardstick*, not the *in
 
 ---
 
+### D-025 · METH · 2026-07-26 — M5 gate criterion 2 reformulated as enrichment over chance
+
+*(Written retrospectively on 2026-07-26 after a decision audit found `config/params.yml`
+and three progress reports referencing "D-025" with no such entry in this log. The
+decision was made and implemented at the time; only the record was missing. Logged
+as a gap rather than silently backfilled.)*
+
+**Original criterion.** MYCL1-in-MYC overlap < 0.50, from Plotnik's description of
+MYCL1 regions as "largely non-overlapping" with MYC.
+
+**Observed.** 0.774 — a clear failure against that threshold.
+
+**Why the criterion, not the result, was the problem.** This project quantifies
+every paralog over ONE shared ATAC-defined grid of 102,334 regions (D-023). Plotnik
+called peaks *de novo per line* with no shared coordinate set, so their MYCL1 peaks
+could sit at coordinates absent from the MYC peak sets entirely. Ours cannot —
+every paralog is scored at the same coordinates, which mechanically inflates
+cross-paralog overlap. The 0.50 threshold was measuring our design choice.
+
+Corroborating evidence that this was the mechanism: **both** overlaps came out high
+(MYCN 0.886, MYCL1 0.774) and the *contrast* between them was small, whereas
+Plotnik reported a large contrast. The failure was in reproducing a difference, in
+a design that suppresses differences by construction.
+
+**Reformulation.** Test the differential as enrichment over chance, so set sizes
+and the shared grid cancel:
+
+```
+enrichment(P) = [ |P ∩ MYC| / |P| ] / [ |MYC| / |universe| ]
+```
+
+Requirements: enrichment(MYCN) > enrichment(MYCL1), Fisher test p < 0.05, effect
+size reported alongside. **No absolute magnitude threshold** — Plotnik gives no
+numeric value for MYCL1, so inventing one would be fitting a target we do not have.
+
+**Result.** MYCN 5.12x vs MYCL1 4.48x, OR 2.27, p = 3.0e-41. Passes on direction
+and significance. The **magnitude is modest** (ratio 1.14) and is reported as such:
+we reproduce the direction of Plotnik's finding, not its starkness.
+
+**Still falsifiable.** If MYCL1 were as nested in MYC as MYCN is, the paralogs
+would be indistinguishable by occupancy in these data and that negative result
+would be the finding.
+
+**Independent corroboration from criterion 4.** Motif content cannot be biased by
+the shared grid, and there MYCL1 is unmistakably distinct — standardised residuals
+-18.38 in MYC regions versus +19.94 in its own. So the weak occupancy contrast was
+the design artefact this decision assumed, and the sequence evidence recovers the
+distinctness the occupancy measure lost. Two data types disagreeing in an
+explainable way is stronger than either agreeing alone.
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,
