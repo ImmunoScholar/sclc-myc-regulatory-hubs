@@ -75,7 +75,35 @@ Escalated because the consensus region universe requires ≥2 independent ATAC d
 
 ---
 
-### R-14 · Scientific · **HIGH** · OPEN *(opened 2026-07-26)*
+### R-14 · Scientific · **HIGH** · OPEN — occupancy-level test run 2026-07-26, result SUGGESTIVE not established
+
+**Tested at the chromatin level** (`05_occupancy_confounding.R`), the second independent test of R-01 after the tumour-expression result (D-032).
+
+**Overall co-occupancy is high but uninformative.** Paralog-active regions are 2.5–3.1× enriched for POU2F3 binding in the same cells (all p < 2×10⁻¹⁶). Largely expected: paralog binding and lineage-TF binding both concentrate at active regulatory elements, so a high baseline overlap is not by itself evidence of confounding.
+
+**The decisive contrast points AWAY from confounding at this level.** Paralog-*specific* regions are depleted for POU2F3 binding relative to *shared* regions:
+
+| line | paralog | specific | shared | OR | p |
+|---|---|---|---|---|---|
+| H211 | MYC | 45.8% | 72.0% | **0.33** | 8.5e-218 |
+| H526 | MYCN | 55.0% | 80.6% | **0.29** | 4.0e-14 |
+| H1048 | MYC | 9.7% | 10.2% | 0.94 | 0.32 |
+
+Read at face value: paralog-specific enhancers ARE distinguishable from lineage-TF sites, and the failure seen in tumours lies in the downstream **expression readout**, not in shared occupancy. That would meaningfully qualify D-032.
+
+**Why it is not established.** The POU2F3 peak sets fail a biology sanity check. **NCI-H1048 is the canonical SCLC-P / POU2F3-driven line and has the FEWEST peaks** (21,076) against 63,075 in H211 and 79,934 in H526, neither of which is a POU2F3-subtype line. Filenames indicate different batches (`DX1` vs `CKX`), so either the CKX peak calls are far less stringent or POU2F3 ChIP in POU2F3-negative lines is producing non-specific background that peak-calling converts into tens of thousands of intervals.
+
+The depletion signal comes entirely from H211 and H526 — the two least trustworthy peak sets — while H1048, the line with biologically sensible counts, shows **no difference at all**.
+
+**Resolution at M7.** CCLE expression gives POU2F3 levels in all three lines directly. If H211 and H526 are POU2F3-negative as expected, their peak sets are largely non-specific, those arms drop, and only H1048's null remains. If they are unexpectedly POU2F3-positive, the depletion finding strengthens considerably.
+
+**Standing constraint.** The cis-regulatory MOES domain must NOT be built on this result without that corroboration.
+
+**ASCL1 deliberately not tested:** SHP-77 bigWig signal in hg38, n=1. Signal thresholding plus a liftOver for one line would not support inference, and running it would imply a three-TF analysis when only one arm is strong.
+
+---
+
+### R-14-orig · Scientific · HIGH · superseded by the entry above
 **The lineage-TF controls barely overlap the keystone cell lines, so the confounding analysis cannot be fully within-line.**
 
 Verified cell-line composition:
