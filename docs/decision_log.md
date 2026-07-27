@@ -1511,3 +1511,52 @@ is a *check* whose claim had quietly become false.
 
 A script that resolves a value recorded elsewhere must write back to where it is
 recorded. Producing a new file beside a stale one is not resolution.
+
+---
+
+### D-040 · METH · 2026-07-28 — the pooled dependency result existed only as console output
+
+**Scientific impact:** none. Values reproduce exactly on re-run: pooled OR 2.706
+(95% CI 1.290–5.153), p = 0.00477; MYC dependency delta +0.503.
+
+#### What was wrong
+
+`04_selective_dependency.R` computed the pooled Fisher test — **the result that
+admits the functional domain into MOES (D-036)** — printed it, and discarded the
+object. Same for the per-regulon confidence intervals (`ft$conf.int`) and for the
+paralogs' own dependency values. The numbers existed in three places: a console
+run nobody keeps, prose in D-036, and this decision log.
+
+Figure 3 needed all three. Building it against prose would have meant typing
+`2.71` into a plotting script, which is how a figure silently drifts from the
+analysis that produced it — the identical failure mode to the hardcoded `#B2182B`
+in D-038 and the un-written-back gate verdict in D-039.
+
+#### Fix
+
+Three tables are now written by the script that computes them:
+
+| file | contents |
+|---|---|
+| `m7_dependency_pooled.csv` | pooled OR, 95% CI, p, counts, `paralog_resolved = FALSE` |
+| `m7_paralog_own_dependency.csv` | MYC/MYCN/MYCL gene effect in SCLC vs other lineages |
+| `m7_dependency_enrichment.csv` | gains `ci_low` / `ci_high` per paralog |
+
+The confidence intervals matter beyond provenance. The claim that the three
+per-paralog ORs are indistinguishable was previously an assertion in prose; with
+the intervals stored it is *shown*: 0.65–6.57, 0.58–5.91, 0.97–7.59, overlapping
+almost completely on 4–5 selective genes each.
+
+They also surfaced something worth stating plainly. **MYCL1's nominal p = 0.028
+carries a 95% CI of 0.971–7.59, which includes 1.** Fisher's exact p and its
+conditional-MLE interval disagree at these counts. This is not an error in either,
+but it is a direct argument against reading any per-paralog verdict here — and it
+would have stayed invisible while only the p-value was retained. It is recorded in
+the Figure 3 caption rather than smoothed over.
+
+#### Rule
+
+This is the third instance of one pattern (D-038 config claim never verified,
+D-039 verdict never written back, D-040 result never persisted). **A number that
+appears in a figure, a report or the decision log must be readable from a file
+that the analysis wrote.** Console output is not a result store.

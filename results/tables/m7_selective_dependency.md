@@ -1,6 +1,6 @@
 # M7 — SCLC-selective CRISPR dependency
 
-Generated: 2026-07-27 18:42:35 UTC
+Generated: 2026-07-27 19:23:21 UTC
 DepMap Public 26Q1: 25 SCLC lines vs 1183 other lineages.
 
 Dependency is **not expression**, so unlike the transcriptional and

@@ -178,6 +178,12 @@ for (p in names(reg)) {
     rate_in = round(100 * mean(res$selective[inr]), 2),
     rate_out = round(100 * mean(res$selective[!inr]), 2),
     or = if (is.null(ft)) NA else round(as.numeric(ft$estimate), 2),
+    # Confidence intervals are the whole basis of the claim that these three ORs
+    # are indistinguishable. Stored, not just printed, so the claim can be SHOWN
+    # rather than asserted -- on 4-5 selective genes each the intervals are wide
+    # and heavily overlapping, which is the argument for the pooled test.
+    ci_low  = if (is.null(ft)) NA else round(ft$conf.int[1], 3),
+    ci_high = if (is.null(ft)) NA else round(ft$conf.int[2], 3),
     p = if (is.null(ft)) NA else signif(ft$p.value, 3),
     programme = ifelse(prog$pass[prog$paralog == p], prog$programme[prog$paralog == p], "NONE"),
     stringsAsFactors = FALSE))
@@ -248,6 +254,36 @@ saveRDS(list(per_gene = res, enrichment = enr, n_sclc = n_s, n_other = n_o,
         file.path(OUT, "selective_dependency.rds"))
 write.csv(res[res$selective, ], "data/metadata/m7_selective_dependency.csv", row.names = FALSE)
 write.csv(enr, "data/metadata/m7_dependency_enrichment.csv", row.names = FALSE)
+
+# The POOLED test is the result that admits the functional domain into MOES
+# (D-036), and until now it existed only as console output and prose in the
+# decision log. Anything reading it downstream — a figure, the report — would
+# have to hardcode 2.71 and silently drift if the analysis were rerun. Persisted
+# for the same reason D-039 required the gate verdict to be written back.
+write.csv(data.frame(
+  test            = "pooled_across_three_regulons",
+  n_regulon_genes = sum(inr_all),
+  selective_in    = sum(inr_all & res$selective),
+  selective_out   = sum(!inr_all & res$selective),
+  rate_in_pct     = round(100 * mean(res$selective[inr_all]), 3),
+  rate_out_pct    = round(100 * mean(res$selective[!inr_all]), 3),
+  or              = round(unname(ft_all$estimate), 4),
+  ci_low          = round(ft_all$conf.int[1], 4),
+  ci_high         = round(ft_all$conf.int[2], 4),
+  p               = ft_all$p.value,
+  significant     = pooled_ok,
+  paralog_resolved = FALSE,
+  stringsAsFactors = FALSE),
+  "data/metadata/m7_dependency_pooled.csv", row.names = FALSE)
+
+# The paralogs' OWN dependency. Reported in prose as "none is an SCLC-selective
+# dependency, and MYC is LESS essential in SCLC (delta +0.503)" — a claim that
+# directly limits what this project can say, and so must be readable from disk
+# rather than retyped. MYCL1 is MYCL in DepMap's gene naming.
+para <- res[res$gene %in% c("MYC", "MYCN", "MYCL"), ]
+if (nrow(para) < 3)
+  warning("expected 3 paralog rows in the dependency table; found ", nrow(para))
+write.csv(para, "data/metadata/m7_paralog_own_dependency.csv", row.names = FALSE)
 
 md <- c("# M7 — SCLC-selective CRISPR dependency", "",
         paste0("Generated: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")),
