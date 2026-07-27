@@ -83,9 +83,29 @@ m5_gate:
   mycn_in_myc_fraction:
     published: 0.84           # Plotnik et al. 2024
     tolerance: 0.15           # pass if within +/- 0.15 across the sensitivity range
-  mycl1_in_myc_fraction:
-    published_direction: low  # "largely non-overlapping" — no exact figure given
-    max_expected: 0.50        # fail if MYCL1 looks like a MYC subset
+  # AMENDED 2026-07-26 — see D-025. The original test (raw MYCL1-in-MYC < 0.50)
+  # was not fair under this design. Every paralog is quantified over ONE shared
+  # ATAC-defined grid, so all paralogs are scored at the same 102,334 coordinates
+  # and cross-paralog overlap is mechanically inflated. Plotnik called peaks
+  # de novo per line with no shared grid, so their MYCL1 peaks could sit at
+  # coordinates absent from the MYC peak sets entirely; ours cannot. Observed
+  # 0.774 against a 0.50 threshold was measuring our design, not the biology.
+  mycl1_vs_mycn_nesting:
+    # Test the DIFFERENTIAL, which is what Plotnik actually reported: MYCN
+    # substantially nested in MYC, MYCL1 "largely non-overlapping". Expressed as
+    # enrichment over chance so set sizes and the shared grid cancel.
+    #   enrichment(P) = [ |P ∩ MYC| / |P| ] / [ |MYC| / |universe| ]
+    require_direction: true       # enrichment(MYCN) MUST exceed enrichment(MYCL1)
+    test: fisher                  # on the 2x2 of in/out-of-MYC by paralog
+    alpha: 0.05
+    report_effect_size: true      # odds ratio + CI alongside p, per tables config
+    # No absolute magnitude threshold: Plotnik gives no numeric value for MYCL1,
+    # so inventing one would be fitting a target we do not have. Direction and
+    # significance are falsifiable; magnitude is reported.
+    #
+    # FALSIFIABLE AS INTENDED: if MYCL1 is as nested in MYC as MYCN is, the
+    # paralogs are not distinguishable by occupancy in these data, and that
+    # negative result is the finding.
 
   # 2. Between-group contrast in distal fraction. Immune to universe size because
   #    it compares two groups processed identically.

@@ -1,0 +1,5 @@
+"method","n_MYC","n_MYCN","n_MYCL1","mycn_in_myc","mycl1_in_myc"
+"raw",4977,4575,7956,0.51,0.395
+"fold_over_background",4977,4575,7956,0.51,0.395
+"quantile_within_assay",5269,4768,8263,0.513,0.41
+"median_scaled",4977,4575,7956,0.51,0.395
