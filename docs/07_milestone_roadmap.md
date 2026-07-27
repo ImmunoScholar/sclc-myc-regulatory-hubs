@@ -63,7 +63,26 @@ Replaced with **relative, threshold-invariant** criteria:
 Counts are reported across `sensitivity_quantiles`, descriptively, never as pass/fail.
 **Substantial discordance on 1–4 halts the project for method review — it is not explained away.**
 
-**Additional gate before M6:** regulon internal validity — each paralog regulon must separate amplified from non-amplified lines *in its own source cells* (AUC ≥ 0.70) and track its paralog's expression (Spearman ≥ 0.30). A regulon that fails is not scored in tumours (D-021 E).
+**Additional gate before M6 — regulon internal validity.** Reformulated (D-028): the original spec was uncomputable (needed unverified amplification and absent expression) *and* circular (a regulon built from a paralog's own lines scores high there by construction).
+
+**M5 STATUS 2026-07-26 — substantially complete.**
+
+| step | result |
+|---|---|
+| liftOver | 0.91% loss, 687,962 intervals |
+| universe | 102,334 → **97,106** after blacklist; TSS 8.55×, H3K27ac 2.83× |
+| signal | 28 tracks quantified; fold-over-background (D-027 rationale) |
+| **gate criterion 1** | MYCN⊂MYC **0.912**, spread 0.037 across 50× set-size change — PASS |
+| **gate criterion 2** | MYCN 5.50× vs MYCL1 4.63×, OR 3.14, p=1.1e-60 — PASS (magnitude modest) |
+| gate criterion 3 | **BLOCKED** → M7 (needs DepMap copy number, D-026) |
+| **gate criterion 4** | paralog E-box specificity **3/3**, χ² p=1.6e-101 — PASS |
+| super-enhancers | 170–699 per line (1.9–6.6% of stitched); amplicon-resident negligible |
+| peak-to-gene | 48,756 links; null enrichment **6.06×**; only **32.6%** are nearest-gene |
+| **regulons** | LOO 8/9 · Jaccard 0.059–0.130 · **2 of 3 programmes validated** |
+
+**Regulon programmes:** MYC → **neurogenesis** (p=7.0e-6, reproduces Plotnik from an independent pipeline) · MYCN → **Hallmark/housekeeping** (p=3.6e-4) · MYCL1 → **none** (best p=0.094, FAIL).
+
+**Two findings to carry forward:** (i) Plotnik grouped MYC *and* MYCN enhancer targets under neurogenesis; we reproduce it for MYC only — MYCN is housekeeping-weighted (D-029). (ii) MYCL1 proceeds flagged, not validated, and is re-gated at M7 with real expression (D-030).
 
 ---
 

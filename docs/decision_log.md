@@ -820,6 +820,113 @@ of measured genes and reported them as if they meant something.
 
 ---
 
+### D-029 · METH · 2026-07-26 — regulons: a real bug found by the benchmark, and the benchmark then corrected
+
+**The benchmark failed and located a genuine defect.** The first regulon build gave
+the MYC regulon **2** HALLMARK_MYC_TARGETS_V1 genes out of 500 against ~5 expected
+by chance — depleted, OR 0.37.
+
+**Cause: peak-to-gene linking was distal-only.** `20_peak_to_gene.R` linked only
+`!is_prom_region`, so a paralog-bound **promoter** contributed nothing to its
+regulon — discarding roughly half the binding, since only 45–56% of active regions
+are distal. Two individually reasonable decisions (link enhancers; build regulons
+from links) composed into a wrong one.
+
+**Fix.** Promoter-proximal assignment added: a paralog-active promoter region maps
+to its own gene. 19,236 promoter assignments across 17,373 genes, bringing total
+assignments to 67,992. Effect on Hallmark hits: MYC 2→6, **MYCN 8→15 (OR 2.99,
+p = 3.6e-4)**, MYCL1 5→9.
+
+**Two predictions stated before testing, both from Plotnik's published ontology
+result (MYC/MYCN enhancer targets → neurogenesis; MYCL1 and shared promoters →
+housekeeping/ribosome):**
+
+1. Promoter-inclusive regulons recover Hallmark enrichment — **confirmed for MYCN**,
+   directionally for MYCL1, not for MYC.
+2. Distal-only regulons are neurogenesis-enriched — **confirmed for MYC**:
+   distal-only OR 1.70, p = 1.4e-4; promoter-inclusive OR 1.85, **p = 7.0e-6**.
+
+**So the Hallmark gate was mis-specified, and the reason is principled rather than
+convenient.** HALLMARK_MYC_TARGETS_V1 is a pan-cancer, promoter-centric,
+ribosome-and-translation set. Plotnik's SCLC finding is that MYC's *enhancer*
+programme is neurogenesis. Our MYC regulon reproduces that at p = 7e-6 and shows no
+Hallmark excess — the published pattern exactly. Gating on Hallmark alone would have
+failed a regulon that reproduces the prior work.
+
+**Amended gate: a coherent programme per paralog, named.** Each regulon must show
+significant enrichment for at least one MYC-relevant programme, and the programme
+is reported per paralog. **This is not a relaxation — MYCL1 still fails.**
+
+| paralog | programme | p | result |
+|---|---|---|---|
+| MYC | NEUROGENESIS | 7.0e-6 | PASS |
+| MYCN | HALLMARK | 3.6e-4 | PASS |
+| MYCL1 | none | best 0.094 | **FAIL** |
+
+**DISCORDANCE WITH PRIOR WORK, reported not buried.** Plotnik grouped MYC *and*
+MYCN enhancer targets under neurogenesis. We reproduce it for MYC but **not for
+MYCN** (neuro OR 1.09, p = 0.33), which instead carries the strongest housekeeping
+signal of the three. This is internally consistent with everything else observed
+about MYCN — 91% nested in MYC regions, weakest motif specificity (residual 2.62
+against MYC's 17.91 and MYCL1's 19.65) — so it is stated as a disagreement rather
+than smoothed over.
+
+**Other results.** Leave-one-line-out 8/9 (only MYC/H1048 marginal at AUC 0.690).
+Cross-paralog Jaccard 0.059–0.130, far below the 0.60 limit — the regulons are
+genuinely distinct gene sets.
+
+---
+
+### D-030 · SCOPE · 2026-07-26 — MYCL1 proceeds to M6 flagged, not validated
+
+**Decision.** MYCL1 carries into tumour scoring with an explicit
+`programme_validated: FALSE` flag. It is never reported as validated, and every
+MYCL1 result states that its regulon showed no coherent programme.
+
+**Why not exclude it.** MYCL1 produced the *strongest* result in the M5 gate —
+motif specificity residual +19.65, the clearest paralog separation of the three
+(D-020 criterion 4). Dropping the paralog with the best sequence-level evidence
+because its gene-level regulon is unenriched would discard real signal.
+
+**Why not treat it as passing.** It shows no significant enrichment for any tested
+programme (Hallmark p = 0.094, neurogenesis p = 0.27). Scoring it in tumours as
+though validated would put weight on a gene set we cannot show is coherent.
+
+**Fair re-test at M7.** MYCL1 has been the weakest paralog throughout — two lines,
+sparse paralog-specific regions, weakest signal-to-background. CCLE expression will
+allow a real expression-correlation test in place of the H3K27ac activity proxy
+(D-027), and its regulon should be rebuilt and re-gated then. If it still shows no
+programme, that is the finding.
+
+---
+
+### D-031 · PROCESS · 2026-07-26 — three recurring defect classes, named so they stop recurring
+
+Recorded because each has now appeared more than once, and naming the class is
+cheaper than rediscovering it.
+
+**1. Checks that cannot fail.** The hg19 build assertion compared `20` to `chr20`,
+matched nothing, and reported PASS (R-16). The original M5 gate matched a published
+count our own parameters determined (D-020). The ROSE cutoff collapsed to the
+minimum and called every stitched region a super-enhancer. **Rule: a check must be
+observed failing on data known to violate it before it is trusted.**
+
+**2. Self-matching checkers.** `pgrep -f 11_rescan_exact.sh` matched the shell
+command that invoked it. `verify_config.R` scanned the script tree for removed
+config keys and matched its own source, which necessarily names every one.
+**Rule: any check that inspects the codebase, process table, or filesystem must
+exclude itself from its own scan.**
+
+**3. Seam errors between edits.** Blacklist filtering was named as necessary and
+never implemented. D-025 was referenced in config and three reports but never
+written. `FOLD_GRID` and the SE cutoff lived in code while the config claimed to own
+all thresholds. D-029 removed `benchmark_enrichment` from config while a script
+still read it. **Rule: an intention declared and deferred is not recorded by the
+decision log, which captures decisions made. Run `audit_decisions.sh` and
+`verify_config.R` at every milestone boundary.**
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,

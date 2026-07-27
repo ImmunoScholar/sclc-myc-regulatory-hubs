@@ -1,0 +1,13 @@
+"type","paralog","held_out","auc","p","pass"
+"loo","MYC","H1048",0.69,0,FALSE
+"loo","MYC","H211",0.721,0,TRUE
+"loo","MYC","H524",0.759,0,TRUE
+"loo","MYC","H847",0.788,0,TRUE
+"loo","MYC","SHP77",0.705,0,TRUE
+"loo","MYCN","H526",0.713,0,TRUE
+"loo","MYCN","H69",0.711,0,TRUE
+"loo","MYCL1","COLO668",0.813,0,TRUE
+"loo","MYCL1","H889",0.792,0,TRUE
+"bench","MYC",NA,1.11,0.457,FALSE
+"bench","MYCN",NA,2.99,0.000365,TRUE
+"bench","MYCL1",NA,1.71,0.094,FALSE

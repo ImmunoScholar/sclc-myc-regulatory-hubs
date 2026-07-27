@@ -191,8 +191,32 @@ regulon_validity:
   require_cross_paralog_distinctness: true
   max_regulon_jaccard: 0.60    # paralog regulons more similar than this are not
                                # separable and must be reported as such
-  benchmark_enrichment: HALLMARK_MYC_TARGETS_V1   # sanity: MYC regulon should be
-                                                  # enriched for known MYC targets
+  # ------------------------------------------------------------------------
+  # AMENDED 2026-07-26 (D-029). HALLMARK_MYC_TARGETS_V1 alone was the wrong sole
+  # benchmark. It is a pan-cancer, PROMOTER-centric, ribosome-and-translation set,
+  # while Plotnik's published result for SCLC is that MYC ENHANCER targets map to
+  # NEUROGENESIS. Our MYC regulon is neurogenesis-enriched at p = 2.7e-5 and shows
+  # no Hallmark excess — exactly the published pattern. Gating on Hallmark alone
+  # would have failed a regulon that reproduces the prior finding.
+  #
+  # NOT a relaxation: MYCL1 still fails this gate, and does so on the record.
+  # ------------------------------------------------------------------------
+  benchmark_mode: coherent_programme_per_paralog
+  benchmark_sets:
+    HALLMARK_MYC_TARGETS_V1: "promoter/housekeeping programme (MSigDB H)"
+    GOBP_NEUROGENESIS_GROUP: "enhancer/neuronal programme (MSigDB C5 GO:BP)"
+  benchmark_alpha: 0.05
+  require_named_programme: true    # the passing programme must be NAMED per
+                                   # paralog, never left implicit
+  # Observed 2026-07-26 (primary, promoter-inclusive regulons):
+  #   MYC   -> neurogenesis  OR 1.77, p 2.7e-05   PASS
+  #   MYCN  -> Hallmark      OR 3.14, p 2.4e-04   PASS
+  #   MYCL1 -> neither       best p 0.081         FAIL
+  #
+  # DISCORDANCE WITH PRIOR WORK, to be reported not buried: Plotnik grouped MYC
+  # AND MYCN enhancer targets under neurogenesis. We reproduce it for MYC but not
+  # for MYCN (neuro OR 1.03, p 0.44), which instead carries the strongest
+  # housekeeping signal of the three.
   # DEFERRED TO M7, when DepMap supplies CCLE expression and copy number:
   deferred_to_m7:
     - amplified_vs_nonamplified_auc

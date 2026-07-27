@@ -57,6 +57,31 @@ chk("peak_to_gene labelled as activity proxy",
     identical(cfg$peak_to_gene$activity_proxy, "promoter_h3k27ac"))
 chk("regulon validity is leave-one-line-out",
     identical(cfg$regulon_validity$method, "leave_one_line_out"))
+chk("regulon benchmark_sets supplies a HALLMARK set",
+    any(grepl("^HALLMARK", names(cfg$regulon_validity$benchmark_sets))))
+chk("regulon benchmark_mode is per-paralog",
+    identical(cfg$regulon_validity$benchmark_mode, "coherent_programme_per_paralog"))
+
+# --- keys REMOVED by amendment must not be referenced by any script -----------
+# D-029 replaced `benchmark_enrichment` with `benchmark_sets`, but 21_regulons.R
+# still read the old key and failed at runtime. Removed keys are checked against
+# the script tree so this class of divergence is caught here, not mid-analysis.
+cat("\n=== removed keys not referenced in scripts ===\n")
+removed_keys <- c("benchmark_enrichment", "signal_quantile",
+                  "sensitivity_quantiles", "min_abs_correlation", "n_shuffles")
+# EXCLUDE THIS FILE. It necessarily names every removed key in order to assert
+# each is absent, so including it makes the check match itself and fail always.
+# Second self-match bug in this project after `pgrep -f` matching the calling
+# shell's own command line — a checker that scans source must exclude itself.
+script_files <- setdiff(
+  list.files("scripts", pattern = "\\.R$", recursive = TRUE, full.names = TRUE),
+  "scripts/00_setup/verify_config.R")
+src <- unlist(lapply(script_files, readLines, warn = FALSE))
+for (k in removed_keys) {
+  hits <- grep(paste0("\\$", k, "\\b"), src, value = TRUE)
+  chk(paste0("no script reads $", k), length(hits) == 0,
+      if (length(hits)) paste0("(", length(hits), " reference(s))") else "")
+}
 
 cat("\n")
 if (!ok) { cat("RESULT: FAIL — config invariants violated.\n"); quit(status = 1) }

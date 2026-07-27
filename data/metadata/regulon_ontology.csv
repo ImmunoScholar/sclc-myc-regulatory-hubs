@@ -1,0 +1,7 @@
+"paralog","regulon","n","hallmark_hits","hallmark_or","neuro_hits","neuro_or","neuro_p"
+"MYC","both",500,6,1.11,71,1.85,0.00000699
+"MYC","distal",500,2,0.36,66,1.7,0.00014
+"MYCN","both",500,15,2.99,45,1.09,0.326
+"MYCN","distal",500,8,1.51,45,1.09,0.326
+"MYCL1","both",500,9,1.71,46,1.11,0.27
+"MYCL1","distal",500,5,0.92,48,1.17,0.176
