@@ -1239,6 +1239,50 @@ cannot attribute.
 
 ---
 
+### D-037 · SCI · 2026-07-28 — network domain excluded; MOES reduced to two domains
+
+**Tested before building**, so a confounded domain could not be admitted while
+appearing to be independent evidence. Both pre-conditions failed.
+
+**Power.** 59 SCLC lines with CCLE expression. GENIE3 is a tree ensemble and
+conventionally needs hundreds of samples for stable importance estimates.
+
+**Confounding.** MYC expression tracks NE state across SCLC *cell lines* at
+**ρ = −0.441** (FDR 0.008), and MYC vs ASCL1 at −0.409 (FDR 0.010) — the same
+structure that barred the tumour-based network. A GENIE3 network built here would
+inherit the D-033 confound.
+
+**A third independent reproduction of Ireland et al. 2020.** MYC/NE antagonism:
+GSE60052 tumours −0.590, George 2015 tumours −0.466, CCLE cell lines −0.441. Three
+independent datasets across two data types. This is among the most robust findings
+in the project, and it explains *why* two domains had to be excluded: the antagonism
+is a property of SCLC biology, not of tumour tissue.
+
+**FINAL MOES COMPOSITION — two of four domains.**
+
+| domain | status | paralog-resolved? |
+|---|---|---|
+| cis-regulatory | ADMITTED | yes (region-level) |
+| transcriptional | EXCLUDED (D-033) | — |
+| network | EXCLUDED (this entry) | — |
+| functional | ADMITTED (D-036) | no (gene-level) |
+
+**What MOES can and cannot claim.** It ranks genes by converging regulatory and
+functional evidence. It **cannot** perform multi-layer paralog-specific
+prioritisation as specified at M1, because only one admitted domain attributes
+evidence to a paralog. Two-stage RRA is also degenerate at two domains and reduces
+to a single aggregation across two rankings — that must be stated, not glossed.
+
+**The framework's real contribution, restated honestly.** Its demonstrated value is
+**deciding which evidence is admissible**, not integrating whatever is available. It
+excluded three of four domains on evidence, each with a documented test that could
+have gone the other way. A weighted-sum framework over these four layers would have
+produced confident paralog-specific hubs from two lineage-confounded layers and one
+that cannot distinguish paralogs. That is a more useful methodological claim than
+the original, and it is supported by this project's own data rather than asserted.
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,

@@ -373,11 +373,27 @@ moes:
   #     from expression, and what predicts paralog expression here is lineage state,
   #     so a tumour-based network would carry the same confound while appearing
   #     independent. Built on CCLE SCLC lines at M7 instead.
-  domains: [cis_regulatory, network, functional]
+  # REDUCED AGAIN 2026-07-28 (D-037): three of four domains excluded on evidence.
+  domains: [cis_regulatory, functional]
   domains_dropped:
-    transcriptional: "lineage-confounded at aggregate AND per-gene level (D-033)"
-  network_source: ccle_sclc_lines   # NOT the tumour cohort
-  report_domain_count: true         # the number of domains is stated, never implied
+    transcriptional: >-
+      Lineage-confounded at aggregate AND per-gene level (D-033). Regulon genes
+      survive lineage adjustment at background rate; MYCN: 0 of 33,683 genes.
+    network: >-
+      EXCLUDED on BOTH pre-conditions (D-037). Power: only 59 SCLC lines with CCLE
+      expression, far below what tree-ensemble inference needs. Confounding: MYC
+      expression tracks NE state across cell lines (rho -0.441, FDR 0.008), the
+      same structure that barred the tumour-based network.
+  domain_attribution:
+    cis_regulatory: paralog_resolved      # region-level, per paralog
+    functional: gene_level_only           # ORs 2.21/2.45/3.09 indistinguishable
+  # CONSEQUENCE, to be stated in every output: only ONE admitted domain attributes
+  # evidence to a paralog. MOES ranks genes by converging regulatory and functional
+  # evidence, with paralog attribution resting on chromatin ALONE. It cannot
+  # perform multi-layer paralog-specific prioritisation as specified at M1.
+  two_stage_rra_degenerate: true          # at 2 domains, stage 2 reduces to a
+                                          # single aggregation — say so, do not gloss
+  report_domain_count: true
   # NO WEIGHTS. Layers are non-independent (chromatin evidence is correlated by
   # construction), so a weighted sum would multiply-count it. See D-003.
   permutations: 10000         # empirical FDR
