@@ -407,3 +407,65 @@ absence is visible instead of looking like an oversight.
 HTML error page. NCBI returns HTML on 403 and DepMap returns a Cloudflare
 challenge; a naive downloader saves both as data, and a small HTML file can pass a
 size check if the size was itself recorded from a failed request.
+
+---
+
+### D-018 · ENV · 2026-07-26 — download concurrency is 2, established by failure
+
+**Decision.** `02_download.sh` runs 2 concurrent transfers, staggered, with a
+worker that treats HTTP 403/429/503 as transient.
+
+**How it was arrived at, including the wrong turn.**
+
+| setting | outcome |
+|---|---|
+| serial | ~171 KB/s, zero failures, ~19 h projected for 12 GB |
+| 4 concurrent | **403s within ~2 minutes**, on 4 of the first 8 files |
+| 2 concurrent | **517 KB/s aggregate, 64/64 files, zero failures, 6 h 22 m** |
+
+A bandwidth probe had indicated an 8.75× aggregate gain from 4 streams and I acted
+on it. That probe measured byte-**range** requests against a *single* file, which
+does not trip NCBI's per-IP concurrent-connection limit the way requests for four
+*distinct* files do. The measurement was sound; the inference from it was not.
+Recorded because "measure, don't guess" is necessary but insufficient — the
+measurement has to exercise the same mechanism as the real workload.
+
+**Two real defects the 403s exposed.**
+1. `curl` does not retry 403 by default (not classed as transient), so a single
+   rate-limit response killed a file outright.
+2. The 403 **HTML body was written into the `.part` file**. A later `curl -C -`
+   resumes from the end of that markup, producing a file that is a few hundred
+   bytes of HTML followed by real data. Observed as 980-byte `.part` files whose
+   first two bytes were `3c3f` (`<?`) rather than the gzip magic `1f8b`. The
+   worker now scrubs any `.part` that is not valid gzip or begins with markup, and
+   `clean_poisoned_parts.sh` audits existing ones — 3 found and removed.
+
+**Do not raise concurrency** without re-testing. It trades throughput for 403s,
+and the 403 failure mode is silent corruption rather than a clean error.
+
+---
+
+### D-019 · METH · 2026-07-26 — sequence names are harmonised centrally, and assertions must be able to fail
+
+**Decision.** All coordinate handling passes through `R/genome_utils.R`.
+`harmonise_seqnames()` is mandatory before any cross-object genomic operation.
+
+**Why.** The keystone deposit uses Ensembl sequence names (`20`) and every
+annotation resource uses UCSC names (`chr20`). Same hg19 coordinates, different
+convention, and mixing them yields **zero overlaps rather than an error** — a
+result that looks biological. See risk R-16 for the full account.
+
+**The stronger half of this decision.** `assert_hg19_bounds()` returns a
+**failure** when it had fewer than 20 chromosomes to compare, rather than passing
+because it found no violations among nothing. The original assertion could not
+fail: it compared `20` against `chr20`, matched zero rows, and reported success —
+while nominally guarding R-05, the project's highest-consequence technical risk.
+
+**Consequence for how QC is written from here.** Build assertions stream whole
+files rather than sampling, because these bedGraphs are in BAM-header order
+(`20 21 22 1 3 2 …`) and a head sample contains one chromosome. `--fast` records
+the skip **as a failure**, so a fast run cannot be mistaken for a clean one.
+
+**Standing rule.** A QC check must be observed failing on data known to violate it
+before it is trusted. Two defects in this project have been checks that passed
+because they examined nothing.

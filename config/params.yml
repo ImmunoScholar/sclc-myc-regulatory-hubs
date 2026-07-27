@@ -148,6 +148,35 @@ spatial:
   report_coverage_fraction: true   # on EVERY spatial figure — most regulon
                                    # members are not on the panel
   min_genes_measured: 5            # below this, do not score a regulon at all
+
+  # ---------------------------------------------------------------------------
+  # KNOWN DEPOSIT GAP — characterised 2026-07-26, see risk R-17.
+  # GSE261348 annotates 184 segments in SegmentProperties but deposits only 175
+  # columns in TargetCountMatrix. The 9 missing segments were characterised
+  # rather than waved through, and the pattern is INVERTED from a QC exclusion:
+  # they carry ~4x the median read depth (28.9M vs 7.7M raw), normal saturation,
+  # normal nuclei counts and NO QC flags. The one segment from that slide that
+  # WAS deposited has 695K reads (40x fewer than its slide-mates), a
+  # "Low Negative Probe Count" flag and 241 nuclei.
+  # Best explanation is a deposition error upstream, not a filtering decision.
+  # Declared here so QC verifies the discrepancy still matches what we
+  # characterised — a DIFFERENT discrepancy on re-download must fail.
+  # ---------------------------------------------------------------------------
+  known_segment_gaps:
+    GSE261348:
+      annotated_segments: 184
+      deposited_rois: 175
+      missing_count: 9
+      missing_slide: "IMF-001/002"
+      missing_rois: ["002","003","004","005","006","007","008","009","010"]
+      characterisation: >-
+        Not a QC exclusion. Missing segments have higher read depth than those
+        retained and carry no QC flags. Treated as an upstream deposit gap.
+      m9_action: >-
+        EXCLUDE slide IMF-001/002 entirely from spatial scoring. Its only
+        deposited segment (ROI 001) is 40x under-sequenced relative to its
+        slide-mates and QC-flagged, so retaining it would contribute one
+        unreliable ROI while the nine usable ones are unavailable.
   # Prognostic, survival and immune-exclusion analyses are OUT OF SCOPE (D-001,
   # Zhang et al. 2025). Enforced by review at M9, not by a parameter.
 

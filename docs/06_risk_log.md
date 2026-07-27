@@ -74,6 +74,55 @@ Keystone MYC ChIP lines are H1048, H211, H524, H847, SHP77; MYCL1 COLO668, H889;
 
 ---
 
+### R-17 · Data · MED · OPEN *(opened 2026-07-26)*
+**GSE261348 appears to have a deposit error: nine high-quality segments are annotated but their counts were never deposited.**
+
+Found by QC comparing the workbook's `SegmentProperties` sheet (184 annotated segments) against `TargetCountMatrix` (175 deposited ROI columns). The nine were characterised rather than written off as a QC exclusion, and the pattern is **inverted from what a QC exclusion looks like**:
+
+| | 9 absent segments | median deposited segment |
+|---|---|---|
+| Raw reads | **28.9 M** | 7.7 M |
+| Aligned reads | 27.7 M | 7.4 M |
+| Deduplicated | 10.4 M | 2.9 M |
+| Sequencing saturation | 61.4 % | 60.9 % |
+| Nuclei count | 2,706 | 2,503 |
+| QC flags | **none** | — |
+
+All nine are ROIs 002–010 of slide `IMF-001/002`. The **one** segment from that slide that *was* deposited (ROI 001) has 694,776 raw reads — roughly 40× fewer than its slide-mates — carries the `Low Negative Probe Count` flag, and has 241 nuclei.
+
+So the deeply-sequenced, unflagged segments were dropped and the shallow flagged one was kept. That is not a filtering decision; the most plausible explanation is an upstream deposition error. Direction of the mismatch was checked both ways — 0 matrix columns are absent from `SegmentProperties` — so it is genuine absence, not a naming mismatch.
+
+**Consequence.** Slide `IMF-001/002` (from the naming, likely patients IMF-001 and IMF-002) effectively has no usable spatial data. The cohort's usable ROI count is 175, of which 1 is unreliable.
+
+**Mitigation.** Declared in `config/params.yml` under `spatial.known_segment_gaps`, including the M9 action: **exclude slide `IMF-001/002` entirely** rather than retain its single under-sequenced ROI. QC now verifies the gap still matches the characterised shape — an undeclared gap, or a declared one whose shape changed on re-download, fails. The discrepancy is not tolerated, it is pinned.
+
+**Impact on conclusions.** Low. Spatial is already restricted to a coherence and heterogeneity check with no prognostic claims (D-001). But the reduced patient count must appear in the spatial figure legends alongside the panel-coverage fraction.
+
+---
+
+### R-16 · Technical · **HIGH** · OPEN *(opened 2026-07-26)*
+**Sequence-name conventions differ between the keystone data and every annotation resource — and the QC check meant to catch build problems silently passed on nothing.**
+
+Discovered when QC ran against real data for the first time. Two distinct problems:
+
+**(a) The naming mismatch.** GSE230649 bedGraphs use **Ensembl** sequence names — bare `1`, `20`, `X` (verified: first line is `20\t0\t60000\t0.00000`; full set is 1–22, X, Y with no scaffolds). Every annotation resource in the project uses **UCSC** names: `TxDb.Hsapiens.UCSC.hg19.knownGene`, `hg19.chrom.sizes`, and the UCSC liftOver chains. The coordinates are identical hg19; only the convention differs.
+
+This does not raise an error. `GenomicRanges` operations between objects with disjoint seqlevels return **zero overlaps**, which reads as a biological result — "MYC binds none of these regions" — rather than as a bug.
+
+**(b) The vacuous assertion — the more serious of the two.** `04_qc_report.R` asserted hg19 bounds by merging bedGraph seqnames against `hg19.chrom.sizes`. Because `20` never matches `chr20`, the merge returned zero rows, found zero violations, and **recorded a PASS**. The check guarding R-05, the project's highest-consequence technical risk, could not fail.
+
+A second flaw compounded it: assertions ran on a 200,000-line head sample, but these bedGraphs are written in **BAM-header order** (`20 21 22 1 3 2 5 4 …`), not sorted, so a head sample contains exactly one chromosome. Each file is 45.5M lines.
+
+**Mitigation.**
+- `R/genome_utils.R` provides `harmonise_seqnames()`, and **every coordinate join must pass through it**. Established at M4 so M5 inherits it rather than rediscovering the problem.
+- `assert_hg19_bounds()` **refuses to return a pass** when fewer than 20 chromosomes were actually compared. A check that had nothing to compare now reports failure, not success.
+- Build assertions stream each file in full by default. `--fast` skips them and records that they were skipped as a *failure*, so a fast run can never be mistaken for a clean one.
+- QC additionally asserts that all 23 analysis chromosomes are present, which catches truncation.
+
+**Lesson recorded.** Two QC defects in this project have now been of the same kind: a check that returns a pass because it silently examined nothing (this one, and the `!isTRUE(vector)` resumability check at M4). **A QC check must be tested against data known to violate it**, or it is decoration. Any future assertion added to this project should be demonstrated failing before it is trusted.
+
+---
+
 ### R-15 · Data · LOW · **CLOSED 2026-07-26**
 **GSE60052 deposits no raw counts.**
 Verified by reading the file header: the only matrix is `normalized.log2`, gene-symbol rows, 86 columns.
