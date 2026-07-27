@@ -353,7 +353,21 @@ genie3:
 moes:
   method: robust_rank_aggregation
   stages: 2                   # RRA within domain, then RRA across domains
-  domains: [cis_regulatory, transcriptional, network, functional]
+  # REDUCED 2026-07-26 (D-033) from four domains to three.
+  #   transcriptional — DROPPED. Carries no paralog-specific content at either the
+  #     regulon or per-gene level: lineage explains 39-49% of regulon variance
+  #     against 0.0-1.6% uniquely paralog, 0/3 associations survive adjustment, and
+  #     regulon genes survive lineage adjustment at background rate (enrichment
+  #     0/3). MYCN: zero of 33,683 genes survive genome-wide.
+  #   network — must NOT be built on the tumour cohort. GENIE3 recovers regulators
+  #     from expression, and what predicts paralog expression here is lineage state,
+  #     so a tumour-based network would carry the same confound while appearing
+  #     independent. Built on CCLE SCLC lines at M7 instead.
+  domains: [cis_regulatory, network, functional]
+  domains_dropped:
+    transcriptional: "lineage-confounded at aggregate AND per-gene level (D-033)"
+  network_source: ccle_sclc_lines   # NOT the tumour cohort
+  report_domain_count: true         # the number of domains is stated, never implied
   # NO WEIGHTS. Layers are non-independent (chromatin evidence is correlated by
   # construction), so a weighted sum would multiply-count it. See D-003.
   permutations: 10000         # empirical FDR

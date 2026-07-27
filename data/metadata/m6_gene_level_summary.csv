@@ -1,0 +1,4 @@
+"paralog","n_tested","regulon_genes_tested","n_fdr05","n_fdr05_positive","regulon_survivors","rate_in_regulon","rate_outside","enrich_or","enrich_p"
+"MYC",33682,367,206,76,1,0.27,0.23,1.21,0.566
+"MYCN",33682,397,0,0,0,0,0,NA,NA
+"MYCL1",33682,373,62,58,1,0.27,0.17,1.57,0.476

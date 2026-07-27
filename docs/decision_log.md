@@ -993,6 +993,70 @@ lineage-adjusted figure alongside it.**
 
 ---
 
+### D-033 · SCI · 2026-07-26 — transcriptional domain dropped; MOES reduced to three domains; aims reframed
+
+**The per-gene rescue failed.** The regulon aggregate was null (D-032), but MOES
+operates per gene, so individual genes were tested for lineage-independent paralog
+association (partial Spearman, adjusting for NE score + ASCL1 + NEUROD1 + POU2F3 +
+YAP1, df = 72, detectable |ρ| ≥ 0.229).
+
+| paralog | regulon genes | survivors in regulon | rate in | rate outside | OR | p |
+|---|---|---|---|---|---|---|
+| MYC | 367 | 1 | 0.27% | 0.23% | 1.21 | 0.57 |
+| MYCN | 397 | **0** | 0.00% | 0.00% | — | — |
+| MYCL1 | 373 | 1 | 0.27% | 0.17% | 1.57 | 0.48 |
+
+**Enrichment 0/3.** Regulon genes survive at background rate. The correct test was
+enrichment rather than survivor count — with ~33,700 genes, some survive FDR by
+chance, and 1 of 370 is precisely that. **MYCN is more extreme: zero of 33,683
+genes** genome-wide show a lineage-independent positive association, consistent
+with its near-absent dynamic range (median 1.34, IQR 0–3.26).
+
+**Decision 1: the transcriptional domain is DROPPED from MOES**, and the reason is
+declared in the methods rather than omitted. It has no paralog-specific content to
+contribute at either the aggregate or the per-gene level.
+
+**Decision 2: the network domain must NOT be built on these tumours.** GENIE3
+recovers regulators from expression; we have now shown that what predicts paralog
+expression in this cohort is lineage state. A network domain built here would enter
+MOES looking like independent evidence while carrying the same confound. It moves
+to CCLE SCLC lines (~50) at M7.
+
+**Decision 3: MOES runs on three domains** — cis-regulatory, network (CCLE-based),
+functional (DepMap) — and cannot run before M7. The domain count is reported, not
+implied.
+
+**Decision 4: aims reframed.** The original headline — "identify robust
+paralog-specific MYC regulatory hubs, cross-validated across layers" — cannot be
+delivered as written and will not be claimed. The delivered contribution is:
+
+1. A reproducible pipeline extracting paralog-resolved regulatory programmes from a
+   bedGraph-only deposit, without MACS2 or input controls.
+2. **Two independent reproductions of published work**: Plotnik's MYC-enhancer
+   neurogenesis programme (p = 7×10⁻⁶) and Ireland 2020's MYC/NE antagonism
+   (ρ = −0.590, p = 1.1×10⁻⁸).
+3. **A new discordance**: MYCN's programme is housekeeping-weighted, not
+   neurogenesis as Plotnik grouped it.
+4. **A well-powered negative result with an identified mechanism**: paralog-resolved
+   programmes do not retain paralog identity in patient tumours independently of
+   neuroendocrine lineage state.
+5. **A methodological demonstration**: a weighted-sum framework over these layers
+   would have returned confident paralog-specific hubs. Detecting and quantifying
+   that confound is the framework's demonstrated value — a stronger and more useful
+   claim than the original, and supported by this project's own data.
+
+**Why continue rather than consolidate.** DepMap CRISPR dependency is *not*
+expression, so it is not subject to the lineage confound that removed the
+transcriptional and tumour-network domains. CCLE provides ~50 SCLC lines for a
+network domain that 79 tumours cannot support. DepMap also unblocks M5 gate
+criterion 3 (D-026). The remaining evidence is genuinely independent of what failed.
+
+**Standing constraint.** No result may be described as paralog-specific without the
+lineage-adjusted figure beside it. This applies to every table, figure and sentence
+from here to release.
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,
