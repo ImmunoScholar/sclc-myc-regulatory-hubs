@@ -1,3 +1,3 @@
 "figure","png","pdf","width_mm","height_mm","dpi","script","caption","generated"
 "fig01_lineage_dominance","fig01_lineage_dominance.png","fig01_lineage_dominance.pdf",200,175,300,"scripts/07_figures/fig01_lineage_dominance.R","Lineage dominance over paralog identity, replicated in two cohorts","2026-07-27 19:04:38"
-"fig_s01_data_landscape","fig_s01_data_landscape.png","fig_s01_data_landscape.pdf",200,190,300,NA,NA,"2026-07-27 19:05:51"
+"fig_s01_data_landscape","fig_s01_data_landscape.png","fig_s01_data_landscape.pdf",200,190,300,"scripts/07_figures/fig_s01_data_landscape.R","Inventory of verified public data: assay coverage, genome-build split, lineage-TF overlap","2026-07-27 19:07:31"

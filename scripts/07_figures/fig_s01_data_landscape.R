@@ -182,7 +182,9 @@ fig <- (panelA | pB) / pC +
             plot.margin   = margin(6, 8, 4, 6))
   )
 
-save_fig(fig, "fig_s01_data_landscape.png", width = 200, height = 190)
+save_fig(fig, "fig_s01_data_landscape.png", width = 200, height = 190,
+         script = "scripts/07_figures/fig_s01_data_landscape.R",
+         caption = "Inventory of verified public data: assay coverage, genome-build split, lineage-TF overlap")
 
 # --- caption file, so the figure is interpretable without the script ----------
 writeLines(c(

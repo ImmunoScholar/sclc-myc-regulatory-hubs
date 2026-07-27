@@ -178,3 +178,15 @@ desktop.ini
 *.swo
 .vscode/
 .idea/
+
+# -----------------------------------------------------------------------------
+# 11. Scratch runner scripts at repo root
+# -----------------------------------------------------------------------------
+# Throwaway shell wrappers used to drive R from the Windows host without the
+# PowerShell/WSL quoting traps (see docs/research_journal.md). They are execution
+# scaffolding, not analysis: nothing here is needed to reproduce a result, and
+# one was committed by accident before this rule existed. Anything that IS needed
+# to reproduce a result belongs in scripts/ with a number and a header.
+/.commit_*.sh
+/.run_*.sh
+/.*_tmp.md
