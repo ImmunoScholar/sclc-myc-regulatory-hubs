@@ -1,0 +1,15 @@
+"metric","value"
+"domains_admitted",2
+"domains_planned",4
+"paralog_resolved_domains",1
+"two_stage_rra_degenerate",1
+"moes_universe_genes",10387
+"layer_rho_MYC",-0.0229
+"layer_rho_MYCN",0.0119
+"layer_rho_MYCL1",-0.0075
+"n_fdr_MYC",0
+"n_fdr_MYCN",0
+"n_fdr_MYCL1",0
+"n_stable_fdr_MYC",0
+"n_stable_fdr_MYCN",0
+"n_stable_fdr_MYCL1",0

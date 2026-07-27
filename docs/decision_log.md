@@ -1560,3 +1560,99 @@ This is the third instance of one pattern (D-038 config claim never verified,
 D-039 verdict never written back, D-040 result never persisted). **A number that
 appears in a figure, a report or the decision log must be readable from a file
 that the analysis wrote.** Console output is not a result store.
+
+---
+
+### D-041 · SCI · 2026-07-28 — the reduced MOES returns no prioritised hubs; the two surviving domains do not converge
+
+**Status:** RUN, REPORTED AS A NULL. Not a failure to complete — a completed
+analysis whose answer is negative.
+
+#### What was run
+
+The two-domain MOES specified after D-037, over 10,387 genes carrying evidence in
+both admitted domains: cis-regulatory (paralog-resolved aggregate peak-to-gene
+link score) and functional (gene-level SCLC-selective dependency). Robust Rank
+Aggregation, 10,000 permutations for empirical FDR, 2,000 bootstrap resamples of
+the cis links.
+
+Two things were verified before any score was believed:
+
+1. **The cis layer is the committed one.** `01_build_evidence.R` rebuilds the
+   aggregate link score and asserts that its top-500 genes are *identical* to the
+   regulons in `regulons.rds`, for all three paralogs, or stops. A reimplementation
+   that had quietly drifted would have made every rank below wrong with nothing
+   else to catch it. It reproduces exactly.
+2. **The RRA null is correct.** The n = 2 closed form used in the permutation and
+   bootstrap loops was checked against `RobustRankAggreg::aggregateRanks`:
+   max absolute difference **1.1e-15**. A hand-derived Beta null that was subtly
+   wrong would have corrupted every p-value and FDR.
+
+#### Result
+
+**Zero genes reach FDR < 0.05 for any paralog.** Best FDR achieved: 0.381 (MYC),
+0.371 (MYCN), 0.358 (MYCL1).
+
+The mechanism is visible in one number. The Spearman correlation between the two
+domains' rankings is **−0.023, +0.012, −0.008**. The domains are effectively
+independent, so genes ranking highly in one do not rank highly in the other more
+often than chance predicts, and RRA has nothing to aggregate. This is not a
+threshold artefact; it is the absence of the convergence MOES exists to detect.
+
+#### The null is real, and the method has the power to say so
+
+A null from an untested method is not a finding. `03_moes_positive_control.R`
+blends a synthetic functional layer with the real cis ranking at increasing
+strength and runs the identical FDR machinery:
+
+| injected signal | layer ρ | min FDR | genes FDR < 0.05 |
+|---|---|---|---|
+| 0.00 | −0.000 | 0.878 | 0 |
+| 0.10 | +0.101 | 0.084 | 0 |
+| 0.20 | +0.209 | 0.018 | 1 |
+| 1.00 | +1.000 | 0.000 | 288 |
+
+Monotone and graded: nothing on pure noise, discoveries once the layers correlate
+at ρ ≈ 0.2, hundreds when they are identical. **Observed ρ = −0.023.** The
+convergence is absent at a level the method demonstrably detects.
+
+#### Three structural findings, computed rather than asserted
+
+**Two-stage RRA is degenerate at two domains.** Stage 2 has nothing to aggregate
+that stage 1 did not. The reported score is a single aggregation. Config already
+carried `two_stage_rra_degenerate: true`; it is now demonstrated in the output.
+
+**Leave-one-domain-out is degenerate too.** With two domains, removing one leaves
+one. It is reported as "combined vs each domain alone" (ρ +0.57 to +0.70), not as
+the stability check specified at M1, which assumed four domains.
+
+**Between-paralog difference is chromatin alone.** The functional vector is
+*identical* for all three paralogs, so it pulls every paralog's ranking toward the
+same genes. MOES agreement between paralogs (ρ +0.50 to +0.59) is inflated well
+above cis-only agreement (ρ +0.17 to +0.33) purely by that shared layer. Any
+apparent paralog-specificity in a MOES ranking would be chromatin wearing a
+multi-omics label.
+
+#### Decision
+
+**MOES is reported as a null. No top-N hub table will be produced.** Presenting
+the head of a distribution with best-FDR 0.36 as "prioritised hubs" would be the
+single most misleading thing this project could do — it is exactly the output the
+M1 design anticipated, and it would look like a result.
+
+The full ranking with its FDR column is written to `data/metadata/moes_ranking.csv`
+so the absence is inspectable rather than hidden.
+
+The multi-layer paralog-specific prioritisation specified at M1 is **not
+achievable on this evidence**. Three of four domains were excluded on their own
+evidence (D-033, D-036, D-037), and the two that survived do not converge. This is
+now the project's second major negative result, alongside R-01 (D-034), and both
+are reported as findings.
+
+#### What this does not say
+
+Not that the regulons are wrong — they pass internal validation (Figure 2D) and
+reproduce Plotnik's MYC-enhancer→neurogenesis link independently. Not that the
+dependency enrichment is wrong — pooled OR 2.71 stands (D-036). It says the two
+kinds of evidence do not point at the same genes, which is a statement about the
+biology as measured here and about the limits of integrating two thin layers.

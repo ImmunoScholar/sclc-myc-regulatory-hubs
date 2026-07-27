@@ -1,0 +1,5 @@
+"paralog","n_genes_cis","n_in_universe","regulon_reproduced"
+"MYC",12919,10176,TRUE
+"MYCN",3360,2626,TRUE
+"MYCL1",5855,4586,TRUE
+"functional (all paralogs)",18420,10387,NA
