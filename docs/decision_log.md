@@ -1180,6 +1180,65 @@ support the published magnitude.
 
 ---
 
+### D-036 · SCI · 2026-07-28 — functional domain admitted, but it is NOT paralog-resolved
+
+**Result.** Paralog regulon genes collectively carry SCLC-selective CRISPR
+dependency above background: **11/984 (1.12%) vs 73/17,547 (0.42%), pooled
+OR 2.71 (95% CI 1.29–5.15), p = 0.0048**, across 25 SCLC lines vs 1,183 others in
+DepMap Public 26Q1.
+
+**Why this domain survives where two others did not.** CRISPR gene effect measures
+whether knocking a gene out kills the cell. It is not expression, so it cannot
+inherit the neuroendocrine lineage confound that removed the transcriptional domain
+and barred the tumour-based network domain (D-033). This is the reason continuing to
+M7 was worth doing rather than consolidating at M6.
+
+**POOLED, NOT PER-PARALOG — and the distinction matters.** Per-paralog odds ratios
+are MYC 2.45 (p 0.089), MYCN 2.21 (p 0.118), MYCL1 3.09 (p 0.028). These are
+**indistinguishable**: 4–5 selective genes each, differing by one gene. The initial
+verdict logic declared "only MYCL1 enriched", which would have reported a one-gene
+difference as a biological distinction — and would conveniently have handed
+functional support to the one paralog that FAILED the M5 programme gate (D-030).
+The pooled test is the properly powered version of the question MOES actually asks.
+
+**CONTROL RESULT, reportable in its own right: none of MYC, MYCN or MYCL is an
+SCLC-selective dependency.** MYC is strongly pan-essential (−1.495) but **LESS so in
+SCLC than in other lineages (delta +0.503)**; MYCN (−0.112) and MYCL (−0.117) show
+no dependency at all. Nothing in DepMap supports SCLC being selectively dependent on
+these paralogs. This must appear in the write-up — it constrains any therapeutic
+framing.
+
+**POSITIVE-CONTROL GATE ADDED.** ASCL1 is a canonical SCLC lineage dependency and
+must appear as SCLC-selective or the script exits non-zero. It caught a real
+failure: a lineage "fallback" I added swept the entire NSCLC panel into the SCLC
+group (NSCLC lines carry `lineage_2 = "Non-Small Cell Lung Cancer"`, which *contains*
+the substring "small cell lung"). The code ran cleanly; the contamination was
+visible only in the biology — top hits became cilia and cornified-envelope genes and
+ASCL1's effect fell from −0.539 to −0.148. My premise was also wrong: DepMap CRISPR
+genuinely has ~25 SCLC lines, so the "fix" repaired a non-problem into a real one.
+
+**THE STRUCTURAL CONSEQUENCE FOR MOES.** Domains by what they can attribute:
+
+| domain | status | paralog-resolved? |
+|---|---|---|
+| cis-regulatory | available | **yes** (region-level, per paralog) |
+| transcriptional | dropped (D-033) | — |
+| functional | admitted, OR 2.71 | **no** (gene-level only) |
+| network | untested | needs CCLE; likely confounded |
+
+**Only ONE domain can attribute evidence to a specific paralog.** MOES was designed
+to prioritise paralog-specific hubs by integrating four independent layers. With one
+paralog-resolved layer, "multi-layer paralog-specific evidence integration" is not
+supported by the data.
+
+**MOES is therefore reframed, not abandoned:** it ranks genes by converging
+regulatory and functional evidence, with **paralog attribution resting on chromatin
+alone** and other layers corroborating a gene's importance rather than its paralog
+identity. Every output must state which domains contributed and what each can and
+cannot attribute.
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,
