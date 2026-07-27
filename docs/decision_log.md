@@ -1057,6 +1057,61 @@ from here to release.
 
 ---
 
+### D-034 · SCI · 2026-07-27 — M6 negative result REPLICATES in an independent cohort
+
+**Why replication was necessary.** A single-cohort null has mundane explanations —
+cohort composition, platform, processing, the particular 79 patients. The gap
+statement promised replication in a second cohort, and a *negative* result needs it
+more than a positive one would.
+
+**Cohorts.** GSE60052 (n = 79) and George et al. 2015 via cBioPortal (n = 81,
+`sclc_ucologne_2015`). Independent patients, sequencing and processing. **160
+patients total.**
+
+**Q1 — does lineage dominance reproduce? YES, 3/3 regulons in BOTH cohorts.**
+
+| | GSE60052 | George 2015 |
+|---|---|---|
+| lineage > paralog unique variance | 3/3 | 3/3 |
+| unique lineage R² | 0.355–0.428 | 0.244–0.426 |
+| unique paralog R² | 0.001–0.068 | 0.000–0.019 |
+| MYC vs NE score (Ireland 2020) | **−0.590** | **−0.466** |
+
+The MYC/NE antagonism reproduces independently, so the *mechanism* behind the null
+is corroborated as well as the null itself.
+
+**Q2 — does any positive paralog association reproduce? No.** MYCL1 survived
+adjustment in GSE60052 (FDR 0.0136) but not in George (FDR 0.936). Three reasons it
+is not a finding: it is **method-dependent** (absent under singscore in the same
+cohort, FDR 0.675), it is **cohort-specific**, and it comes from **the one regulon
+that failed M5 validation** (D-030). A positive that fails to replicate is a
+spurious result being caught, which supports the null rather than undermining it.
+
+**SCORING METHOD CHANGED FOR THE COMPARISON, deliberately.** singscore ranks each
+gene against the others present in the matrix — 33,683 genes in GSE60052 but only
+1,004 fetched for George, most of them regulon members. Comparing singscore across
+the two would have compared scoring artefacts. Both cohorts were therefore rescored
+with a universe-independent statistic (mean per-gene z-score), which is also
+scale-free and so handles GSE60052's log2 against George's raw counts (max 37,557).
+**GSE60052 was rescored rather than reused**, so the comparison is like-for-like.
+
+**A verdict-logic error, corrected.** The first version required zero surviving
+associations in *both* cohorts and therefore reported "NOT REPLICATED" when a
+cohort-specific positive appeared. That conflated two questions: whether the
+negative result reproduces, and whether a positive does. The corrected script tests
+them separately and retains a branch that would report a genuinely reproducing
+association as real — the logic is not tuned toward the expected answer.
+
+**Gene naming, pre-handled.** GSE60052 carries `MYCL1` and not `MYCL`; George
+carries `MYCL` and not `MYCL1`. Both were requested and resolved explicitly. This is
+the silent-mismatch class that cost three rounds at the universe stage.
+
+**Status.** The M6 conclusion is now a **replicated** negative result with an
+identified and independently reproduced mechanism, across 160 patients. It is the
+strongest result in the project.
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,

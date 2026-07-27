@@ -86,9 +86,24 @@ Counts are reported across `sensitivity_quantiles`, descriptively, never as pass
 
 ---
 
-## M6 — Patient-tumour translation (Aim 2)
-Regulon scoring in GSE60052; replication in George 2015; **lineage-TF confounding analysis**.
-**Gate:** the lineage-TF analysis is complete and reported *whatever it shows*. If paralog regulons are inseparable from lineage programs, the project's conclusion changes here (R-01) and the remaining aims are reframed accordingly rather than abandoned.
+## ✅ M6 — Patient-tumour translation (Aim 2) — COMPLETE 2026-07-27
+Regulon scoring in GSE60052; replication in George 2015; lineage-TF confounding at both expression and chromatin level.
+
+**Gate PASSED as written:** the lineage-TF analysis was completed and reported *whatever it showed*. It showed R-01 materialising, and the project's conclusion changed here rather than the analysis being abandoned.
+
+| result | GSE60052 (n=79) | George 2015 (n=81) |
+|---|---|---|
+| lineage > paralog unique variance | **3/3** | **3/3** |
+| unique lineage R² | 0.355–0.428 | 0.244–0.426 |
+| unique paralog R² | 0.001–0.068 | 0.000–0.019 |
+| paralog associations surviving adjustment | 1/3 (not robust) | **0/3** |
+| MYC vs NE score (Ireland 2020) | **−0.590** | **−0.466** |
+
+**Conclusion — replicated across 160 patients:** paralog-resolved regulatory programmes do **not** retain paralog identity in patient tumours independently of neuroendocrine lineage state. The mechanism (MYC/NE antagonism) reproduces independently in both cohorts.
+
+**Per-gene rescue also fails** (D-033): regulon genes survive lineage adjustment at background rate (enrichment 0/3; MYCN zero of 33,683 genes). The transcriptional domain is dropped from MOES.
+
+**Chromatin-level test (R-14), suggestive not established:** paralog-*specific* regions are ~3× depleted for lineage-TF binding relative to shared regions (OR 0.29–0.33) — which would locate the failure in the expression readout rather than in shared occupancy. But the POU2F3 peak sets fail a biology sanity check (the POU2F3-driven line H1048 has the fewest peaks), so this needs CCLE corroboration at M7.
 
 ---
 
