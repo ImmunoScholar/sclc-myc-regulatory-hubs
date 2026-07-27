@@ -84,20 +84,30 @@ datasets:
       x2 (H526, H69); ATAC x9. NOTE H211 has MYC ChIP but NO ATAC, and H196 has
       H3K27ac + ATAC but no MYC-family ChIP.
     amplification_status: >-
-      CORRECTED 2026-07-26, see D-026. An earlier version of this registry listed
-      all five MYC ChIP lines as MYC-amplified. That conflicts with Plotnik's
-      "two cell lines harboring the alteration for each amplification type", so
-      two of the five are amplified and three are the MYC-EXPRESSING comparator.
-      The paper does not name them and GEO declares no amplification field.
-      Measured from amplicon coverage (scripts/02_regulatory/17_infer_amplification.R):
-        CONFIRMED MYCN-amplified : H526, H69      (ATAC 8-15x, H3K27ac 38-44x, broad)
-        CONFIRMED MYCL-amplified : COLO668, H889  (ATAC 20-22x, H3K27ac 37-71x, broad)
-        UNVERIFIED MYC          : all five MYC ChIP lines. Assays contradict
-          (H524 H3K27ac 82x vs ATAC 1.6x; H196 ATAC 28x vs H3K27ac 4x) and every
-          MYC-locus ratio collapses in the +/-1 Mb window, indicating focal
-          regulatory elements rather than copy gain. H211 has no ATAC at all.
-      DO NOT use MYC-amplified vs MYC-expressing groupings until DepMap
-      OmicsCNGene.csv is available at M7. M5 gate criterion 3 is blocked on this.
+      RESOLVED 2026-07-28 from DepMap Public 26Q1 log2 relative copy number
+      (scripts/04_functional/02_resolve_amplification.R). Supersedes both the
+      original registry claim and the provisional coverage-based inference (D-026).
+
+      MYC-AMPLIFIED   : H524 (log2 6.73), H211 (2.35)   <- EXACTLY TWO
+      MYC-EXPRESSING  : H1048 (0.98), SHP77 (1.30)      <- measured, not amplified
+      MYC status UNKNOWN : H847 — absent from DepMap 26Q1. NOT assigned to either
+        group; absence is not evidence.
+      MYCN-AMPLIFIED  : H526 (4.94), H69 (6.41)
+      MYCL-AMPLIFIED  : COLO668 (5.60), H889 (5.28)
+        (H526 reads MYCL 1.60, marginally over the 1.5 threshold against 5.6/5.3
+         for the true MYCL lines — a threshold artefact, not a third MYCL line.)
+
+      The original registry listed ALL FIVE MYC ChIP lines as amplified, which was
+      incompatible with Plotnik's "two cell lines harboring the alteration for each
+      amplification type". Copy number gives exactly two, confirming the paper.
+
+      D-026's coverage proxy is VALIDATED where both assays agreed (MYCN and MYCL
+      reproduce exactly) and its failure on MYC is explained: H524's amplification
+      is real but FOCAL, so the +/-1 Mb window diluted it — precisely the geometry
+      D-026 inferred without being able to make the call.
+
+      M5 gate criterion 3 is now EVALUABLE, with the caveat that the
+      MYC-expressing group is n=2 confirmed (H1048, SHP77) rather than n=3.
 
 # =============================================================================
 # D2 · SUPPORTING ACCESSIBILITY — all hg38, all require liftOver

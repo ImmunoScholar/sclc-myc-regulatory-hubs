@@ -321,10 +321,20 @@ lineage_confounding:
 # Aim 3 — functional and network evidence
 # -----------------------------------------------------------------------------
 depmap:
-  release: null               # MUST be pinned before use. DepMap re-releases
-                              # quarterly and gene-effect values change between
-                              # releases (risk R-08). null here is a deliberate
-                              # tripwire: scripts fail rather than run unpinned.
+  # PINNED 2026-07-27. Was null as a deliberate tripwire (R-08) so scripts would
+  # fail rather than run against an unspecified release — gene-effect values
+  # change between quarterly releases.
+  release: "Public 26Q1"
+  downloaded: "2026-07-27"
+  source: "depmap.org Custom Downloads (manual; portal is CAPTCHA-gated, D-016)"
+  # Custom Downloads names files differently from the All Data page and embeds
+  # cell-line metadata as leading columns, so Model.csv was not required.
+  files:
+    crispr: depmap_crispr_chronos_26Q1.csv          # 1,208 lines x ~18,531 genes
+    expression: depmap_expression_26Q1.csv          # 1,719 lines x ~19,215 genes
+    copy_number_log2: depmap_cn_log2_26Q1.csv       # 1,118 lines x ~18,613 genes
+  embedded_metadata_columns: [depmap_id, cell_line_display_name,
+                              lineage_1, lineage_2, lineage_3, lineage_4, lineage_6]
   selective_dependency_threshold: -0.5   # Chronos gene effect; -1 ~ median
                                          # essential, 0 ~ non-essential
   lineage_filter: small_cell_lung_carcinoma

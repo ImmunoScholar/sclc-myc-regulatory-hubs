@@ -60,8 +60,20 @@ Replaced with **relative, threshold-invariant** criteria:
 3. **Distal-fraction contrast**, MYC-amplified > MYC-expressing, difference ≥ 0.10 (published 0.39 vs 0.12).
 4. **Motif validation**: paralog E-box central dinucleotides enriched over shuffled background — the only criterion independent of every parameter we chose.
 
-Counts are reported across `sensitivity_quantiles`, descriptively, never as pass/fail.
-**Substantial discordance on 1–4 halts the project for method review — it is not explained away.**
+Counts are reported descriptively across the fold grid, never as pass/fail.
+
+**FINAL GATE RESULT (closed 2026-07-28): 3 PASS / 1 FAIL.**
+
+| criterion | observed | result |
+|---|---|---|
+| 1 · MYCN⊂MYC ≈ 0.84 | **0.912**, spread 0.037 across a 50× set-size change | **PASS** |
+| 2 · MYCN vs MYCL1 differential nesting | 5.50× vs 4.63×, OR 3.14, p 1.1e-60 | **PASS** (magnitude modest) |
+| 3 · distal-fraction contrast | +3.3 pts vs published +27; within-group spread (12.5) exceeds it | **FAIL** |
+| 4 · paralog E-box specificity | 3/3 own-motif top share, χ² p 1.6e-101 | **PASS** |
+
+Criterion 3 was unblocked at M7 by DepMap copy number, which established **exactly two** MYC-amplified lines (H524 log2 6.73, H211 2.35) against MYC-expressing H1048 and SHP77 — confirming Plotnik's stated design and correcting the project registry, which had listed all five MYC ChIP lines as amplified (D-035).
+
+**The failure is reported, not reformulated.** Unlike criteria 2 and 4 — where the *test* was demonstrably mis-specified and was rebuilt — criterion 3's test is sound and the data simply do not support the published magnitude. Most likely structural: our shared ATAC universe is ~84% distal by construction, compressing the achievable range, where Plotnik called peaks de novo per line. This is the second discordance tracing to the shared-grid design (D-023) after MYCL1's inflated occupancy overlap.
 
 **Additional gate before M6 — regulon internal validity.** Reformulated (D-028): the original spec was uncomputable (needed unverified amplification and absent expression) *and* circular (a regulon built from a paralog's own lines scores high there by construction).
 

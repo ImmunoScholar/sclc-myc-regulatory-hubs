@@ -1112,6 +1112,74 @@ strongest result in the project.
 
 ---
 
+### D-035 · SCI · 2026-07-28 — amplification resolved; M5 gate closes at 3 PASS / 1 FAIL
+
+**Amplification settled from DepMap Public 26Q1 log2 copy number**, resolving a
+question open since M5 that neither the paper, GEO, nor our coverage proxy could
+answer.
+
+| group | lines | log2 CN |
+|---|---|---|
+| MYC-amplified | **H524, H211** | 6.73, 2.35 |
+| MYC-expressing | H1048, SHP77 | 0.98, 1.30 |
+| MYC status unknown | H847 | absent from 26Q1 |
+| MYCN-amplified | H526, H69 | 4.94, 6.41 |
+| MYCL-amplified | COLO668, H889 | 5.60, 5.28 |
+
+**Exactly two MYC-amplified lines**, confirming Plotnik's "two cell lines
+harboring the alteration for each amplification type". **The project registry was
+wrong**: it listed all five MYC ChIP lines as amplified, which was never
+compatible with the paper's own text.
+
+**D-026's coverage proxy is validated.** MYCN and MYCL reproduce exactly (H526's
+MYCL 1.60 is a threshold artefact against 5.6/5.3 for the true MYCL lines). Its
+failure on MYC is now explained rather than merely noted: **H524's amplification is
+real but FOCAL**, so the ±1 Mb window diluted it — precisely the geometry D-026
+inferred without being able to make the call.
+
+**H847 is excluded from both groups.** Absent from 26Q1, so its status is unknown;
+assigning it to the comparator would be inference from absence.
+
+---
+
+**CRITERION 3 RESULT: FAIL.** Direction reproduces, magnitude does not.
+
+| | amplified | expressing | difference |
+|---|---|---|---|
+| ours | 47.5% (53.7, 41.2) | 44.2% (41.2, 47.2) | **+3.3 points** |
+| Plotnik | 39% | 12% | +27 points |
+
+**The more important observation: within-group spread exceeds the between-group
+difference.** The amplified pair differ by 12.5 points and the expressing pair by
+6.0, against a 3.3-point group difference — and H211 (amplified) and H1048
+(expressing) have *identical* distal fractions of 41.2%. At 2 lines per group this
+contrast is not distinguishable from line-to-line variation. No significance test
+was applied because none would be honest at this n.
+
+**Most likely structural cause.** Our universe is ~84% distal by construction —
+built from ATAC regions where promoters are a minority — which compresses the
+achievable range. Plotnik called peaks de novo per line with no shared grid, so
+their distal fraction had far more room to move. This is the **second** discordance
+tracing to the shared-grid design, after MYCL1's inflated occupancy overlap (D-025),
+and both are consequences of D-023 rather than of the biology.
+
+**FINAL M5 GATE: 3 PASS / 1 FAIL.**
+
+| criterion | result |
+|---|---|
+| 1 · MYCN⊂MYC 0.912, spread 0.037 across 50× set-size change | **PASS** |
+| 2 · MYCN vs MYCL1 differential nesting, OR 3.14, p 1.1e-60 | **PASS** |
+| 3 · distal-fraction contrast | **FAIL** (direction only) |
+| 4 · paralog E-box specificity 3/3, χ² p 1.6e-101 | **PASS** |
+
+The gate was rebuilt at D-020 specifically so criteria could fail on evidence
+rather than on our own free parameters. One did. That is the gate working, and the
+failure is reported rather than reformulated — unlike criteria 2 and 4, where the
+*test* was demonstrably mis-specified, here the test is sound and the data do not
+support the published magnitude.
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,
