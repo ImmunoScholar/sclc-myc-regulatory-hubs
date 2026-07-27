@@ -14,7 +14,7 @@ MYC-amplification correlates with SCLC subtype (Plotnik: MYC-amp correlates with
 
 ---
 
-### R-02 · Technical · HIGH · OPEN
+### R-02 · Technical · **MED** (downgraded 2026-07-26 from HIGH) · OPEN
 **GSE230649 ships bedGraph only (8.6 GB), no peak files.**
 Re-alignment of 28 samples from SRA is not laptop-feasible.
 **Mitigation:** quantify bedGraph signal over a consensus ATAC-defined region universe instead of de novo peak calling (architecture Part B/E).

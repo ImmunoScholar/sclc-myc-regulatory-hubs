@@ -1,0 +1,10 @@
+"metric","value"
+"candidate_pairs",127019
+"high_tier",23260
+"moderate_tier",25496
+"weak_tier",20398
+"retained_links",48756
+"unique_regions",24465
+"unique_genes",13405
+"null_enrichment",6.06
+"pct_agree_nearest_gene",32.6

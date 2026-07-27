@@ -40,8 +40,12 @@
 suppressPackageStartupMessages({ library(GenomicRanges); library(yaml) })
 
 CFG <- yaml::read_yaml("config/params.yml")
-FOLD_GRID <- c(1.5, 2, 3, 4)          # sensitivity, per D-024
-PRIMARY_FOLD <- 2
+# Read from config, not hardcoded. These were literals here until the D-028
+# parameter sweep, which contradicted this project's own rule that a threshold
+# hard-coded in a script is a bug.
+FOLD_GRID    <- unlist(CFG$active_regions$fold_grid)
+PRIMARY_FOLD <- CFG$active_regions$primary_fold
+stopifnot(length(FOLD_GRID) > 0, is.finite(PRIMARY_FOLD))
 
 nrm  <- readRDS("data/processed/signal/region_signal_normalised.rds")
 M    <- nrm$mean_fob                  # fold over own background

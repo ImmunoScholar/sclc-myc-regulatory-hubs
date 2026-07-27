@@ -40,26 +40,43 @@ regions:
   # Consensus accessible-region universe built from ATAC-seq, then used as the
   # quantification grid for ChIP bedGraph signal. Replaces de novo peak calling,
   # which is impossible here (deposit ships bedGraph only). See D-004.
-  min_datasets_supporting: 2  # a region must be seen in >=2 independent ATAC
-                              # datasets to enter the universe — guards against
-                              # single-study artefacts
+  # RENAMED IN MEANING 2026-07-26 (D-023). Originally "independent ATAC datasets".
+  # The external datasets cover four cell lines of which only H524 is a keystone
+  # line, so support is now counted across the NINE KEYSTONE ATAC LINES — the same
+  # cells as the ChIP. External peak sets are per-region annotation, not a filter.
+  # Value 2 is forced by the design, not chosen: MYCN and MYCL have two ATAC lines
+  # each, so requiring >=3 would delete every paralog-specific region for two of
+  # three paralogs.
+  min_lines_supporting: 2
+  min_datasets_supporting: 2  # DEPRECATED alias, retained so older runs are
+                              # reproducible. Not read by current scripts.
   min_width: 150              # below ~1 nucleosome is not an interpretable
                               # regulatory element
   max_width: 10000            # wider intervals are almost always merged
                               # artefacts; SEs are handled separately by stitching
   merge_gap: 100              # merge regions closer than this
+  atac_threshold_multiple: 3  # x each line's mean signal over covered bases.
+                              # Selected on intrinsic quality, not fitted (D-024).
+  blacklist: encode_hg19_v2   # applied 2026-07-26; 5.11% of regions removed
 
 active_regions:
   # A region is "active" for a paralog if it carries paralog signal AND H3K27ac.
   # Mirrors Plotnik's logic (binding ∩ H3K27ac).
-  signal_quantile: 0.75       # per-sample quantile a region must exceed
   require_h3k27ac: true
-  min_replicates: 2           # of the lines assayed for that paralog
+  min_replicates: 2           # of the lines assayed for that paralog. Pre-registered
+                              # at M1 and unchanged; the `ge2` rule in the gate.
 
-  # Counts are reported ACROSS a range of thresholds, not at one value. A single
-  # count is not evidence of anything (see m5_gate below) but the shape of the
-  # curve is informative and its stability is worth showing.
-  sensitivity_quantiles: [0.50, 0.60, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
+  # DEAD PARAMETERS, removed 2026-07-26 in the parameter sweep:
+  #   signal_quantile: 0.75         — thresholding is fold-over-background, not
+  #                                   quantile-based. Its circularity is exactly
+  #                                   what D-020 documents.
+  #   sensitivity_quantiles: [...]  — superseded by fold_grid below.
+
+  # Counts are reported ACROSS thresholds, never at one value (D-020). This grid
+  # was HARDCODED in 15_paralog_regions.R and 16_m5_gate.R, which violates this
+  # file's own rule that a threshold hard-coded in a script is a bug. Now here.
+  fold_grid: [1.5, 2.0, 3.0, 4.0]
+  primary_fold: 2.0
 
 # -----------------------------------------------------------------------------
 # M5 GATE — corrected 2026-07-26. See decision D-020.
@@ -125,8 +142,20 @@ m5_gate:
       MYCN:  CACATG
       MYCL1: CACCTG
     flank_bp: 250             # window around region summit for motif scanning
-    require_enrichment_over_shuffled: true
-    n_shuffles: 100
+    # ADOPTED TEST: compositional. All three motifs are counted in the SAME
+    # sequences and compared as shares, so base composition cancels by
+    # construction. Required: each paralog's own motif has the highest share in
+    # its own regions (3/3), plus motif x region-set dependence at p < 0.05.
+    test: compositional_share
+    require_all_three: true
+    dependence_alpha: 0.05
+    # DEAD PARAMETERS, removed 2026-07-26:
+    #   require_enrichment_over_shuffled / n_shuffles: 100
+    # An absolute rate against an unmatched background was tried and was
+    # CONFOUNDED — 8 of 9 enrichments fell below 1.0 because the paralog E-boxes
+    # differ in GC (CAGATG/CACATG 50%, CACCTG 67%) while bound regions are
+    # GC-rich. That comparison measured base composition, not motif preference.
+    # It is retained in the gate output as diagnostic 4a and is NOT the verdict.
 
   # Counts ARE reported, prominently, but as description — never as pass/fail.
   report_counts_descriptively: true
@@ -141,11 +170,33 @@ m5_gate:
 # meaningfully scored in tumours.
 # -----------------------------------------------------------------------------
 regulon_validity:
-  require_source_line_separation: true   # paralog regulon score must separate
-                                         # amplified from non-amplified source lines
-  min_auc: 0.70                          # separation of amplified vs not, in source lines
-  require_expression_correlation: true   # score should track the paralog's own expression
-  min_spearman: 0.30
+  # ------------------------------------------------------------------------
+  # AMENDED 2026-07-26 (D-028). The original specification was NOT COMPUTABLE
+  # and additionally circular.
+  #
+  #   require_source_line_separation / min_auc 0.70 — needs an amplified vs
+  #     non-amplified split. MYC amplification is UNVERIFIED (D-026) and MYCN and
+  #     MYCL1 have two lines each, so an AUC over 2 vs 8 is barely defined.
+  #   require_expression_correlation / min_spearman 0.30 — needs expression for
+  #     these cell lines. GSE230649 has no RNA-seq; CCLE arrives at M7.
+  #
+  # CIRCULARITY the original missed: a regulon built from a paralog's own lines
+  # will score high in those lines by construction. That is not validation.
+  # ------------------------------------------------------------------------
+  method: leave_one_line_out   # build from the paralog's remaining line(s), test
+                               # the HELD-OUT line against non-paralog lines.
+                               # Non-circular, and computable with n=2 per paralog.
+  min_holdout_rank_percentile: 0.75   # the held-out line must score in the top
+                                      # quartile of all lines for its own regulon
+  require_cross_paralog_distinctness: true
+  max_regulon_jaccard: 0.60    # paralog regulons more similar than this are not
+                               # separable and must be reported as such
+  benchmark_enrichment: HALLMARK_MYC_TARGETS_V1   # sanity: MYC regulon should be
+                                                  # enriched for known MYC targets
+  # DEFERRED TO M7, when DepMap supplies CCLE expression and copy number:
+  deferred_to_m7:
+    - amplified_vs_nonamplified_auc
+    - expression_correlation
 
 super_enhancers:
   # ROSE-style: stitch nearby H3K27ac regions, rank by total signal, cut at the
@@ -155,18 +206,63 @@ super_enhancers:
   exclude_tss_window: 2500    # ROSE convention: ignore promoter-proximal signal
                               # when stitching, so SEs are not just big promoters
   ranking_metric: total_signal
+  # Added 2026-07-26 — both were hardcoded in the script.
+  cutoff_method: knee_point   # maximum distance below the chord joining the
+                              # curve endpoints. NOT first-slope>=1: that rule is
+                              # numerically fragile and collapsed to the minimum
+                              # for H1048, calling all 8,238 stitched regions SEs.
+  max_fraction_called: 0.30   # >30% of stitched enhancers called is a broken
+                              # inflection point, not a result. Hard failure.
+  h3k27ac_fold: 2             # constituent must exceed this fold over background
+  amplicon_flag_window_bp: 1000000   # confirmed amplicons only (D-026); MYC is
+                                     # deliberately excluded as unverified
 
 peak_to_gene:
   # Replaces "nearest gene", which is a known weak assignment.
   max_distance: 100000        # 100 kb — conventional enhancer search window
-  method: distance_weighted_expression_correlated
-  min_abs_correlation: 0.3    # region signal vs. gene expression across lines
   correlation_method: spearman  # robust to the non-normality of signal data
   tss_source: TxDb.Hsapiens.UCSC.hg19.knownGene
+
+  # --------------------------------------------------------------------------
+  # AMENDED 2026-07-26 — see D-027. Two problems with the original spec.
+  #
+  # 1. It said "expression_correlated", but GSE230649 contains NO RNA-seq and our
+  #    expression data are tumour cohorts, not these nine cell lines. CCLE
+  #    expression arrives with DepMap at M7.
+  # 2. min_abs_correlation was 0.3. At n = 10 lines that is p ~ 0.4 — a filter
+  #    that looks rigorous while admitting noise. Significance at n = 10 needs
+  #    |rho| >= 0.64. The 0.3 value was set at M1 when the single-cell layer was
+  #    still in scope and more samples were expected; it was never revisited when
+  #    that layer was dropped (D-005).
+  # --------------------------------------------------------------------------
+  method: distance_weighted_activity_correlated
+  activity_proxy: promoter_h3k27ac
+  activity_proxy_note: >-
+    Promoter H3K27ac stands in for expression. This is an ABC-family activity
+    model, NOT expression correlation, and must be described that way in every
+    output. Upgrade to CCLE expression at M7.
+  n_samples: 10               # the hard constraint behind the tiers below
+
+  # Confidence tiers instead of one pass/fail, because n = 10 cannot support a
+  # single credible cutoff.
+  correlation_tiers:
+    high:     0.64            # p < 0.05 at n = 10
+    moderate: 0.45            # suggestive; reported, never treated as established
+    weak:     0.30            # retained only with distance support; flagged
+  require_null_validation: true   # candidate pairs must out-correlate a null of
+                                  # random pairs >1 Mb apart
+  distance_decay_kb: 25       # exponential distance weight, ABC-style
 
 regulons:
   min_size: 10                # smaller regulons give unstable enrichment scores
   max_size: 500               # larger ones are too diffuse to be a "hub"
+  # CLARIFIED 2026-07-26. max_size is not a truncation of an arbitrary list: MYC
+  # links to thousands of genes, and singscore/GSVA need focused sets. A paralog
+  # regulon is therefore the TOP-RANKED linked genes by aggregate link score, not
+  # every gene with a link. The selection rule is part of the definition and must
+  # be stated in the methods, not applied silently.
+  selection: top_by_aggregate_link_score
+  link_tiers_used: [high, moderate]   # weak-tier links excluded from regulons
 
 # -----------------------------------------------------------------------------
 # Aim 2 — patient-tumour translation
@@ -181,9 +277,21 @@ tumour_scoring:
 lineage_confounding:
   # PRIMARY analysis, not a robustness check (risk R-01). MYC-amp correlates
   # with subtype, so paralog-specific hubs may be lineage-TF targets in disguise.
-  lineage_tfs: [ASCL1, NEUROD1, POU2F3, YAP1]
+  #
+  # CORRECTED 2026-07-26. The original list included YAP1, for which NO ChIP-seq
+  # exists in any acquired dataset. Occupancy-level confounding can only be tested
+  # for the three TFs with binding data; YAP1 is usable solely as an
+  # expression-based subtype marker in the tumour cohorts.
+  lineage_tfs_with_chip: [ASCL1, NEUROD1, POU2F3]
+  lineage_tfs_expression_only: [YAP1]
+  # Resolution differs per TF and must be reported per TF, never uniformly (R-14):
+  #   POU2F3  — within-line in 3 keystone lines (H1048, H211, H526), hg19. Strongest.
+  #   ASCL1   — within-line in SHP-77 only, n=1, hg38. Descriptive; no inference.
+  #   NEUROD1 — H446 only, ZERO keystone overlap. Subtype-level comparison only.
   report_overlap_fraction: true
   partial_correlation: true   # paralog association adjusted for lineage-TF score
+  report_resolution_per_tf: true   # a blanket "we controlled for lineage TFs"
+                                   # would be false and is forbidden
 
 # -----------------------------------------------------------------------------
 # Aim 3 — functional and network evidence
@@ -196,6 +304,19 @@ depmap:
   selective_dependency_threshold: -0.5   # Chronos gene effect; -1 ~ median
                                          # essential, 0 ~ non-essential
   lineage_filter: small_cell_lung_carcinoma
+  # EXPANDED 2026-07-26. The manual download must now include CCLE EXPRESSION —
+  # it is required to upgrade peak-to-gene from the H3K27ac activity proxy
+  # (D-027) and to run the deferred regulon-validity checks (D-028). It was not
+  # in the original required-files list because those needs arose later.
+  required_files:
+    - CRISPRGeneEffect.csv                            # selective dependency
+    - Model.csv                                       # line metadata, lineage
+    - OmicsCNGene.csv                                 # copy number -> unblocks gate criterion 3
+    - OmicsExpressionProteinCodingGenesTPMLogp1.csv   # expression -> D-027, D-028
+  unblocks:
+    - m5_gate_criterion_3_distal_contrast
+    - peak_to_gene_expression_correlation
+    - regulon_validity_amplification_auc
 
 genie3:
   regulators: [MYC, MYCN, MYCL1]
@@ -238,8 +359,20 @@ controls:
                                     # framework lacks specificity, and is
                                     # reported as failed.
   positive_control_axis: [BCL2, MCL1]  # Dammert et al. 2019 apoptotic priming
-  benchmark_signatures: [HALLMARK_MYC_TARGETS_V1, HALLMARK_MYC_TARGETS_V2,
-                         JUNG2017_MYC_ACTIVITY]
+  # SPLIT 2026-07-26. The Hallmark sets come from msigdbr. The Jung 2017 18-gene
+  # MYC-activity signature is NOT in MSigDB under any name and must be curated by
+  # hand from the paper before it can be used. Listing it alongside two
+  # automatically retrievable sets implied an availability it does not have.
+  benchmark_signatures_available: [HALLMARK_MYC_TARGETS_V1, HALLMARK_MYC_TARGETS_V2]
+  benchmark_signatures_manual:
+    JUNG2017_MYC_ACTIVITY:
+      status: NOT_YET_CURATED
+      source: "Jung et al. 2017, Cancer Res — 18-gene pan-cancer MYC activity signature"
+      note: >-
+        Must be transcribed from the publication and stored in
+        data/metadata/signatures/. The comparison it enables is the point of
+        including it — a paralog-blind, pan-cancer signature is the status quo our
+        paralog-resolved regulons are meant to improve on. Do not silently drop it.
 
 # -----------------------------------------------------------------------------
 # Aim 5 — spatial (restricted)
@@ -249,7 +382,14 @@ spatial:
   panel_size_approx: 1800
   report_coverage_fraction: true   # on EVERY spatial figure — most regulon
                                    # members are not on the panel
-  min_genes_measured: 5            # below this, do not score a regulon at all
+  # RAISED 2026-07-26. Was 5 — far too permissive. Regulons are capped at 500
+  # genes and the CTA panel measures ~1,738-1,766 targets, so a regulon may have
+  # only a handful of members on the panel. Scoring a 500-gene regulon from 5
+  # measured genes is not a measurement of that regulon. Both an absolute floor
+  # and a coverage fraction now apply, and the fraction is the binding one.
+  min_genes_measured: 20
+  min_coverage_fraction: 0.10      # >=10% of regulon members must be on the panel
+  report_coverage_per_regulon: true
 
   # ---------------------------------------------------------------------------
   # KNOWN DEPOSIT GAP — characterised 2026-07-26, see risk R-17.

@@ -42,7 +42,10 @@ GATE <- CFG$m5_gate
 nrm  <- readRDS("data/processed/signal/region_signal_normalised.rds")
 M    <- nrm$mean_fob; meta <- nrm$meta; u <- nrm$regions
 n    <- nrow(M)
-FOLDS <- c(1.5, 2, 3, 4); PRIMARY <- 2
+# From config, not hardcoded — see D-028.
+FOLDS   <- unlist(CFG$active_regions$fold_grid)
+PRIMARY <- CFG$active_regions$primary_fold
+stopifnot(length(FOLDS) > 0, is.finite(PRIMARY))
 
 PARALOG_LINES <- list(MYC = c("H1048","H211","H524","H847","SHP77"),
                       MYCN = c("H526","H69"), MYCL1 = c("COLO668","H889"))

@@ -747,6 +747,79 @@ explainable way is stronger than either agreeing alone.
 
 ---
 
+### D-027 · METH · 2026-07-26 — peak-to-gene uses an H3K27ac activity proxy with confidence tiers
+
+**Two problems with the frozen spec.** It called for expression correlation at
+`min_abs_correlation: 0.3`. (1) GSE230649 contains **no RNA-seq** and our
+expression data are tumour cohorts, not these cell lines. (2) At n = 10 lines,
+Spearman |rho| = 0.3 is **p ~ 0.4** — a filter that looks rigorous and admits
+noise. Significance needs |rho| >= 0.64.
+
+The 0.3 value dates from M1, when the single-cell layer was still in scope and
+more samples were expected. It was never revisited when that layer was dropped
+(D-005) and the sample count fell to 10.
+
+**Adopted.** Promoter H3K27ac as the activity proxy — an ABC-family model, **not**
+expression correlation, and labelled that way in every output. Links carry
+confidence tiers (high 0.64 / moderate 0.45 / weak 0.30) instead of one cutoff,
+and only the high tier is treated as established.
+
+**Validated, and it could have failed.** Distal and promoter H3K27ac come from
+the same experiments, so global line effects could correlate everything. Against a
+null of random pairs >1 Mb apart: candidate median rho **0.345** vs null
+**-0.006**, high-tier fraction 18.3% vs 3.0% — **6.06x enrichment**. The null
+median at essentially zero is what a correct null should give. The script exits
+non-zero if enrichment falls below 1.5x.
+
+**The methodological claim is now measured.** Only **32.6%** of retained links
+point to the nearest gene, so two-thirds assign a region to something other than
+its nearest neighbour. The improvement over nearest-gene assignment claimed in the
+gap statement is real rather than asserted.
+
+**Upgrade path.** Real CCLE expression at M7 replaces the proxy.
+
+---
+
+### D-028 · METH · 2026-07-26 — systematic parameter sweep; 11 stale or dead parameters corrected
+
+**Why.** Three parameters had already needed amendment for the same underlying
+reason — set at M1 against a design that later changed — so the remaining frozen
+parameters were audited rather than waiting for each to fail in turn.
+
+**Findings and actions:**
+
+| # | Parameter | Problem | Action |
+|---|---|---|---|
+| 1 | `regions.min_datasets_supporting` | Comment said "datasets"; D-023 made it lines | Renamed `min_lines_supporting`; alias kept |
+| 2 | `active_regions.signal_quantile` | Dead — thresholding is fold-over-background | Removed |
+| 3 | `active_regions.sensitivity_quantiles` | Dead; `FOLD_GRID` hardcoded in 2 scripts | Replaced by `fold_grid`, scripts read config |
+| 4 | `motif_validation.n_shuffles` | Dead — compositional test adopted | Removed; `test: compositional_share` |
+| 5 | `regulon_validity` (4 params) | Not computable **and circular** | Leave-one-line-out; rest deferred to M7 |
+| 6 | `super_enhancers` | Knee-point + 30% guard hardcoded | Moved into config |
+| 7 | `regulons.max_size` | Selection rule unstated | `selection: top_by_aggregate_link_score` |
+| 8 | `lineage_confounding` includes YAP1 | **No YAP1 ChIP exists** | Split ChIP vs expression-only |
+| 9 | `depmap.required_files` | Missing CCLE expression | Added; `unblocks:` list recorded |
+| 10 | `JUNG2017_MYC_ACTIVITY` | **Not in MSigDB** | Split into manual-curation block, `NOT_YET_CURATED` |
+| 11 | `spatial.min_genes_measured: 5` | Meaningless for 500-gene regulons on a 1,738-target panel | Raised to 20 **plus** a 10% coverage fraction |
+
+**Three were code/config divergences** (3, 6, and the hardcoded fold grid),
+violating this file's own opening rule that a threshold hard-coded in a script is
+a bug. That rule was stated at M1 and not enforced since.
+
+**The pattern worth naming.** Every one of these was written when the design
+assumed something later changed: more samples, quantile thresholding, shuffled
+backgrounds, YAP1 ChIP that was never obtained. A frozen config is not
+self-maintaining — freezing prevents *casual* change, it does not keep parameters
+*correct* as the surrounding design moves. The sweep should repeat at each
+milestone boundary alongside `audit_decisions.sh`.
+
+**Two of these would have produced wrong results rather than errors:** YAP1 in the
+lineage-TF list would have silently dropped a TF with no data, and
+`min_genes_measured: 5` would have produced spatial regulon scores from a handful
+of measured genes and reported them as if they meant something.
+
+---
+
 ### D-026 · DATA · 2026-07-26 — amplification status: MYCN/MYCL1 confirmed, MYC unresolved, criterion 3 deferred to M7
 
 **Why this was investigated.** M5 gate criterion 3 (distal-fraction contrast,
