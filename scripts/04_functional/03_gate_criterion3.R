@@ -126,6 +126,34 @@ write.csv(rbind(per[,c("group","line","n_active","pct_distal")],
                 data.frame(group="SUMMARY", line="", n_active=NA,
                            pct_distal=round(100*diff,1))),
           "data/metadata/m5_criterion3.csv", row.names = FALSE)
+write.csv(out, "data/metadata/m5_criterion3_summary.csv", row.names = FALSE)
+
+# --- close the loop on the canonical gate table --------------------------------
+# This script resolves a criterion that 16_m5_gate.R could only record as "not
+# evaluable". Without writing the verdict back, m5_gate_results.csv — the table
+# the report and the audit both read — keeps saying the criterion was never
+# evaluated, while the decision log says it FAILED. Two sources of truth, and the
+# stale one is the canonical one.
+gate_path <- "data/metadata/m5_gate_results.csv"
+gate <- read.csv(gate_path, stringsAsFactors = FALSE)
+i <- which(gate$criterion == "3_distal_contrast")
+if (length(i) != 1L)
+  stop("expected exactly one 3_distal_contrast row in ", gate_path, "; found ", length(i))
+
+gate$value[i] <- sprintf(
+  "amplified %.1f%% vs expressing %.1f%%, %+.1f pts (published %+.0f); direction %s, magnitude %s",
+  100*amp_mean, 100*expr_mean, 100*diff,
+  100*(C3$myc_amplified_published - C3$myc_expressing_published),
+  if (dir_ok) "reproduces" else "fails", if (mag_ok) "reproduces" else "fails")
+gate$pass[i] <- pass
+write.csv(gate, gate_path, row.names = FALSE)
+
+cat("\nupdated ", gate_path, " — criterion 3 now recorded as ",
+    if (pass) "PASS" else "FAIL", " (was \"not evaluable\")\n", sep = "")
+n_pass <- sum(gate$pass %in% TRUE); n_fail <- sum(gate$pass %in% FALSE)
+n_open <- sum(is.na(gate$pass))
+cat("M5 gate now stands at ", n_pass, " PASS / ", n_fail, " FAIL",
+    if (n_open) paste0(" / ", n_open, " open") else "", "\n", sep = "")
 
 md <- c("# M5 gate criterion 3 — distal-fraction contrast", "",
         paste0("Generated: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), "",

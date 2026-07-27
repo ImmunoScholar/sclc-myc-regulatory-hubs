@@ -1,5 +1,5 @@
 "criterion","value","expected","pass"
 "1_mycn_in_myc","0.912 (spread 0.037)","0.84 +/- 0.15, stable",TRUE
 "2_differential_nesting","MYCN 5.50x vs MYCL1 4.63x, OR 3.14, p=1.1e-60","enrichment(MYCN) > enrichment(MYCL1), p < 0.05",TRUE
-"3_distal_contrast","not evaluable","MYC-amplified > MYC-expressing by >=0.10",NA
+"3_distal_contrast","amplified 47.5% vs expressing 44.2%, +3.3 pts (published +27); direction reproduces, magnitude fails","MYC-amplified > MYC-expressing by >=0.10",FALSE
 "4_motif_specificity","3/3 own-motif top share (p=0.037); chi-sq p=1.6e-101","3/3 own-motif highest share, motif x set dependence p<0.05",TRUE

@@ -1,6 +1,6 @@
 # M5 gate criterion 3 — distal-fraction contrast
 
-Generated: 2026-07-27 18:33:57 UTC
+Generated: 2026-07-27 19:11:05 UTC
 
 Blocked since M5; unblocked by DepMap Public 26Q1 copy number.
 

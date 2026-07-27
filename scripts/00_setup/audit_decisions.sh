@@ -98,10 +98,26 @@ chk D-025 "criterion 2 reformulated as mycl1_vs_mycn_nesting" \
   "grep -q 'mycl1_vs_mycn_nesting' config/params.yml"
 chk D-025b "old absolute max_expected criterion removed" \
   "! grep -qE '^\s+max_expected:\s*0.50' config/params.yml"
-chk D-026 "amplification_status corrected in registry" \
-  "grep -q 'UNVERIFIED MYC' config/datasets.yml"
-chk D-026b "criterion 3 recorded as not evaluable in gate results" \
-  "grep -qi 'not evaluable' data/metadata/m5_gate_results.csv"
+# Same inversion as D-026b below, and found the same way: D-026 asserted the
+# registry still carried the provisional "UNVERIFIED MYC" marking. D-035 resolved
+# amplification from DepMap copy number and removed it, so the check began failing
+# on a correctly-updated registry. A deferral check must be retired when the
+# deferral is, or it reports the fix as the fault.
+chk D-026 "provisional UNVERIFIED MYC marking retired (superseded by D-035)" \
+  "! grep -q 'UNVERIFIED MYC' config/datasets.yml"
+chk D-035c "amplification RESOLVED from DepMap copy number in registry" \
+  "grep -q 'RESOLVED' config/datasets.yml && grep -q 'DepMap Public 26Q1 log2' config/datasets.yml"
+# D-026b asserted the criterion-3 DEFERRAL was recorded. That was the right
+# invariant at M5-M6 and the wrong one from M7, when D-035 resolved amplification
+# from DepMap and evaluated the criterion. Left unchanged it passed *because* the
+# gate table was stale, and would have failed the moment the table was corrected —
+# an audit check defending the error it exists to catch. Inverted to match D-035.
+chk D-026b "criterion 3 no longer deferred (resolved at M7 by D-035)" \
+  "! grep -qi 'not evaluable' data/metadata/m5_gate_results.csv"
+chk D-035 "criterion 3 evaluated and recorded FAIL in gate results" \
+  "grep '3_distal_contrast' data/metadata/m5_gate_results.csv | grep -q 'FALSE'"
+chk D-035b "no M5 criterion left unevaluated" \
+  "! grep -qE ',NA\$' data/metadata/m5_gate_results.csv"
 
 echo
 echo "=== gate results actually on disk ==="

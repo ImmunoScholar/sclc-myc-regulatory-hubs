@@ -1440,3 +1440,74 @@ invisible to them.
 the theme, not of the finished plot.** Passing them is necessary and nowhere
 near sufficient. Rendered output must be inspected before any figure is
 considered done.
+
+---
+
+### D-039 · METH · 2026-07-28 — the canonical M5 gate table was stale, and two audit checks were defending the staleness
+
+**Scientific impact:** none — no result changes. The M5 gate stood at 3 PASS / 1 FAIL
+before this entry and stands at 3 PASS / 1 FAIL after it. What changes is that the
+table now *says so*.
+
+#### What was wrong
+
+`data/metadata/m5_gate_results.csv` is the canonical M5 gate table: the audit reads
+it, the report will read it, and it is what a reader inspects to see whether the
+gate passed. It recorded criterion 3 as:
+
+```
+"3_distal_contrast","not evaluable",...,NA
+```
+
+That was written by `16_m5_gate.R` at M5, when amplification status was genuinely
+unknown (D-026). At M7, D-035 resolved amplification from DepMap Public 26Q1 copy
+number and `03_gate_criterion3.R` evaluated the criterion: **+3.3 points against a
+published +27, direction reproduces, magnitude fails, FAIL.**
+
+The M7 script wrote its own outputs and never wrote back. It even built the
+verdict — a data frame named `out` carrying `direction_pass`, `magnitude_pass` and
+`pass` — and then **discarded it without a `write.csv`**. Dead code, one line from
+being correct.
+
+The result was two sources of truth that disagreed for the whole of M7: the
+decision log said FAIL, the canonical table said never-evaluated. A gate figure
+built from the table would have contradicted the log.
+
+#### The worse half: the audit was protecting it
+
+Two `audit_decisions.sh` checks asserted the *deferral*, not the *resolution*:
+
+| check | asserted | after D-035 |
+|---|---|---|
+| D-026 | registry still says `UNVERIFIED MYC` | fails on a correctly-updated registry |
+| D-026b | gate table says `not evaluable` | **passes only while the table is stale** |
+
+D-026b is the dangerous one. It passed for the entirety of M7 *because* the bug
+existed, and would have started failing the moment anyone fixed it. An audit check
+written against a temporary state becomes, once that state is resolved, a guard on
+the error it was meant to catch. D-026 shows the mirror failure: it was already
+reporting FAIL against a registry that had been correctly updated, which trains the
+reader to ignore a red line.
+
+Both are now inverted to assert the resolved state, plus two new checks:
+`D-035b` (no criterion left with `pass = NA`) and `D-035c` (registry records
+resolution from DepMap). Audit: **34 PASS, 0 FAIL.**
+
+#### Fixes
+
+- `03_gate_criterion3.R` writes the verdict back into `m5_gate_results.csv`,
+  guarded by a row-count check that stops rather than silently matching zero or
+  many rows, and prints the resulting gate tally. `out` is now written to
+  `m5_criterion3_summary.csv` instead of being discarded.
+- `audit_decisions.sh` D-026 and D-026b inverted; D-035b and D-035c added.
+
+#### Rule this establishes
+
+**A check that encodes a deferral must be retired by the decision that resolves
+the deferral.** The decision log entry that closes a gap is not complete until the
+checks written against the gap have been updated with it. This is a fourth member
+of the D-031 defect family — alongside a config claim no code verified (D-038), it
+is a *check* whose claim had quietly become false.
+
+A script that resolves a value recorded elsewhere must write back to where it is
+recorded. Producing a new file beside a stale one is not resolution.
