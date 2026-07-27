@@ -495,11 +495,29 @@ figures:
   width_single: 90            # mm, single-column
   width_double: 180           # mm, double-column
   base_font_size: 8
+  # D-038. The M1 palette (MYC #B2182B, MYCN #2166AC, MYCL1 #1B7837) FAILED the
+  # colourblind check below at the first figure that ran it: min CIE dE 12.7 under
+  # deuteranopia against the floor of 15 — red vs green, the commonest confusion.
+  # Replaced by selection over scored candidates, not by taste. Verify with:
+  #   Rscript scripts/07_figures/00_select_palette.R
+  # Selected on TWO criteria: min dE 30.5 (2x the floor, limiting under protanopia)
+  # AND >= 30 L* separation from the white panel, so thin lines and small points
+  # stay visible. Maximising dE alone selects pale tints that vanish on white.
+  # Runner-up preserving the conventional red = MYC was #A50026/#2166AC/#B35806
+  # (dE 24.0); it passes both criteria and is a valid substitute.
   palette_paralog:
-    MYC:   "#B2182B"
-    MYCN:  "#2166AC"
+    MYC:   "#762A83"
+    MYCN:  "#E08214"
     MYCL1: "#1B7837"
   palette_sequential: viridis
+  # Diverging scale for correlation heatmaps. Encodes a signed continuous value,
+  # NOT paralog identity, so it is deliberately separate from palette_paralog —
+  # but it is defined here rather than hardcoded in plotting scripts so it cannot
+  # silently drift, which is how the old MYC red survived in fig01's heatmap.
+  palette_diverging:
+    low:  "#2C5985"
+    mid:  "#FFFFFF"
+    high: "#A63603"
 
   # ---------------------------------------------------------------------------
   # Publication output standards (D-021, D). Each of these is CHECKED, not

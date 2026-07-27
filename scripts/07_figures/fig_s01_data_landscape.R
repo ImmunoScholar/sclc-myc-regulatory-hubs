@@ -24,6 +24,17 @@ suppressPackageStartupMessages({
 })
 source("R/theme_project.R")
 
+# This figure was written at M4, before check_palette() existed, and so shipped
+# without ever running the gate — which is how the failing M1 paralog palette
+# survived into a committed figure (D-038). PAL_AMP is checked here specifically
+# because it is NOT the paralog trio: it adds a fourth colour (grey) that the
+# trio's own score says nothing about.
+cat("accessibility checks\n")
+check_palette(PAL_AMP, label = "amplification palette")
+check_palette(PAL_PRESENT, label = "presence palette")
+check_text_size()
+cat("\n")
+
 design <- read.delim("data/metadata/sample_design.tsv", stringsAsFactors = FALSE)
 man    <- read.csv("data/metadata/dataset_manifest.csv", stringsAsFactors = FALSE)
 

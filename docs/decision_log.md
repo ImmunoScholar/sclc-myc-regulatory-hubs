@@ -1340,3 +1340,103 @@ presented as replication** — the two may not be the same construct. Criteria 1
 and 4 are unaffected: they define paralog sets by which antibody was used, not by
 amplification status. The MYCN-in-MYC value of 0.886 and its stability across a
 50-fold change in set size stand on their own.
+
+---
+
+### D-038 · METH · 2026-07-28 — the paralog palette frozen at M1 failed its own accessibility check; replaced by scored selection
+
+**Amends:** `config/params.yml` `figures$palette_paralog` — a value frozen since M1.
+**Scientific impact:** none. Colour carries no quantitative claim in any panel.
+
+#### What happened
+
+`check_palette()` was written at M4 to enforce `figures$colourblind_check`
+(D-021 D: colourblind safety *verified* by deutan/protan/tritan simulation
+against a minimum perceptual distance, "rather than asserted"). The first
+results figure to actually run it, `fig01_lineage_dominance.R`, **failed on the
+project's own palette**:
+
+```
+palette check [paralog palette]: min CIE dE = 12.7 under deutan (need >= 15) -> FAIL
+```
+
+MYC `#B2182B` (red) against MYCL1 `#1B7837` (green) — the commonest form of
+colour vision deficiency, in a palette carried since M1 and already shipped in
+the M4 inventory figure `fig_s01_data_landscape`.
+
+This is the check working as designed. The palette had been *declared*
+colourblind-safe in config and never tested; between M1 and M10 that assertion
+was simply believed. It belongs to the same class as the D-031 defects: **a
+claim recorded in config that no code ever verified.**
+
+#### Decision
+
+The replacement was **selected by score, not by taste**, in
+`scripts/07_figures/00_select_palette.R`, which is committed and re-runnable so
+the choice can be audited or revisited. Eleven candidates drawn from established
+colourblind-safe families (Okabe-Ito, ColorBrewer diverging endpoints) were
+scored on **two** hard criteria:
+
+1. **min CIE ΔE ≥ 15** across normal/deutan/protan/tritan — the configured floor.
+2. **≥ 30 L\* separation from the white panel.**
+
+The second criterion was added after the first ranking returned a pale gold
+`#FDAE61` on a ΔE of 44.3. That score is real but is driven almost entirely by
+lightness spread: maximising pairwise distance alone rewards near-white tints.
+The paralogs are drawn as thin lines, 1.7 pt points and coloured text on a white
+panel, so a colour must also stand off the background. Three of the eleven
+candidates — including the top scorer — pass the colourblind test and fail this
+one. **A category the reader cannot see is not accessible whatever its pairwise
+ΔE says.**
+
+Five of eleven pass both. Selected:
+
+| paralog | colour | was |
+|---|---|---|
+| MYC | `#762A83` | `#B2182B` |
+| MYCN | `#E08214` | `#2166AC` |
+| MYCL1 | `#1B7837` | `#1B7837` |
+
+min ΔE **30.5** (limiting under protanopia, 2× the floor); background contrast **36.7**.
+
+The runner-up preserving the conventional red-for-MYC assignment was
+`#A50026`/`#2166AC`/`#B35806` (ΔE 24.0, background 52.2). It passes both criteria
+and is a valid substitute; the selection went on ΔE because there is no
+established convention that MYC must be red.
+
+#### Two further changes this exposed
+
+**A hardcoded hex outlived its palette.** `fig01`'s correlation heatmap used
+`high = "#B2182B"` — the old MYC red, typed directly into the plotting script
+where `check_palette()` could not see it. It is now `figures$palette_diverging`
+in config, exposed as `scale_fill_diverging()`. A diverging scale encodes a
+signed continuous value, not paralog identity, so it stays deliberately separate
+from `palette_paralog` — but it is no longer invisible to review.
+
+**Panel A was borrowing a paralog colour for a non-paralog encoding.** Its fill
+distinguishes *variance source* (lineage vs paralog) while paralog is the
+x-axis; taking the fill from `PAL_PARALOG[["MYC"]]` implied "this bar is MYC" in
+a panel where it is not. Now blue for lineage, neutral grey for paralog.
+
+#### Consequence
+
+Every figure using `PAL_PARALOG` must be regenerated: `fig_s01_data_landscape`
+(M4) and `fig01_lineage_dominance` (M10). Remaining M10 figures are written
+against the config and inherit it. Because the palette is read from
+`config/params.yml` rather than repeated in each script, this is a one-line
+change plus a re-run — which is why it was centralised at M4 (D-021).
+
+#### Note for review — the checks do not check the plot
+
+Three defects in this figure passed all three automated checks and were caught
+only by **looking at the rendered PNG**: a clipped main title, colliding panel
+titles, and value labels in panel C rendered white-on-white *outside* the bars,
+because the bars run downward from zero and `vjust` was positive. A fourth —
+labels collapsing to the group centre because subsetting the layer's data left
+`position_dodge` with a single fill level to dodge against — was equally
+invisible to them.
+
+**`check_palette()` and `check_text_size()` verify properties of the palette and
+the theme, not of the finished plot.** Passing them is necessary and nowhere
+near sufficient. Rendered output must be inspected before any figure is
+considered done.

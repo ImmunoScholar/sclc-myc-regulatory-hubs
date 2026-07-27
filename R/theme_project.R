@@ -40,6 +40,18 @@ PAL_AMP <- c(
 # the meaning.
 PAL_PRESENT <- c("present" = "#2C5985", "absent" = "#EDEDED")
 
+# Diverging scale for signed continuous values (correlation heatmaps). Config-
+# driven for the same reason as the paralog colours: a hex literal typed into a
+# plotting script is invisible to the accessibility check and outlives the palette
+# it was copied from.
+PAL_DIVERGING <- unlist(.fig_cfg$palette_diverging)
+
+scale_fill_diverging <- function(limits, name = NULL, ...) {
+  ggplot2::scale_fill_gradient2(
+    low = PAL_DIVERGING[["low"]], mid = PAL_DIVERGING[["mid"]],
+    high = PAL_DIVERGING[["high"]], midpoint = 0, limits = limits, name = name, ...)
+}
+
 theme_project <- function(base_size = FIG_BASE) {
   theme_minimal(base_size = base_size) +
     theme(
@@ -71,12 +83,84 @@ theme_matrix <- function(base_size = FIG_BASE) {
     )
 }
 
-# Single save path so DPI, device and units cannot drift between figures.
-save_fig <- function(plot, filename, width = FIG_W_DOUBLE, height = 100) {
+# --- palette accessibility, CHECKED not asserted -------------------------------
+# config figures$colourblind_check requires deutan/protan/tritan simulation with a
+# minimum perceptual distance. "Colourblind safe" is a testable claim and an
+# untested one is worth nothing, so this runs rather than being declared.
+check_palette <- function(cols, min_dist = .fig_cfg$colourblind_check$min_perceptual_distance,
+                          label = "palette") {
+  if (!requireNamespace("colorspace", quietly = TRUE)) {
+    warning("colorspace unavailable — accessibility NOT checked"); return(invisible(NA))
+  }
+  sims <- list(normal = identity,
+               deutan = colorspace::deutan,
+               protan = colorspace::protan,
+               tritan = colorspace::tritan)
+  worst <- Inf; worst_where <- ""
+  for (nm in names(sims)) {
+    sc <- sims[[nm]](unname(cols))
+    rgb <- t(grDevices::col2rgb(sc))
+    lab <- grDevices::convertColor(rgb / 255, from = "sRGB", to = "Lab")
+    d <- as.matrix(stats::dist(lab))
+    diag(d) <- Inf
+    if (min(d) < worst) { worst <- min(d); worst_where <- nm }
+  }
+  ok <- worst >= min_dist
+  cat(sprintf("  palette check [%s]: min CIE dE = %.1f under %s (need >= %s) -> %s\n",
+              label, worst, worst_where, min_dist, if (ok) "PASS" else "FAIL"))
+  if (!ok) warning(sprintf("%s fails colourblind check (dE %.1f < %s)", label, worst, min_dist))
+  invisible(ok)
+}
+
+# --- legibility, CHECKED at final print size -----------------------------------
+# config figures$min_text_pt. A figure shipped illegible is a failure, so the
+# smallest theme text is verified against the configured floor.
+check_text_size <- function(base_size = FIG_BASE, min_pt = .fig_cfg$min_text_pt) {
+  smallest <- base_size - 1.5      # the smallest size used in theme_project()
+  ok <- smallest >= min_pt
+  cat(sprintf("  text check: smallest element %.1f pt (floor %s) -> %s\n",
+              smallest, min_pt, if (ok) "PASS" else "FAIL"))
+  if (!ok) warning("figure text falls below the configured minimum")
+  invisible(ok)
+}
+
+# --- single save path ----------------------------------------------------------
+# Emits PNG *and* vector PDF (config figures$vector_output): a raster-only figure
+# cannot be rescaled for print. Records every figure in a manifest so none is
+# untraceable (config figures$figure_manifest).
+save_fig <- function(plot, filename, width = FIG_W_DOUBLE, height = 100,
+                     script = NA_character_, caption = NA_character_) {
   dir.create("figures", showWarnings = FALSE)
-  path <- file.path("figures", filename)
-  ggplot2::ggsave(path, plot, width = width, height = height, units = "mm",
+  stem <- sub("\\.(png|pdf)$", "", filename)
+  png_path <- file.path("figures", paste0(stem, ".png"))
+  ggplot2::ggsave(png_path, plot, width = width, height = height, units = "mm",
                   dpi = FIG_DPI, device = ragg::agg_png, bg = "white")
-  cat("wrote ", path, "  (", width, "x", height, " mm @ ", FIG_DPI, " dpi)\n", sep = "")
-  invisible(path)
+  cat("wrote ", png_path, "  (", width, "x", height, " mm @ ", FIG_DPI, " dpi)\n", sep = "")
+
+  pdf_path <- NA_character_
+  if (isTRUE(.fig_cfg$vector_output)) {
+    pdf_path <- file.path("figures", paste0(stem, ".pdf"))
+    ok <- tryCatch({
+      ggplot2::ggsave(pdf_path, plot, width = width, height = height, units = "mm",
+                      device = grDevices::cairo_pdf, bg = "white"); TRUE
+    }, error = function(e) { warning("PDF export failed: ", conditionMessage(e)); FALSE })
+    if (ok) cat("wrote ", pdf_path, "  (vector)\n", sep = "")
+  }
+
+  if (isTRUE(.fig_cfg$figure_manifest)) {
+    mf <- "figures/figure_manifest.csv"
+    row <- data.frame(figure = stem, png = basename(png_path),
+                      pdf = ifelse(is.na(pdf_path), NA, basename(pdf_path)),
+                      width_mm = width, height_mm = height, dpi = FIG_DPI,
+                      script = script, caption = caption,
+                      generated = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+                      stringsAsFactors = FALSE)
+    if (file.exists(mf)) {
+      old <- utils::read.csv(mf, stringsAsFactors = FALSE)
+      old <- old[old$figure != stem, , drop = FALSE]
+      row <- rbind(old, row)
+    }
+    utils::write.csv(row, mf, row.names = FALSE)
+  }
+  invisible(png_path)
 }
