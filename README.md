@@ -107,6 +107,13 @@ explicit, logged, and QC'd for loss rate.
 
 Requires R ≥ 4.4 on Linux/macOS. No paid tools, no cloud services, no Python.
 
+System libraries first — `renv::restore()` reports these as missing on a
+machine that has never built these packages:
+
+```bash
+sudo apt-get update && sudo apt-get install -y build-essential cmake gsfonts libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libfreetype-dev libharfbuzz-dev libfribidi-dev libpng-dev libtiff-dev libjpeg-dev libcairo2-dev libmagick++-dev pandoc
+```
+
 ```bash
 git clone git@github.com:ImmunoScholar/sclc-myc-regulatory-hubs.git
 cd sclc-myc-regulatory-hubs

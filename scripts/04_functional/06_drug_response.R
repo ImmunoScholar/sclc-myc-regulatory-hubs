@@ -28,7 +28,12 @@
 
 suppressPackageStartupMessages({ library(data.table); library(yaml) })
 CFG <- yaml::read_yaml("config/params.yml"); set.seed(CFG$project$seed)
-DL <- "/mnt/c/Users/Priya/Downloads"
+
+# Drug screens live in the project's own data tree, like every other input. An
+# earlier version read them straight from a Windows Downloads folder, which ran
+# here and nowhere else; the clean-clone check caught it. DEPMAP_DRUG_DIR
+# overrides for anyone keeping the exports elsewhere.
+DL <- Sys.getenv("DEPMAP_DRUG_DIR", unset = "data/raw/depmap")
 
 SCREENS <- list(
   PRISM = "Drug_sensitivity_AUC_(PRISM_Repurposing_Secondary_Screen)_subsetted.csv",
@@ -58,6 +63,13 @@ read_screen <- function(path) {
 
 cov <- data.frame(); res <- data.frame()
 cat("=========== drug screens ===========\n")
+cat("  input directory: ", DL, "\n", sep = "")
+absent <- names(SCREENS)[!file.exists(file.path(DL, unlist(SCREENS)))]
+if (length(absent) == length(SCREENS))
+  stop("no drug-screen exports found in ", DL, ".\n",
+       "  Download from https://depmap.org/portal/data_page/?tab=customDownloads\n",
+       "  (Drug sensitivity AUC: PRISM Repurposing Secondary, Sanger GDSC1, GDSC2)\n",
+       "  and place the CSVs there, or set DEPMAP_DRUG_DIR.")
 
 for (sn in names(SCREENS)) {
   p <- file.path(DL, SCREENS[[sn]])

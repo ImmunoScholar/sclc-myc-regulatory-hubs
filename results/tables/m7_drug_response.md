@@ -1,6 +1,6 @@
 # Aim 3 — drug-response association (BET inhibitors)
 
-Generated: 2026-07-28 11:09:56 UTC
+Generated: 2026-07-28 11:36:31 UTC
 
 The last open commitment from the project contract. Deliberately narrow and
 on-thesis: the source study reports that MYC-family amplification dictates

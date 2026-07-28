@@ -8,12 +8,34 @@
 # -----------------------------------------------------------------------------
 cd "$(dirname "$0")/../.." || exit 1
 
-pass=0; fail=0; na=0
+pass=0; fail=0; na=0; skip=0
+
+# Some decisions are evidenced by PIPELINE ARTEFACTS — git hooks, cached
+# intermediates, per-line scan outputs — which are deliberately not in version
+# control. In a fresh clone they are absent, and reporting that as FAIL makes a
+# correctly-cloned repository look broken. It did exactly that on the first
+# bare-machine run: D-010, D-023 and D-024 went red purely because the data had
+# not been generated yet.
+#
+# chk_artefact marks those SKIP when the artefact tree is absent, and tests them
+# normally when it is present. The distinction is "decision drifted" versus
+# "output not built yet", and conflating the two devalues every other line.
+HAVE_ARTEFACTS=0
+[ -d data/processed/regions ] && [ -n "$(ls -A data/processed/regions 2>/dev/null)" ] && HAVE_ARTEFACTS=1
+
 chk () {  # chk <id> <description> <test-command>
   if eval "$3" >/dev/null 2>&1; then
     printf '  %-7s PASS  %s\n' "$1" "$2"; pass=$((pass+1))
   else
     printf '  %-7s FAIL  %s\n' "$1" "$2"; fail=$((fail+1))
+  fi
+}
+chk_artefact () {  # same, but SKIP when pipeline outputs are absent
+  if [ "$HAVE_ARTEFACTS" -eq 0 ]; then
+    printf '  %-7s SKIP  %s (pipeline output not present in this checkout)\n' "$1" "$2"
+    skip=$((skip+1))
+  else
+    chk "$@"
   fi
 }
 note () { printf '  %-7s ----  %s\n' "$1" "$2"; na=$((na+1)); }
@@ -52,7 +74,7 @@ chk D-007 "P3M CRAN binaries in .Rprofile" \
   "grep -q 'packagemanager.posit.co' .Rprofile"
 chk D-008 "SUPERSEDED by D-022 — BSgenome now installed" \
   "grep -q 'BSgenome.Hsapiens.UCSC.hg19' renv.lock"
-chk D-010 "pre-commit large-file hook present" \
+chk_artefact D-010 "pre-commit large-file hook present" \
   "test -x .git/hooks/pre-commit"
 chk D-011 "targets NOT in renv.lock" \
   "! grep -q '\"targets\"' renv.lock"
@@ -90,9 +112,9 @@ chk D-021c "regulon_validity gate in config" \
   "grep -q 'regulon_validity:' config/params.yml"
 chk D-022 "BSgenome hg19 present and build-checked" \
   "grep -q 'BSgenome.Hsapiens.UCSC.hg19' renv.lock"
-chk D-023 "universe derived from keystone ATAC (per_line_runs cache)" \
+chk_artefact D-023 "universe derived from keystone ATAC (per_line_runs cache)" \
   "test -s data/processed/regions/per_line_runs.rds || test -s data/processed/regions/universe_final.rds"
-chk D-024 "exact rescan produced 36 files" \
+chk_artefact D-024 "exact rescan produced 36 files" \
   "test \$(ls data/processed/regions/exact/*.bed 2>/dev/null | wc -l) -eq 36"
 chk D-025 "criterion 2 reformulated as mycl1_vs_mycn_nesting" \
   "grep -q 'mycl1_vs_mycn_nesting' config/params.yml"
@@ -125,5 +147,5 @@ if [ -s data/metadata/m5_gate_results.csv ]; then cat data/metadata/m5_gate_resu
 
 echo
 echo "=============================================================="
-printf 'PASS %d   FAIL %d   informational %d\n' "$pass" "$fail" "$na"
+printf 'PASS %d   FAIL %d   SKIP %d   informational %d\n' "$pass" "$fail" "$skip" "$na"
 echo "=============================================================="

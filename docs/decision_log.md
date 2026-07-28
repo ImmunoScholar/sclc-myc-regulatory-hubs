@@ -2129,3 +2129,49 @@ All contract commitments are now discharged. The `Inferred Molecular Subtypes`
 file requested for this analysis turned out to contain oncogenic-alteration calls
 rather than SCLC neuroendocrine subtypes, so NE state was derived from CCLE
 expression as elsewhere in the project.
+
+---
+
+### D-048 · METH · 2026-07-28 — the release test run on a second checkout found three defects
+
+The M11 gate was run outside the working tree for the first time. It **passed the
+part that matters** — a fresh clone with **no data at all** rebuilt all 8 figures
+byte-identically, and `renv::restore()` resolved all 232 packages, exit 0 — and
+found three defects.
+
+#### 1. A hardcoded Windows path (real portability bug)
+
+`06_drug_response.R` read the drug exports straight from
+`/mnt/c/Users/Priya/Downloads`. That ran on one machine and nowhere else. The
+inputs now live in `data/raw/depmap` like every other dataset, with
+`DEPMAP_DRUG_DIR` as an override and a stop-with-instructions if they are absent.
+Introduced and caught within the same day, by the check written for exactly this.
+
+#### 2. The audit called a correct clone broken
+
+D-010, D-023 and D-024 test for **pipeline artefacts** — a git hook, a cached
+scan, 36 rescan BEDs — that are deliberately gitignored. In a fresh clone they
+are absent, so the audit reported **3 FAIL** on a perfectly good checkout.
+
+That conflates *"a decision has drifted from reality"* with *"this output has not
+been generated yet"*, and it devalues every other line in the report: a reader who
+learns that red lines are normal stops reading them. Those three now use
+`chk_artefact`, which SKIPs when the artefact tree is absent and tests normally
+when it is present. Verified both ways: **34 PASS / 0 FAIL / 0 SKIP** in the
+working tree, **31 PASS / 0 FAIL / 3 SKIP** in a fresh clone.
+
+#### 3. The cold-install test did not actually happen
+
+`renv::restore()` reported *"Successfully installed 215 packages in 0.7 seconds"*
+with every line marked `[linked from cache]`. The clone was made inside the same
+WSL instance, so the renv cache was warm.
+
+**What is therefore proven:** the lockfile is complete and internally consistent,
+and every package resolves. **What is still unproven:** that these 232 packages
+COMPILE from source on a machine that has never built them. The run did surface
+two system packages not previously documented — `cmake` (required by `fs`) and
+`gsfonts` (required by `magick`) — which are now in the README's install line.
+
+This limitation is recorded rather than papered over. A genuinely cold test needs
+a machine, container or CI runner with no R library and no renv cache, and the
+project does not currently have one.
