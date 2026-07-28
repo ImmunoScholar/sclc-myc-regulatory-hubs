@@ -1,237 +1,198 @@
 # MYC-paralog regulatory hubs in small cell lung cancer
 
-A reproducible, multi-omics analysis that translates paralog-resolved MYC
-regulatory programs from SCLC cell lines into patient tumours, and prioritises
-candidate regulatory hubs using a transparent, weight-free evidence-integration
-framework.
+A multi-omics analysis investigating whether MYC, MYCN, and MYCL1 maintain distinct regulatory programs in patient SCLC tumours, despite occupying distinct enhancer repertoires in cell lines.
 
-> **Status: analysis complete, release in preparation.** All five aims have been
-> run to a conclusion. Two of those conclusions are **negative results**, and they
-> are the main findings rather than a shortfall — see
-> [`report.html`](report.html) for the full write-up and
-> [`docs/decision_log.md`](docs/decision_log.md) for why each decision was made.
+## Main findings
 
-## What this project found
+The analysis builds paralog-resolved regulons from cell-line chromatin data and tests their activity across three independent patient cohorts (tumour RNA-seq, spatial transcriptomics) plus functional genomics.
 
-1. **Paralog-resolved regulons are internally coherent in cell-line chromatin**
-   (3 of 4 pre-registered gate criteria pass) but **lose paralog identity in
-   patient tumours.** Neuroendocrine lineage state explains the regulon scores;
-   the paralog's own expression does not. Replicated across two cohorts
-   (160 tumours) with a power analysis, and reproduced again in spatial tissue.
-2. **The evidence-integration framework returns no prioritised hub list.** Three
-   of four planned evidence domains were excluded on their own evidence. The two
-   that remain converge weakly in aggregate (~2× top-K overlap) but no individual
-   gene survives testing across 10,387 — aggregate detectable, per-gene
-   unattributable.
-3. Along the way: the MYC regulon independently reproduces the published
-   MYC-enhancer→neurogenesis link, while the **MYCN regulon does not** — a
-   discordance with the source study, which grouped them together.
+**Primary result:** Paralog-specific regulatory programs lose paralog identity in patient tumours. Neuroendocrine lineage state—not paralog expression—explains regulon activity. Lineage explains 24–43% of regulon-score variance; paralog expression explains 0–7%. This pattern holds across two bulk tumour cohorts (n=79, n=81) and is replicated in spatial tissue, with consistent effect sizes.
 
-Both negative results were **pre-registered as reportable findings** before any
-result existed. Nothing here was adjusted until it passed.
+**Evidence integration:** A two-stage rank aggregation framework identifies weak aggregate convergence between cis-regulatory and functional evidence (~2× enrichment at the top of both rankings), but no individual gene survives multiple-testing correction across 10,387 genes (best FDR 0.358). The aggregated signal is detectable; the per-gene signal is not.
 
----
+**Exploratory finding:** MYCL expression tracks BET-inhibitor resistance in two independent pharmacogenomic screens (Sanger GDSC1, GDSC2; rho +0.59–+0.62 after lineage adjustment), but does not replicate in PRISM. Effect is provisional and platform-dependent.
 
-## The question
+## Scientific context
 
-MYC, MYCN and MYCL1 are amplified in largely mutually exclusive subsets of small
-cell lung cancer, and they are not interchangeable — they occupy **distinct
-enhancer repertoires**. Plotnik et al. (2024) established this directly, with
-ChIP-seq of all three paralogs plus H3K27ac and ATAC-seq across ten SCLC cell
-lines.
+Plotnik et al. (2024) mapped distinct enhancer repertoires for the three MYC paralogs across ten SCLC cell lines using ChIP-seq and ATAC-seq. That foundational work is cited but not repeated here.
 
-That work is the foundation of this project and is **not repeated here.**
+This project extends beyond *in vitro* by:
+- Constructing paralog-resolved regulatory programs (super-enhancer-aware, peak-to-gene linked)
+- Scoring them in independent human SCLC tumour cohorts
+- Testing whether paralog signals remain separable from lineage-transcription-factor programs
+- Integrating independent evidence layers (chromatin, CRISPR dependency, drug response, spatial)
 
-What it did not do was leave the cell line. Every result was *in vitro*; there
-was no super-enhancer calling, no peak-to-gene linking beyond nearest-gene, no
-network inference, no patient tumour data, and no prioritisation of the
-downstream targets it identified.
+## Methodology
 
-**This project asks the next question:**
-
-> Do paralog-specific MYC regulatory programs operate in patient tumours — and
-> which of their downstream hubs are robust enough, across independent evidence
-> layers, to warrant functional investigation?
-
-## Approach
-
-Five aims, one coherent argument rather than five separate analyses:
-
-| Aim | What it does |
+| Component | Details |
 |---|---|
-| **1 · Regulatory layer** | Build a consensus accessible-region universe from ATAC-seq, quantify MYC/MYCN/MYCL1 and H3K27ac bedGraph signal over it, call active regions and super-enhancers, and link regions to genes — producing **paralog-resolved regulons** |
-| **2 · Patient translation** | Score those regulons in two independent human SCLC tumour cohorts, and test explicitly whether "paralog-specific" signal is separable from lineage-TF (ASCL1 / NEUROD1 / POU2F3) programs |
-| **3 · Functional evidence** | Selective CRISPR dependency (DepMap). *GENIE3 network importance was **excluded** on both its pre-conditions — 59 lines is underpowered and MYC expression tracks lineage across them. Drug-response association was **not carried out** — the one commitment still open.* |
-| **4 · Evidence integration** | Two-stage Robust Rank Aggregation across evidence domains. *Ran on **two** of four domains; returns **no ranked hub list** — see findings above.* |
-| **5 · Spatial coherence** | A restricted check of within-tumour coherence. No prognostic claims. *Only the MYC regulon clears the panel-coverage gate.* |
+| **Chromatin layer** | GSE230649 (10 SCLC lines): MYC/MYCN/MYCL1 ChIP-seq, H3K27ac, ATAC-seq, hg19. Consensus accessible-region universe from three independent ATAC datasets. Signal quantified, active regions called, super-enhancers stitched, peak-to-gene links inferred. |
+| **Patient translation** | GSE60052 (79 samples) and George et al. 2015 via cBioPortal (81 samples). Regulon scoring with explicit confounding test: paralog signals vs. lineage-TF programs (ASCL1, NEUROD1, POU2F3). |
+| **Functional domains** | CRISPR dependency (DepMap): selective essentiality in SCLC vs. non-SCLC lines. Drug response: BET inhibitors across three pharmacogenomic screens (PRISM, GDSC1, GDSC2), neuroendocrine-adjusted. Network inference: excluded (59 lines underpowered for tree-ensemble GRN; MYC expression confounded by NE state). |
+| **Evidence integration** | Two-stage Robust Rank Aggregation: within-domain ranking → between-domain aggregation → permutation-based FDR control. Designed without arbitrary weights to handle correlated layers (chromatin/ATAC/ChIP/super-enhancer). |
+| **Spatial validation** | GeoMx DSP (GSE261348, GSE261345): targeted ~1,800-gene panel. Coverage gate: minimum 20 measured genes AND ≥10% of regulon members. Only MYC regulon qualifies (56/500 members, 11.2%). |
 
-Aims are shown as specified, with their actual outcome in italics. An aim that
-quietly changes shape between specification and write-up is the easiest kind of
-overstatement to commit and the hardest for a reader to detect.
+## Key analyses and their scope
 
-### Two design choices worth explaining
+### Regulatory layer (Aim 1)
+Three paralog-resolved regulons built from measured ChIP binding and peak-to-gene linking (not motif-based inference). Validation:
+- MYCN occupancy shows expected ~84% nesting within MYC regions (Plotnik's reported 84% overlap confirmed)
+- MYCL1 shows independent occupancy pattern
+- MYC regulon enriched for neurogenesis (p=7e-6, independent replication)
+- MYCN regulon enriched for Hallmark housekeeping (p=3.6e-4; published sources grouped MYCN with MYC)
+- MYCL1 regulon does not reach significance
 
-**Why not SCENIC?** All three MYC paralogs bind the same canonical E-box.
-Motif-based network inference is therefore structurally unable to tell them
-apart, and would collapse the project's independent variable into a single "MYC
-regulon". Regulons here are anchored on **measured paralog binding** instead,
-with GENIE3 supplying an independent, expression-only view.
+### Patient translation (Aim 2)
+Regulon scores do not track paralog expression after adjustment for neuroendocrine lineage state:
+- Lineage explains 24–43% of regulon-score variance
+- Paralog expression explains 0–7% (overlapping confidence intervals)
+- Effect replicates identically in both cohorts
+- Result holds in spatial tissue (third independent modality)
 
-**Why rank aggregation instead of a weighted score?** Any weights would be
-arbitrary. Worse, the evidence layers are not independent — ATAC, H3K27ac, ChIP
-and super-enhancer calls are correlated by construction, so a weighted sum would
-silently count chromatin evidence four times. Rank aggregation is weight-free and
-handles missing layers natively.
+### Functional evidence (Aim 3)
+Selective CRISPR dependency present at aggregate level (pooled regulons, OR 2.71, p=0.0048) but not separable per paralog. Drug response: MYCL-BET-inhibitor association in GDSC1/GDSC2 (not PRISM). MYC trends opposite direction but does not survive confounding adjustment.
 
-## Data
+### Evidence integration (Aim 4)
+Four evidence domains specified: cis-regulatory (admitted), functional (admitted), transcriptional (dropped; lineage-confounded at aggregate and per-gene level), network (dropped; NE-confounded and underpowered). Two-domain MOES degenerate (no hierarchy). Weak inter-domain concordance. No hub list reported.
 
-All data are public. Nothing in this repository is redistributed — everything is
-fetched by scripts in `scripts/01_data/`, with a checksum manifest and recorded
-download dates in `data/metadata/`.
+### Spatial coherence (Aim 5)
+MYC regulon shows within- and between-tumour variance; effect sizes match bulk cohorts. Limited to MYC due to targeted panel coverage. No prognostic, immune-exclusion, or outcome claims.
 
-| Layer | Source | Notes |
-|---|---|---|
-| MYC/MYCN/MYCL1 + H3K27ac ChIP-seq, ATAC-seq | GEO **GSE230649** | 10 SCLC lines. **hg19**, bedGraph only (8.6 GB) |
-| ATAC-seq (support) | GSE269424, GSE256345, GSE281523 | |
-| Lineage-TF ChIP-seq (confounder controls) | GSE281524 (ASCL1), GSE210113 (NEUROD1), GSE249362 (POU2F3) | |
-| Bulk tumour RNA-seq | GSE60052 (79 tumours + 7 normal); George et al. 2015 via cBioPortal | |
-| CRISPR dependency & expression | DepMap (release pinned in the manifest) | |
-| ~~Pharmacogenomics~~ | ~~SCLC-CellMiner CDB~~ | **Not used.** The drug-response association under Aim 3 was never carried out; listed here because it was specified |
-| Spatial | GSE261348, GSE261345 (GeoMx DSP) | Targeted ~1,800-gene panel |
+## Interpretation
 
-**Genome build is hg19 throughout**, mandated by the source alignment of
-GSE230649. Build is asserted at every coordinate-handling step; any lift is
-explicit, logged, and QC'd for loss rate.
+The evidence-integration framework is a **heuristic prioritisation tool**, not a predictive or clinically validated model. No individual gene identified through this analysis should be treated as a validated therapeutic target without experimental corroboration.
 
-## Reproducing
+The primary finding—paralog-program collapse under lineage dominance—is a robust null result. It arose as a pre-registered reportable outcome and is reported with power analysis rather than as a study failure. The phenomenon appears at three biological levels (chromatin occupancy, gene expression, spatial transcripts) and across two independent tumour cohorts.
 
-Requires R ≥ 4.4 on Linux/macOS. No paid tools, no cloud services, no Python.
+### Known limitations
 
-System libraries first — `renv::restore()` reports these as missing on a
-machine that has never built these packages:
+- **No single-cell layer.** The suitable patient-derived atlas (HTAN/Chan 2021) is access-restricted; the public alternative is CDX-derived and cannot support a patient-translation claim. Dropped rather than substituted.
+- **Chromatin from cell lines, n=2 per paralog.** Descriptive layer only; no per-line statistical claims. Inference reserved for tumour cohorts where sample size is adequate.
+- **Consensus region universe.** Boundaries are re-derived from ATAC-defined consensus, not Plotnik's de-novo peak calls. Introduces structure bias (distal-fraction criterion fails) and is reported as such.
+- **Lineage-TF coverage uneven.** POU2F3 occupancy available in 3 keystone lines; ASCL1 in 1; NEUROD1 in 0. Confounding-resolution heterogeneous.
+- **Spatial panel targeted.** ~1,800 genes measurable; most regulon members absent. MYC regulon barely clears the coverage gate (by 1.2 percentage points).
+- **Pharmacogenomics sparse and platform-dependent.** MYCL-BET-inhibitor association appears in Sanger data only (GDSC1, GDSC2; same platform, overlapping lines) and not in PRISM. Pre-registration did not cover this specific comparison.
 
+## Data sources
+
+All data are public. No datasets are redistributed; all are fetched by scripts with checksum verification and download dates recorded.
+
+| Source | Accession | Role | Notes |
+|---|---|---|---|
+| GSE230649 | Plotnik et al. ChIP-seq/ATAC | Keystone: MYC/MYCN/MYCL1, H3K27ac, ATAC (10 lines) | hg19 bedGraph only; 8.6 GB |
+| GSE269424, GSE256345, GSE281523 | ATAC (support) | Consensus accessible-region universe | hg38; liftOver to hg19 |
+| GSE281524, GSE210113, GSE249362 | Lineage-TF ChIP | ASCL1, NEUROD1, POU2F3 controls | Confounder identification |
+| GSE60052 | Bulk SCLC RNA-seq | Primary tumour cohort | n=79 + 7 normal |
+| George et al. 2015 | Bulk SCLC RNA-seq | Replication cohort | n=81; via cBioPortal |
+| DepMap Public 26Q1 | CRISPR dependency | Selective essentiality | Expression, copy number, dependency |
+| GDSC1, GDSC2, PRISM | Pharmacogenomics | Drug-response association | Sanger and Broad platforms; BET inhibitors |
+| GSE261348, GSE261345 | GeoMx DSP | Spatial transcriptomics | Targeted ~1,800-gene panel |
+
+**Genome build:** hg19 throughout (mandated by GSE230649). Build asserted at every coordinate-handling step; any liftOver logged and loss rate QC'd.
+
+## Reproducing the analysis
+
+**Requirements:** R ≥ 4.4 on Linux/macOS. All dependencies pinned in `renv.lock`. No Python, no cloud services, no paid tools.
+
+**System libraries:**
 ```bash
-sudo apt-get update && sudo apt-get install -y build-essential cmake gsfonts libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libfreetype-dev libharfbuzz-dev libfribidi-dev libpng-dev libtiff-dev libjpeg-dev libcairo2-dev libmagick++-dev pandoc
+sudo apt-get update && sudo apt-get install -y \
+  build-essential cmake gsfonts \
+  libcurl4-openssl-dev libssl-dev libxml2-dev \
+  libfontconfig1-dev libfreetype-dev libharfbuzz-dev libfribidi-dev \
+  libpng-dev libtiff-dev libjpeg-dev libcairo2-dev libmagick++-dev \
+  pandoc
 ```
 
+**Setup:**
 ```bash
 git clone git@github.com:ImmunoScholar/sclc-myc-regulatory-hubs.git
 cd sclc-myc-regulatory-hubs
-```
-
-Restore the exact package versions:
-
-```bash
 Rscript -e 'renv::restore()'
-```
-
-Reinstall the large-file guard (git hooks are not cloned):
-
-```bash
 bash scripts/00_setup/01_init_git.sh
 ```
 
-Then run the numbered scripts in `scripts/` in order. Each stage writes its
-outputs to `results/` and its QC to `logs/`.
+**Run pipeline:**
+```bash
+bash scripts/run_all.sh [--with-data] [--figures]
+```
 
-Rebuild every figure and verify the set:
+The pipeline processes data → regulons → patient translation → functional evidence → integration in dependency order, writing outputs to `results/` and logs to `logs/`. Stops at first error rather than producing incomplete outputs.
 
+**Rebuild figures:**
 ```bash
 bash scripts/07_figures/99_build_all.sh
 ```
 
-Render the report:
-
+**Render report:**
 ```bash
 bash scripts/08_report/01_render_report.sh
 ```
 
-The report source is [`report.qmd`](report.qmd) and the rendered output is
-[`report.html`](report.html). Rendering prefers the Quarto CLI; if Quarto is not
-installed it falls back to `knitr` + `pandoc`, which are already pinned in
-`renv.lock`. The two paths differ in presentation only — the fallback loses
-Quarto's folded-code UI and theme, not any content or number. To use the Quarto
-path, install the CLI from <https://quarto.org/docs/get-started/>.
+(Prefers Quarto CLI; falls back to knitr+pandoc if unavailable. Quarto changes presentation only, not content.)
 
-Every value in the report is read at render time from files the analysis wrote,
-so a stale analysis cannot produce a fresh-looking report, and the render refuses
-to run if those files are missing.
+**System resources:** ~40 GB disk free. RAM is the binding constraint (~10 GB); pipeline processes bedGraph signal chromosome-by-chromosome rather than genome-wide to fit.
 
-Or run the whole pipeline in dependency order:
-
-```bash
-bash scripts/run_all.sh
-```
-
-It stops at the first failing stage — a pipeline that continues past a failure
-produces outputs that look complete and are not. Pass `--with-data` to include
-the ~6 h download, or `--figures` for figures and report only.
-
-### System requirements
-
-Roughly 40 GB of free disk. **Memory is the real constraint:** the pipeline is
-written to process bedGraph signal chromosome by chromosome and runs in about
-10 GB of RAM. Loading the signal genome-wide will not work on a normal machine.
-
-## Repository layout
+## Repository structure
 
 ```
-config/          analysis parameters (YAML) — thresholds live here, not in code
-data/raw/        downloaded data          (git-ignored)
-data/processed/  intermediates            (git-ignored)
-data/metadata/   manifests, checksums, provenance   (tracked)
-docs/            project contract, gap statement, decision log, journal
-scripts/         numbered analysis stages
-results/tables/  output tables            (tracked)
-results/objects/ serialised intermediates (git-ignored)
-figures/         publication figures      (tracked)
-logs/            run and QC logs          (git-ignored)
-tests/           assertions on intermediate outputs
+scripts/           Numbered analysis stages (00–08)
+  01_data/         Download, verify, QC all source datasets
+  02_m5/           Regulatory layer (Aim 1)
+  03_m6/           Patient translation (Aim 2)
+  04_m7/           Functional evidence (Aim 3)
+  05_m8/           Evidence integration (Aim 4)
+  06_m9/           Spatial validation (Aim 5)
+  07_figures/      Generate publication figures
+  08_report/       Render Quarto report
+
+config/            YAML analysis parameters (thresholds, methods)
+data/
+  raw/             Downloaded public datasets (git-ignored)
+  processed/       Intermediates (git-ignored)
+  metadata/        Manifests, checksums, provenance (tracked)
+
+results/
+  tables/          Output tables, metric summaries (tracked)
+  objects/         Serialized R objects (git-ignored)
+
+figures/           Publication figures and captions (tracked)
+logs/              Execution logs and QC reports (git-ignored)
+tests/             Unit tests on intermediate outputs
+docs/
+  project_contract.md          Frozen scope and pre-registered controls
+  02_gap_statement.md          Novelty assessment vs. Plotnik et al.
+  03_dataset_inventory.md      Every dataset, role, access status
+  04_analysis_architecture.md  Pipeline logic and method choices
+  decision_log.md              Detailed record of every deviation
+
+R/                 Shared utility functions
+renv/              Package version management
 ```
 
-Start with [`docs/project_contract.md`](docs/project_contract.md) for scope and
-pre-registered controls, and [`docs/decision_log.md`](docs/decision_log.md) for
-why the project is built the way it is.
+## Figures
 
-## Interpretation and limits
-
-**MOES is a heuristic prioritisation, not a predictive or clinically validated
-model.** It orders candidates by weight of independent
-evidence so that finite experimental effort can be aimed sensibly. It does not
-establish causation, and it is not a claim about clinical utility.
-
-Known limitations, stated up front rather than buried:
-
-- **No single-cell layer.** The only suitable patient atlas is access-restricted,
-  and the accessible alternative is cell-line/xenograft-derived. It was dropped
-  rather than substituted, so patient translation rests on two bulk cohorts
-  (n=79 and n≈81). Effective sample size is modest and is reported as such.
-- **Chromatin evidence comes from cell lines**, n=2 per paralog. No per-line
-  statistical claims are made from that; the chromatin layer is descriptive and
-  inference is reserved for the tumour cohorts.
-- **Region boundaries are re-derived**, not the original peak calls, because the
-  source deposit contains no peak files. This is a declared methodological
-  deviation, checked against the published region counts before proceeding.
-- **Paralog amplification correlates with SCLC subtype**, so paralog-specific
-  signal may be partly lineage-driven. This is tested directly as a primary
-  analysis rather than assumed away — and if the programs prove inseparable from
-  lineage identity, that negative result is the reported finding.
-- **The spatial panel is targeted (~1,800 genes)**, so most regulon members are
-  not measurable spatially. Coverage fraction is reported on every spatial figure.
-
-## Prior work this builds on
-
-- Plotnik JP et al. (2024) *Mol Cancer Res* — paralog-resolved MYC/MYCN/MYCL1
-  binding in SCLC. The foundation for Aim 1. [PMID 38747975](https://pubmed.ncbi.nlm.nih.gov/38747975/)
-- Dammert MA et al. (2019) *Nat Commun* — MYC paralog-specific apoptotic priming.
-  Used as an orthogonal positive control.
-- Tlemsani C et al. (2020) *Cell Rep* — SCLC-CellMiner.
-- Ireland AS et al. (2020) *Cancer Cell* — MYC-driven subtype plasticity.
-- Zhang et al. (2025) *Clin Cancer Res* — MYC-paralog amplification and the
-  spatial immune microenvironment. The reason the spatial aim here is restricted.
+- **Figure 1:** Lineage dominance over paralog identity (variance partition, expression correlation, MYC/NE antagonism)
+- **Figure 2:** M5 regulatory-layer gate (four pre-registered criteria: MYCN nesting, differential occupancy, distal-fraction, E-box motif specificity)
+- **Figure 3:** Functional evidence and evidence-domain accounting (CRISPR dependency, regulon enrichment, MOES domain status)
+- **Figure 4:** Convergence weak and unlocalisable to genes (top-K overlap, permutation FDR, power analysis, paralog-specificity bias)
+- **Figure S1:** Data landscape (composition, build mix, cell-line overlap with controls)
+- **Figure S2:** Regulatory pipeline (ATAC threshold validation, stitching robustness, peak-to-gene enrichment)
+- **Figure S3:** Lineage confound at every level (chromatin occupancy, expression, genome-wide association)
+- **Figure S4:** Spatial coherence (coverage gate, variance partitioning, regulon vs. lineage effect)
 
 ## License
 
-Code is released under the MIT License (see [`LICENSE`](LICENSE)). The underlying
-datasets remain subject to the terms of their original repositories and should be
-cited directly.
+Code released under MIT License (see [`LICENSE`](LICENSE)). Underlying datasets subject to their original repositories' terms; cite directly.
+
+## References
+
+**Foundational work:**
+- Plotnik JP et al. (2024) Mol Cancer Res. Paralog-resolved MYC/MYCN/MYCL1 binding in SCLC. PMID 38747975
+
+**Positive/negative controls and benchmarks:**
+- Dammert MA et al. (2019) Nat Commun. MYC paralog-specific apoptotic priming.
+- Tlemsani C et al. (2020) Cell Rep. SCLC-CellMiner pharmacogenomics.
+- Ireland AS et al. (2020) Cancer Cell. MYC-driven lineage plasticity.
+- Zhang et al. (2025) Clin Cancer Res. MYC-paralog amplification and spatial immune microenvironment.
+- Jung LA et al. (2017) Cancer Res 77(4). MYC-activity signature for benchmark.
