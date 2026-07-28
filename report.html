@@ -287,9 +287,14 @@ dependency, collectively</a></li>
 id="toc-no-paralog-is-itself-a-selective-dependency"><span
 class="toc-section-number">7.2</span> No paralog is itself a selective
 dependency</a></li>
+<li><a
+href="#drug-response-the-one-signal-that-survives-lineage-adjustment"
+id="toc-drug-response-the-one-signal-that-survives-lineage-adjustment"><span
+class="toc-section-number">7.3</span> Drug response: the one signal that
+survives lineage adjustment</a></li>
 <li><a href="#two-domains-were-excluded-on-evidence"
 id="toc-two-domains-were-excluded-on-evidence"><span
-class="toc-section-number">7.3</span> Two domains were excluded on
+class="toc-section-number">7.4</span> Two domains were excluded on
 evidence</a></li>
 </ul></li>
 <li><a href="#sec-m8" id="toc-sec-m8"><span
@@ -890,8 +895,122 @@ selective dependency</h2>
 <p>MYC is strongly essential in both groups but <strong>less</strong> so
 in SCLC (delta +0.503); MYCN and MYCL sit near zero everywhere. Nothing
 in this analysis supports intervening on the paralogs themselves.</p>
-<h2 data-number="7.3" id="two-domains-were-excluded-on-evidence"><span
-class="header-section-number">7.3</span> Two domains were excluded on
+<h2 data-number="7.3"
+id="drug-response-the-one-signal-that-survives-lineage-adjustment"><span
+class="header-section-number">7.3</span> Drug response: the one signal
+that survives lineage adjustment</h2>
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 17%" />
+<col style="width: 7%" />
+<col style="width: 4%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 20%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Screen</th>
+<th style="text-align: left;">Drug</th>
+<th style="text-align: left;">Gene</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">rho</th>
+<th style="text-align: right;">p</th>
+<th style="text-align: right;">rho (NE-adj)</th>
+<th style="text-align: right;">p (NE-adj)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">GDSC2</td>
+<td style="text-align: left;">BIRABRESIB</td>
+<td style="text-align: left;">MYCL</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">0.621</td>
+<td style="text-align: right;">0.0003</td>
+<td style="text-align: right;">0.631</td>
+<td style="text-align: right;">0.0002</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GDSC2</td>
+<td style="text-align: left;">MOLIBRESIB</td>
+<td style="text-align: left;">MYCL</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">0.617</td>
+<td style="text-align: right;">0.0003</td>
+<td style="text-align: right;">0.587</td>
+<td style="text-align: right;">0.0006</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GDSC1</td>
+<td style="text-align: left;">PFI-1</td>
+<td style="text-align: left;">MYCL</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">0.426</td>
+<td style="text-align: right;">0.0213</td>
+<td style="text-align: right;">0.429</td>
+<td style="text-align: right;">0.0204</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GDSC2</td>
+<td style="text-align: left;">BIRABRESIB</td>
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">-0.390</td>
+<td style="text-align: right;">0.0330</td>
+<td style="text-align: right;">-0.314</td>
+<td style="text-align: right;">0.0912</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GDSC1</td>
+<td style="text-align: left;">MOLIBRESIB</td>
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">-0.351</td>
+<td style="text-align: right;">0.0529</td>
+<td style="text-align: right;">-0.307</td>
+<td style="text-align: right;">0.0927</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GDSC2</td>
+<td style="text-align: left;">MOLIBRESIB</td>
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">-0.326</td>
+<td style="text-align: right;">0.0784</td>
+<td style="text-align: right;">-0.231</td>
+<td style="text-align: right;">0.2190</td>
+</tr>
+</tbody>
+</table>
+<p>Across three public screens restricted to SCLC lines and BET
+inhibitors, <strong>MYCL expression correlates with BET-inhibitor
+AUC</strong> — MYCL-high lines are <em>less</em> sensitive — and unlike
+every other association in this project <strong>it survives
+neuroendocrine adjustment</strong>. Three of three MYCL tests are
+nominal against 0/6 for MYCN and 1/6 for MYC.</p>
+<p>That distinction is exactly why it needs the most scepticism, not the
+least, and it is reported as <strong>exploratory and
+provisional</strong> for three reasons:</p>
+<ul>
+<li><strong>It does not replicate in PRISM</strong> (rho +0.046, p =
+0.84, n = 21).</li>
+<li><strong>GDSC1 and GDSC2 are not independent</strong> — same Sanger
+platform over heavily overlapping lines. Counting them as two
+replications would overstate it.</li>
+<li>No pre-registration covered this specific comparison, and 18
+exploratory tests were run; Benjamini-Hochberg leaves 2 at FDR &lt;
+0.05.</li>
+</ul>
+<p>Direction stated plainly: MYC trends the <em>opposite</em> way (more
+sensitive, rho −0.390) but does not survive adjustment. <strong>Nothing
+here reproduces or refutes the source study</strong>, which tested
+amplification rather than expression, and a compound (Mivebresib) absent
+from all three screens.</p>
+<h2 data-number="7.4" id="two-domains-were-excluded-on-evidence"><span
+class="header-section-number">7.4</span> Two domains were excluded on
 evidence</h2>
 <p>The <strong>transcriptional</strong> domain was dropped as
 lineage-confounded at both aggregate and per-gene level. The
@@ -1316,10 +1435,10 @@ on that panel.</li>
 <li>Criterion 3 of the M5 gate is a partial reproduction: direction yes,
 magnitude no.</li>
 </ul>
-<p><strong>Left undone.</strong> The drug-response association declared
-under Aim 3 was not carried out; it requires pharmacogenomic data that
-was never downloaded. It is recorded as a gap rather than quietly
-dropped.</p>
+<p><strong>All contract commitments are now discharged.</strong> The two
+items previously listed here as undone — the Jung 2017 benchmark and the
+Aim 3 drug-response association — have both been completed and are
+reported above and below.</p>
 <h1 data-number="12" id="sec-limits"><span
 class="header-section-number">12</span> Limitations</h1>
 <ol type="1">

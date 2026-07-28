@@ -197,3 +197,4 @@ desktop.ini
 !/.gitignore
 !/.gitattributes
 !/.Rprofile
+!/.github/          # CI workflows — the allowlist above would otherwise hide them

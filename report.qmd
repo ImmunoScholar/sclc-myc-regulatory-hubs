@@ -356,6 +356,37 @@ MYC is strongly essential in both groups but **less** so in SCLC
 near zero everywhere. Nothing in this analysis supports intervening on the
 paralogs themselves.
 
+## Drug response: the one signal that survives lineage adjustment
+
+```{r drug-table}
+dr <- md("m7_drug_response.csv")
+dr$drug <- sub(" \\(.*$", "", dr$drug)
+top <- head(dr[order(dr$p_raw), c("screen","drug","gene","n","rho_raw","p_raw",
+                                  "rho_ne_adjusted","p_ne_adjusted")], 6)
+names(top) <- c("Screen","Drug","Gene","n","rho","p","rho (NE-adj)","p (NE-adj)")
+kable(top, digits = 4, row.names = FALSE)
+```
+
+Across three public screens restricted to SCLC lines and BET inhibitors, **MYCL
+expression correlates with BET-inhibitor AUC** — MYCL-high lines are *less*
+sensitive — and unlike every other association in this project **it survives
+neuroendocrine adjustment**. Three of three MYCL tests are nominal against
+0/6 for MYCN and 1/6 for MYC.
+
+That distinction is exactly why it needs the most scepticism, not the least, and
+it is reported as **exploratory and provisional** for three reasons:
+
+- **It does not replicate in PRISM** (rho +0.046, p = 0.84, n = 21).
+- **GDSC1 and GDSC2 are not independent** — same Sanger platform over heavily
+  overlapping lines. Counting them as two replications would overstate it.
+- No pre-registration covered this specific comparison, and 18 exploratory tests
+  were run; Benjamini-Hochberg leaves 2 at FDR < 0.05.
+
+Direction stated plainly: MYC trends the *opposite* way (more sensitive, rho
+−0.390) but does not survive adjustment. **Nothing here reproduces or refutes the
+source study**, which tested amplification rather than expression, and a compound
+(Mivebresib) absent from all three screens.
+
 ## Two domains were excluded on evidence
 
 The **transcriptional** domain was dropped as lineage-confounded at both
@@ -565,9 +596,9 @@ not presented as one.
 - Criterion 3 of the M5 gate is a partial reproduction: direction yes, magnitude
   no.
 
-**Left undone.** The drug-response association declared under Aim 3 was not
-carried out; it requires pharmacogenomic data that was never downloaded. It is
-recorded as a gap rather than quietly dropped.
+**All contract commitments are now discharged.** The two items previously listed
+here as undone — the Jung 2017 benchmark and the Aim 3 drug-response association
+— have both been completed and are reported above and below.
 
 # Limitations {#sec-limits}
 
