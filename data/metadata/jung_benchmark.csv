@@ -1,0 +1,13 @@
+"test","paralog","n_hit","n_expected","or","p"
+"regulon_overlap","MYC",2,0.503,4.492,0.0881
+"regulon_overlap","MYCN",3,0.557,6.624,0.0164
+"regulon_overlap","MYCL1",3,0.505,7.327,0.0126
+"jung_vs_covariate","vs NE score",NA,NA,0.0747,0.513
+"jung_vs_covariate","vs MYC expression",NA,NA,-0.1849,0.103
+"jung_vs_covariate","vs ASCL1",NA,NA,0.0516,0.651
+"jung_vs_covariate","vs POU2F3",NA,NA,0.2329,0.0389
+"jung_variance","unique_myc",NA,NA,0.0006,NA
+"jung_variance","unique_lineage",NA,NA,0.0206,NA
+"jung_vs_regulon_score","MYC",NA,NA,0.2294,0.042
+"jung_vs_regulon_score","MYCN",NA,NA,0.4384,0.0000532
+"jung_vs_regulon_score","MYCL1",NA,NA,0.2888,0.00985

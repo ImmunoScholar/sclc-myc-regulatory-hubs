@@ -2014,3 +2014,51 @@ placeholders", listed a pharmacogenomics source that was never used, and
 described Aim 3 and Aim 4 as specified rather than as they turned out. Aims are
 now shown as specified **with their actual outcome**, including the two that were
 not delivered.
+
+---
+
+### D-046 · SCI · 2026-07-28 — the Jung 2017 benchmark, curated from the paper and run
+
+The contract named two paralog-blind benchmark comparators. HALLMARK_MYC_TARGETS
+was used at M5; the Jung 2017 18-gene MYC-activity signature was recorded as
+**NOT CURATED** because the paper is not in PubMed Central and the gene list is
+not in the abstract. It was refused rather than guessed. The source PDF has now
+been supplied, and Table 1 transcribed.
+
+**Source.** Jung LA et al., *Cancer Res* 77(4):971–981, 15 Feb 2017.
+PMID 27923830 · doi:10.1158/0008-5472.CAN-15-2906 · Table 1. The paper describes
+the set as "17 genes upregulated and 1 gene downregulated by Myc"; the script
+asserts that split, so a transcription slip fails rather than propagates.
+
+#### Results
+
+**1. The regulons do capture published MYC-activity genes.** Overlap against
+14 signature genes present in the MOES universe: MYC 2 (OR 4.49, p = 0.088),
+MYCN 3 (OR 6.62, p = 0.016), MYCL1 3 (OR 7.33, p = 0.013). Reported with the
+caveat that an 18-gene signature against 500-gene regulons expects **fewer than
+one** overlapping gene by chance, so this test detects only very large effects
+and a null on it would be uninformative.
+
+**2. The signature tracks neither MYC expression nor lineage.** Unique R²
+0.0006 for MYC and 0.0206 for lineage. Lineage is nominally larger; on numbers
+this size that ordering carries no weight and **is not reported as a finding** —
+the temptation to read it as corroborating M6 is exactly what the M6 result must
+not be corroborated by.
+
+What it does show is that a published paralog-blind MYC-activity signature does
+**not** track MYC expression in SCLC tumours (rho −0.185, n.s.). That supports
+this project's broader observation that MYC mRNA is a poor proxy for MYC
+regulatory activity in SCLC, from an independent construction.
+
+**3. The signature agrees with this project's regulon scores** — MYC +0.229
+(p = 0.042), MYCN +0.438 (p = 5.3e-5), MYCL1 +0.289 (p = 0.0099). The strongest
+agreement is with MYCN, which is coherent: the MYCN regulon was found to be
+Hallmark/housekeeping-weighted (D-030 context), and the Jung set is heavy on
+translation and ribosomal genes (RPL5, RPS5, ENO1, EIF2S1, SRM).
+
+#### Consequence
+
+The M8 benchmark commitment is **met**. One of the two items previously recorded
+as "left undone" in the report and README is closed; the drug-response
+association under Aim 3 remains open and still requires data that is not
+downloaded.
