@@ -2062,3 +2062,70 @@ The M8 benchmark commitment is **met**. One of the two items previously recorded
 as "left undone" in the report and README is closed; the drug-response
 association under Aim 3 remains open and still requires data that is not
 downloaded.
+
+---
+
+### D-047 · SCI · 2026-07-28 — Aim 3 drug-response: MYCL expression tracks BET-inhibitor resistance, and it survives lineage adjustment
+
+The last open contract commitment, now run. Three public screens (PRISM
+Repurposing Secondary, Sanger GDSC1, GDSC2), SCLC lines only, BET inhibitors
+only — chosen because the source study reports MYC-family amplification
+dictating BET-inhibitor sensitivity in SCLC.
+
+#### Result
+
+**MYCL expression correlates with BET-inhibitor AUC**, i.e. MYCL-high lines are
+*less* sensitive:
+
+| screen | drug | n | rho | p | NE-adjusted rho | p |
+|---|---|---|---|---|---|---|
+| GDSC2 | BIRABRESIB | 30 | +0.621 | 2.5e-4 | **+0.631** | **1.9e-4** |
+| GDSC2 | MOLIBRESIB | 30 | +0.617 | 2.8e-4 | **+0.587** | **6.5e-4** |
+| GDSC1 | PFI-1 | 29 | +0.426 | 0.021 | **+0.429** | **0.020** |
+
+3 of 3 MYCL tests are nominal; 0 of 6 MYCN and 1 of 6 MYC. Benjamini-Hochberg
+across all 18 tests leaves 2 at FDR < 0.05 (minimum FDR 0.003).
+
+**This is the only association anywhere in this project that survives
+neuroendocrine lineage adjustment.** That makes it the result most in need of
+scepticism, not the least, and it is recorded as exploratory and provisional.
+
+#### Why it is weaker than it looks
+
+**It does not replicate in PRISM** (MOLIBRESIB × MYCL, rho +0.046, p = 0.84,
+n = 21). And **GDSC1 and GDSC2 are not independent** — same Sanger platform,
+heavily overlapping cell lines — so treating them as two replications would
+overstate the evidence. The honest reading is *one platform shows it, the other
+does not*.
+
+Coverage is also thin and uneven: PRISM has 22 SCLC lines but usable BET data for
+only one compound (MOLIBRESIB, n = 21; BIRABRESIB n = 5, I-BET151 n = 3, JQ1
+n = 5). No pre-registration covered this specific comparison.
+
+#### Direction, stated plainly
+
+Positive rho means MYCL-high lines are **less** sensitive. MYC trends the
+opposite way (more sensitive, GDSC2 BIRABRESIB rho −0.390, p = 0.033) but does
+**not** survive lineage adjustment (p = 0.091). Nothing here reproduces or
+refutes the source study, which tested *amplification* rather than expression and
+a different compound (Mivebresib, absent from all three screens).
+
+#### Traps handled
+
+* **"Non-Small Cell Lung Cancer" contains "Small Cell Lung Cancer".** Lineage is
+  matched exactly; a `grepl` would have added 7–12 NSCLC lines per screen. The
+  coverage table reports both counts so the trap stays visible.
+* **BET inhibitors are named, not pattern-matched.** A regex for "BET" returns
+  BETAMETHASONE, BETA-LAPACHONE, BETULINIC-ACID; a stem of "JQ1" also matches
+  JQ12, an unrelated GDSC1 compound.
+* **Gene columns in this export are bare symbols**, not the parenthesised
+  `MYC (4609)` form. An initial selector assuming the latter matched nothing and
+  every test was silently *skipped* rather than failing — the script now stops if
+  the required columns are absent.
+
+#### Consequence
+
+All contract commitments are now discharged. The `Inferred Molecular Subtypes`
+file requested for this analysis turned out to contain oncogenic-alteration calls
+rather than SCLC neuroendocrine subtypes, so NE state was derived from CCLE
+expression as elsewhere in the project.
