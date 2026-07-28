@@ -1,6 +1,6 @@
 # Reduced two-domain MOES
 
-Generated: 2026-07-27 20:28:58 UTC
+Generated: 2026-07-28 10:05:41 UTC
 
 ## What this is, and is not
 
@@ -78,20 +78,3 @@ Reporting a top-N table would therefore be wrong twice over: it would present ge
 See the sensitivity section below before reading the per-gene null as uninformative.
 
 **Bootstrap caveat.** Intervals resample cis-regulatory links only; the functional domain is held fixed because its per-gene values are precomputed summaries over cell lines. Reported rank intervals therefore UNDERSTATE total uncertainty.
-
-## Method sensitivity (positive control)
-
-The result above is a null, so the method was tested for its ability to detect the alternative. A synthetic functional layer was blended with the real cis ranking at increasing strength and passed through the identical FDR machinery.
-
-| injected signal | layer rho | min FDR | genes FDR < 0.05 | genes FDR < 0.20 |
-|---|---|---|---|---|
-| 0.00 | -0.000 | 0.878 | 0 | 0 |
-| 0.05 | +0.028 | 0.721 | 0 | 0 |
-| 0.10 | +0.101 | 0.084 | 0 | 8 |
-| 0.20 | +0.209 | 0.018 | 1 | 16 |
-| 0.40 | +0.508 | 0.004 | 6 | 32 |
-| 1.00 | +1.000 | 0.000 | 288 | 1095 |
-
-The response is graded and monotone: nothing on pure noise, discoveries appearing once the two layers correlate at rho ~ 0.21, and 288 genes when the layers are identical.
-
-**The observed layer correlation is -0.023 and the best FDR achieved on real data is 0.381.** The convergence MOES was built to find is not merely non-significant here; it is absent at a level the method demonstrably detects. The null is a property of the evidence, not of the test.

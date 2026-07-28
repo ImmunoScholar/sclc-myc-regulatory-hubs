@@ -24,8 +24,21 @@ source("R/theme_project.R")
 
 rank_tab <- read.csv("data/metadata/moes_ranking.csv", stringsAsFactors = FALSE)
 pc       <- read.csv("data/metadata/moes_positive_control.csv", stringsAsFactors = FALSE)
-MR       <- readRDS("data/processed/integration/moes_results.rds")
 FDR_T    <- yaml::read_yaml("config/params.yml")$moes$fdr_threshold
+
+# All inputs are committed CSVs. This figure previously read
+# data/processed/integration/moes_results.rds, which is correctly gitignored, so
+# it could not be rebuilt from a fresh clone — the M11 clean-clone check caught
+# it. MR is reconstructed from the diagnostics and attribution tables the
+# analysis now writes.
+diagn    <- read.csv("data/metadata/moes_diagnostics.csv", stringsAsFactors = FALSE)
+dgv      <- function(k) diagn$value[diagn$metric == k]
+MR <- list(
+  layer_rho   = setNames(c(dgv("layer_rho_MYC"), dgv("layer_rho_MYCN"), dgv("layer_rho_MYCL1")),
+                         c("MYC", "MYCN", "MYCL1")),
+  attribution = read.csv("data/metadata/moes_attribution.csv", stringsAsFactors = FALSE),
+  n_perm      = dgv("n_permutations"),
+  universe    = seq_len(dgv("moes_universe_genes")))
 
 cat("accessibility checks\n")
 check_palette(PAL_PARALOG, label = "paralog palette")

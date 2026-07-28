@@ -288,15 +288,23 @@ for (p in PARALOGS) {
 diag <- data.frame(
   metric = c("domains_admitted", "domains_planned", "paralog_resolved_domains",
              "two_stage_rra_degenerate", "moes_universe_genes",
+             "n_permutations", "n_bootstrap",
              paste0("layer_rho_", PARALOGS),
              paste0("n_fdr_", PARALOGS), paste0("n_stable_fdr_", PARALOGS)),
   value = c(length(MO$domains), 4,
             sum(unlist(MO$domain_attribution) == "paralog_resolved"),
-            TRUE, N, round(layer_rho, 4),
+            TRUE, N, NPERM, NBOOT, round(layer_rho, 4),
             vapply(PARALOGS, function(p) sum(fdr[[p]] < MO$fdr_threshold), numeric(1)),
             vapply(PARALOGS, function(p) sum(subset(sig, paralog == p)$stable), numeric(1))),
   stringsAsFactors = FALSE)
 write.csv(diag, "data/metadata/moes_diagnostics.csv", row.names = FALSE)
+
+# Between-paralog attribution, written as CSV rather than left only inside the
+# .rds. Figure 4 needs it, and .rds intermediates are correctly excluded from
+# version control — so a figure reading one cannot be rebuilt from a clone. The
+# M11 clean-clone check caught exactly this: 6 of 8 figures rebuilt and the two
+# reading .rds files did not.
+write.csv(attrib, "data/metadata/moes_attribution.csv", row.names = FALSE)
 
 saveRDS(list(ranking = out, fdr = fdr, layer_rho = layer_rho, lodo = lodo,
              attribution = attrib, n_perm = NPERM, n_boot = NBOOT,

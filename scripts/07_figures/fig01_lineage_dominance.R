@@ -23,7 +23,11 @@ suppressPackageStartupMessages({
 })
 source("R/theme_project.R")
 
-rep  <- readRDS("data/processed/tumour/replication.rds")$per_cohort
+# Read from the committed CSV, not the .rds. Pipeline .rds intermediates are
+# correctly excluded from version control, so a figure that reads one cannot be
+# rebuilt from a fresh clone — the M11 clean-clone check found exactly that, with
+# this figure among the two that failed. The CSV carries identical columns.
+rep  <- read.csv("data/metadata/m6_replication.csv", stringsAsFactors = FALSE)
 spec <- as.matrix(utils::read.csv("data/metadata/m6_specificity_matrix.csv", row.names = 1))
 cell <- utils::read.csv("data/metadata/m7_paralog_lineage_celllines.csv", stringsAsFactors = FALSE)
 
