@@ -61,7 +61,7 @@ Five aims, one coherent argument rather than five separate analyses:
 |---|---|
 | **1 · Regulatory layer** | Build a consensus accessible-region universe from ATAC-seq, quantify MYC/MYCN/MYCL1 and H3K27ac bedGraph signal over it, call active regions and super-enhancers, and link regions to genes — producing **paralog-resolved regulons** |
 | **2 · Patient translation** | Score those regulons in two independent human SCLC tumour cohorts, and test explicitly whether "paralog-specific" signal is separable from lineage-TF (ASCL1 / NEUROD1 / POU2F3) programs |
-| **3 · Functional evidence** | Selective CRISPR dependency (DepMap). *GENIE3 network importance was **excluded** on both its pre-conditions — 59 lines is underpowered and MYC expression tracks lineage across them. Drug-response association was **not carried out**.* |
+| **3 · Functional evidence** | Selective CRISPR dependency (DepMap). *GENIE3 network importance was **excluded** on both its pre-conditions — 59 lines is underpowered and MYC expression tracks lineage across them. Drug-response association was **not carried out** — the one commitment still open.* |
 | **4 · Evidence integration** | Two-stage Robust Rank Aggregation across evidence domains. *Ran on **two** of four domains; returns **no ranked hub list** — see findings above.* |
 | **5 · Spatial coherence** | A restricted check of within-tumour coherence. No prognostic claims. *Only the MYC regulon clears the panel-coverage gate.* |
 

@@ -1211,7 +1211,7 @@ coherence</td>
 <td style="text-align: left;">Benchmark: Jung 2017 signature</td>
 <td style="text-align: left;">18-gene paralog-blind MYC-activity
 comparator</td>
-<td style="text-align: left;"><strong>NOT DONE</strong></td>
+<td style="text-align: left;">MET</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">M5 sanity gate</td>
@@ -1221,6 +1221,55 @@ defensible range of the published values</td>
 </tr>
 </tbody>
 </table>
+<p>The Jung 2017 comparator was recorded as <em>not curated</em> for
+most of the project: the paper is not in PubMed Central and its gene
+list is not in the abstract, so it was refused rather than guessed. With
+the source obtained, Table 1 was transcribed and the benchmark run.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Paralog</th>
+<th style="text-align: right;">Hits</th>
+<th style="text-align: right;">Expected</th>
+<th style="text-align: right;">OR</th>
+<th style="text-align: right;">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.503</td>
+<td style="text-align: right;">4.492</td>
+<td style="text-align: right;">0.088</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.557</td>
+<td style="text-align: right;">6.624</td>
+<td style="text-align: right;">0.016</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MYCL1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.505</td>
+<td style="text-align: right;">7.327</td>
+<td style="text-align: right;">0.013</td>
+</tr>
+</tbody>
+</table>
+<p>The regulons do capture published MYC-activity genes. The caveat is
+structural: an 18-gene signature against 500-gene regulons expects fewer
+than one overlapping gene by chance, so this test detects only large
+effects and a null on it would have been uninformative.</p>
+<p>The signature tracks <strong>neither</strong> MYC expression nor
+lineage in tumours (unique R² 0.0006 and 0.0206). Lineage is nominally
+larger, but on numbers this size that ordering carries no weight and is
+not offered as support for the M6 result. What it does show is that a
+published paralog-blind MYC-activity signature does not track MYC
+expression in SCLC tumours, which supports the separate observation that
+MYC mRNA is a poor proxy for MYC regulatory activity here.</p>
 <p><strong>The negative control cannot be scored.</strong> It asks that
 housekeeping promoters not rank as paralog-specific hubs. Since MOES
 produces no hubs at all, nothing can fail it. The best-ranked
@@ -1268,9 +1317,9 @@ on that panel.</li>
 magnitude no.</li>
 </ul>
 <p><strong>Left undone.</strong> The drug-response association declared
-under Aim 3 was not carried out, and the Jung 2017 benchmark signature
-was never curated from the source publication. Both are recorded as gaps
-rather than quietly dropped.</p>
+under Aim 3 was not carried out; it requires pharmacogenomic data that
+was never downloaded. It is recorded as a gap rather than quietly
+dropped.</p>
 <h1 data-number="12" id="sec-limits"><span
 class="header-section-number">12</span> Limitations</h1>
 <ol type="1">

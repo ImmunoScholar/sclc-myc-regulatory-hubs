@@ -492,9 +492,36 @@ ct <- data.frame(
                "18-gene paralog-blind MYC-activity comparator",
                "Re-derived region counts within a defensible range of the published values"),
   Outcome = c("**VACUOUS — no evidence either way**", "**NOT MET**", "MET",
-              "**NOT DONE**", "3 PASS / 1 FAIL"))
+              "MET", "3 PASS / 1 FAIL"))
 kable(ct)
 ```
+
+The Jung 2017 comparator was recorded as *not curated* for most of the project:
+the paper is not in PubMed Central and its gene list is not in the abstract, so
+it was refused rather than guessed. With the source obtained, Table 1 was
+transcribed and the benchmark run.
+
+```{r jung-table}
+jb <- md("jung_benchmark.csv")
+ov <- jb[jb$test == "regulon_overlap", c("paralog", "n_hit", "n_expected", "or", "p")]
+names(ov) <- c("Paralog", "Hits", "Expected", "OR", "p")
+kable(ov, digits = 3)
+```
+
+The regulons do capture published MYC-activity genes. The caveat is structural:
+an 18-gene signature against 500-gene regulons expects fewer than one overlapping
+gene by chance, so this test detects only large effects and a null on it would
+have been uninformative.
+
+The signature tracks **neither** MYC expression nor lineage in tumours (unique R²
+`r sprintf("%.4f", jb$or[jb$test == "jung_variance" & jb$paralog == "unique_myc"])`
+and
+`r sprintf("%.4f", jb$or[jb$test == "jung_variance" & jb$paralog == "unique_lineage"])`).
+Lineage is nominally larger, but on numbers this size that ordering carries no
+weight and is not offered as support for the M6 result. What it does show is that
+a published paralog-blind MYC-activity signature does not track MYC expression in
+SCLC tumours, which supports the separate observation that MYC mRNA is a poor
+proxy for MYC regulatory activity here.
 
 **The negative control cannot be scored.** It asks that housekeeping promoters
 not rank as paralog-specific hubs. Since MOES produces no hubs at all, nothing
@@ -539,8 +566,8 @@ not presented as one.
   no.
 
 **Left undone.** The drug-response association declared under Aim 3 was not
-carried out, and the Jung 2017 benchmark signature was never curated from the
-source publication. Both are recorded as gaps rather than quietly dropped.
+carried out; it requires pharmacogenomic data that was never downloaded. It is
+recorded as a gap rather than quietly dropped.
 
 # Limitations {#sec-limits}
 
