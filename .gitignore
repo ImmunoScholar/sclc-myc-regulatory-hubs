@@ -202,3 +202,12 @@ desktop.ini
 # parsed as part of the pattern and silently matches nothing, which is exactly
 # how the workflow directory stayed invisible on the first attempt.
 !/.github
+
+# -----------------------------------------------------------------------------
+# 12. Nested clones of this repository
+# -----------------------------------------------------------------------------
+# A verification clone made INSIDE the working tree is a separate git repo, and
+# `git add -A` records it as a gitlink — a commit pointer to a repository nobody
+# else can fetch. One was committed and pushed exactly that way. The clone itself
+# is harmless; committing a reference to it is not.
+/sclc-myc-regulatory-hubs/
