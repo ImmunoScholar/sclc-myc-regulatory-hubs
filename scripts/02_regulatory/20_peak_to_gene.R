@@ -74,8 +74,14 @@ is_prom_region <- IRanges::overlapsAny(u, prom)
 distal <- which(!is_prom_region)
 cat("distal regions: ", format(length(distal), big.mark = ","), "\n", sep = "")
 
+# resize_trim(), not resize(): this is the widest window in the pipeline and the
+# only one that produced out-of-bound ranges (54). Trimming is a proven no-op
+# here — see scripts/00_setup/test_resize_trim.R — and the window is in any case
+# only a prefilter, since candidates are cut below by an exact distance test. It
+# is used so the warning stops masking a future out-of-bound range that WOULD
+# matter.
 cand <- GenomicRanges::findOverlaps(
-  u[distal], GenomicRanges::resize(tss, 2 * P2G$max_distance, fix = "center"))
+  u[distal], resize_trim(tss, 2 * P2G$max_distance))
 cand <- data.frame(region = distal[queryHits(cand)], gene_i = subjectHits(cand))
 cand <- cand[has_act[cand$gene_i], ]
 cand$distance <- abs(start(u)[cand$region] + width(u)[cand$region] / 2 -

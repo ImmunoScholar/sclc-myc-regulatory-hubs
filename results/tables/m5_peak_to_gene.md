@@ -1,6 +1,6 @@
 # M5 — peak-to-gene linking
 
-Generated: 2026-07-27 12:20:04 UTC
+Generated: 2026-07-28 09:45:13 UTC
 
 **Activity proxy is promoter H3K27ac, not expression.** GSE230649 contains
 no RNA-seq; CCLE expression arrives with DepMap at M7 (D-027). This is an

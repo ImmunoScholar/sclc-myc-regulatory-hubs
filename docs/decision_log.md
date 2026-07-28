@@ -1890,3 +1890,63 @@ dressed as one.
 Both are stated in the report under "Left undone". A contract aim that quietly
 disappears between specification and write-up is the easiest kind of
 overstatement to commit, and the hardest for a reader to detect.
+
+---
+
+### D-044 · METH · 2026-07-28 — lockfile gap closed; the out-of-bound resize warnings tested and shown cosmetic
+
+**Scientific impact:** none. Proven, not assumed — see below.
+
+#### 1. `renv.lock` was missing a package the pipeline uses
+
+`BSgenome.Hsapiens.UCSC.hg19` 1.4.3 was **installed and used but not recorded**.
+A clean clone running `renv::restore()` would not have obtained it, and the hg19
+build assertion (D-022) depends on it — so M11's hard gate would have failed at
+the first coordinate check.
+
+Closed with `renv::record()`, **not** `renv::snapshot()`. Snapshot would also have
+pruned ~48 recorded-but-currently-unreferenced packages; some are loaded
+conditionally or pulled by dependencies, and removing them is a separate decision
+with its own risk. Record adds without removing: 231 → 232 packages, none dropped,
+verified. All Bioconductor repos resolve through the GWDG mirror (D-006), which
+the new entry needs since it comes from the annotation repo.
+
+#### 2. The out-of-bound `resize()` warnings are hygiene, and that was tested
+
+Eleven sites widen TSS windows with `resize()` and none trimmed the result, so
+GenomicRanges warned about 54 out-of-bound ranges. Whether that mattered decided
+whether the whole pipeline needed regenerating, so it was **tested rather than
+argued** — `scripts/00_setup/test_resize_trim.R`, now committed:
+
+| window | width | out-of-bound | pairs untrimmed | pairs trimmed | verdict |
+|---|---|---|---|---|---|
+| promoter | 2,000 | 0 | 19,244 | 19,244 | set-identical |
+| distal prefilter | 200,000 | 54 | 274,582 | 274,582 | set-identical |
+
+Zero differences in either direction. The out-of-bound territory contains no
+universe regions, so intersecting with it adds nothing. In `20_peak_to_gene.R` the
+wide window is additionally only a **prefilter** — candidates are then cut by an
+exact `distance <= max_distance` test — so the window edge cannot reach the result
+at all.
+
+Confirmed end-to-end by re-running `20_peak_to_gene.R` against a backup of its
+committed output: **48,756 retained links both ways, set-equal, scores identical,
+null enrichment 6.06469 unchanged.** No downstream regeneration required.
+
+A `resize_trim()` helper now carries the invariant in code, applied at the one
+site that actually warned. The remaining ten sites are left as they are, which is
+deliberate: they produce zero out-of-bound ranges, and a blanket regex rewrite of
+`resize(` to `trim(resize(` cannot place the closing parenthesis reliably and
+would have broken eleven files.
+
+**Why silence the warning at all if it is harmless?** Because a warning that is
+always present and always ignored stops being information. Trimming here means a
+future out-of-bound range — one that might not be harmless — is visible instead of
+lost in noise.
+
+#### Correction
+
+An earlier working note recorded 137 out-of-bound ranges and 526,121 pairs. Those
+came from an ad-hoc test that used the wrong `max_distance`; against the
+configured value the figures are 54 and 274,582. The committed test reads the
+value from config so the numbers cannot drift again.

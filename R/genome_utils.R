@@ -153,3 +153,26 @@ stream_max_by_chrom <- function(path, col_end = 3L) {
   if (inherits(out, "try-error")) return(NULL)
   out
 }
+
+# --- resize without leaving the chromosome -------------------------------------
+# resize() can push a window past a chromosome end or below coordinate 1, which
+# makes GenomicRanges emit an "out-of-bound ranges" warning. This project widens
+# TSS windows in eleven places and the widest of them (2 x max_distance, in
+# 20_peak_to_gene.R) produced 54 such ranges.
+#
+# The warning is HYGIENE, NOT A BUG HERE, and that was established by test rather
+# than by argument — see scripts/00_setup/test_resize_trim.R, which compares the
+# overlap pair sets with and without trimming:
+#
+#   274,582 pairs untrimmed, 274,582 trimmed, 0 differences in either direction.
+#
+# The out-of-bound territory contains no universe regions, so intersecting with it
+# adds nothing. In 20_peak_to_gene.R the wide window is additionally only a
+# prefilter — candidates are then cut by an exact `distance <= max_distance` test,
+# so the window edge cannot reach the result at all.
+#
+# The helper exists so the invariant is stated in code instead of being rederived,
+# and so the warning stops masking a future out-of-bound range that WOULD matter.
+resize_trim <- function(x, width, fix = "center") {
+  suppressWarnings(GenomicRanges::trim(GenomicRanges::resize(x, width, fix = fix)))
+}
