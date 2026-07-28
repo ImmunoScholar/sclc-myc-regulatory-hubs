@@ -49,7 +49,7 @@ Manifest generated from live GEO filelists, resumable checksum-aware downloads, 
 
 ---
 
-## M5 — Regulatory layer & regulons (Aim 1)
+## ✅ M5 — Regulatory layer & regulons (Aim 1) — COMPLETE 2026-07-28
 liftOver of hg38 intervals → consensus regions → chunked signal quantification → active regions → super-enhancers → peak-to-gene linking → paralog regulons.
 
 **Gate (hard) — REBUILT 2026-07-26, see D-020.** The original gate (counts near Plotnik's 18,823 / 4,017 / 5,688) was **circular**: our count is `|universe| × P(signal>quantile) × P(H3K27ac⁺)`, and a 0.75 quantile passes 25% of regions by construction, so any universe near 125k reproduces those numbers whether or not the pipeline works. It could not fail.
@@ -77,7 +77,7 @@ Criterion 3 was unblocked at M7 by DepMap copy number, which established **exact
 
 **Additional gate before M6 — regulon internal validity.** Reformulated (D-028): the original spec was uncomputable (needed unverified amplification and absent expression) *and* circular (a regulon built from a paralog's own lines scores high there by construction).
 
-**M5 STATUS 2026-07-26 — substantially complete.**
+**M5 STATUS — COMPLETE 2026-07-28** (criterion 3 closed at M7, D-035).
 
 | step | result |
 |---|---|
@@ -86,7 +86,7 @@ Criterion 3 was unblocked at M7 by DepMap copy number, which established **exact
 | signal | 28 tracks quantified; fold-over-background (D-027 rationale) |
 | **gate criterion 1** | MYCN⊂MYC **0.912**, spread 0.037 across 50× set-size change — PASS |
 | **gate criterion 2** | MYCN 5.50× vs MYCL1 4.63×, OR 3.14, p=1.1e-60 — PASS (magnitude modest) |
-| gate criterion 3 | **BLOCKED** → M7 (needs DepMap copy number, D-026) |
+| gate criterion 3 | **FAIL** — evaluated at M7 once DepMap copy number resolved amplification (D-035); +3.3 pts vs published +27 |
 | **gate criterion 4** | paralog E-box specificity **3/3**, χ² p=1.6e-101 — PASS |
 | super-enhancers | 170–699 per line (1.9–6.6% of stitched); amplicon-resident negligible |
 | peak-to-gene | 48,756 links; null enrichment **6.06×**; only **32.6%** are nearest-gene |
@@ -119,33 +119,57 @@ Regulon scoring in GSE60052; replication in George 2015; lineage-TF confounding 
 
 ---
 
-## M7 — Functional & network evidence (Aim 3 + GRN)
+## ✅ M7 — Functional & network evidence (Aim 3 + GRN) — COMPLETE 2026-07-28
 DepMap selective dependency, drug-response association, GENIE3 network importance.
-**Gate:** each evidence layer produces a per-gene score with documented missingness; no layer silently drops genes.
+**Gate PASSED:** every admitted layer produces a per-gene score with documented missingness.
+
+| layer | outcome |
+|---|---|
+| CRISPR selective dependency | Enriched **pooled** across the three regulons: OR 2.71 (95% CI 1.29–5.15), p = 0.0048, on 11 selective genes in 984 tested. **Not separable per paralog** — ORs 2.45 / 2.21 / 3.09 on 4, 4 and 5 genes, intervals almost fully overlapping |
+| Paralogs' own dependency | None is SCLC-selective. MYC is essential in both groups but *less* so in SCLC (+0.503, FDR 0.18) |
+| Drug response (D-047) | MYCL expression tracks BET-inhibitor AUC in **Sanger only** — GDSC2 birabresib rho +0.621 (NE-adj +0.631), GDSC2 molibresib +0.617 (+0.587), GDSC1 PFI-1 +0.426 (+0.429). **Does not replicate in PRISM** (+0.046, p = 0.84). GDSC1/GDSC2 share a platform, so they are not two independent replications. Recorded exploratory and provisional |
+| GENIE3 network (D-037) | **EXCLUDED on both pre-conditions** — 59 SCLC lines is below what tree-ensemble inference needs, and MYC expression tracks NE state across them (rho −0.441), the same confound that barred a tumour-based network |
+| Amplification (D-035) | DepMap copy number established **exactly two** MYC-amplified lines (H524 log2 6.73, H211 2.35), correcting the project registry and unblocking M5 criterion 3 |
 
 ---
 
-## M8 — MOES integration (Aim 4)
+## ✅ M8 — MOES integration (Aim 4) — COMPLETE 2026-07-28
 Two-stage RRA, layer-correlation matrix, leave-one-domain-out stability, permutation FDR, positive/negative controls, Hallmark + Jung 2017 benchmark.
-**Gate (hard):** the **pre-registered negative control passes** — paralog-shared housekeeping promoters (e.g. `RPS26`) must not rank as paralog-specific hubs. Failure means the framework lacks specificity and must be fixed or reported as failed, not quietly adjusted until it passes.
+
+**Result: no prioritised hub list.** MOES ran on **2 of 4** domains — transcriptional dropped as lineage-confounded at aggregate *and* per-gene level (D-033), network excluded (D-037). With two domains the two-stage hierarchy is degenerate and is reported as a single aggregation. Across **10,387** genes, **no gene reaches FDR < 0.05 for any paralog**; the lowest FDR obtained is **0.358**. Top-of-list overlap between domains is real but weak — max 2.03× (MYC), 2.19× (MYCN), 1.72× (MYCL1), global p 0.019 / 0.008 / 0.065 — while genome-wide Spearman between domains is ≈ 0 (−0.023, +0.012, −0.008). Aggregate detectable, per-gene unattributable.
+
+**Gate (hard) — NOT MET, and recorded as uninformative rather than passed.**
+
+| control | outcome |
+|---|---|
+| Negative (hard gate) | **VACUOUS.** `RPS26` is not in the MOES universe, and MOES produces no hubs, so nothing *can* fail the control. A control that cannot fail is no evidence of specificity. Calling it "passed" would repeat the vacuous-pass error caught at R-16, where a build assertion compared `20` to `chr20`, matched zero rows and reported PASS |
+| Positive (MYC→BCL2/MCL1) | **NOT MET.** BCL2 sits in the *MYCN* regulon; best MYC rank 128 at FDR 0.93. MCL1 is in no regulon. Consistent with the null rather than evidence against it |
+| HALLMARK_MYC_TARGETS | MET |
+| Jung 2017 signature (D-046) | MET — curated from the source table and run. Regulon overlap OR 4.49 / 6.62 / 7.33; the signature agrees with the regulon scores (strongest for MYCN, +0.438) and does **not** track MYC expression in tumours (rho −0.185, n.s.) |
 
 ---
 
-## M9 — Spatial coherence (Aim 5, restricted)
+## ✅ M9 — Spatial coherence (Aim 5, restricted) — COMPLETE 2026-07-28
 GeoMx coherence and regional heterogeneity, with panel-coverage fraction reported.
-**Gate:** no prognostic, predictive, or immune-exclusion claims appear anywhere in the output.
+**Gate PASSED:** no prognostic, predictive or immune-exclusion claim appears in any output (enforced by `02_lint_outputs.R`).
+
+Only the **MYC** regulon clears the coverage gate, at 56 of 500 members (11.2%); MYCN reaches 8.4% and MYCL1 9.6%, and neither is scored. MYC clears by 1.2 points and MYCL1 misses by 0.4 — knife-edge verdicts against a threshold raised mid-project, reported as such. Everything downstream is a **56-gene proxy**, not the regulon. Variance splits roughly half between slides and half within (0.554 / 0.446); restricted to the three unambiguously single-patient slides it is 0.701 / 0.299, so about a third of the score is regional variation inside one tumour. Lineage dominance replicates in this third modality: lineage explains 0.474 and 0.508 against 0.019 and 0.010 for MYC.
 
 ---
 
-## M10 — Figures, tables, report (Phase 6)
-Publication-grade figures, publication-ready tables, Quarto manuscript-style report.
-**Gate:** every figure interpretable without external explanation; every table has notes where interpretation is non-obvious; the "heuristic, not predictive" statement present throughout.
+## ✅ M10 — Figures, tables, report (Phase 6) — COMPLETE 2026-07-28
+**Gate PASSED.** 8 figures (4 main, 4 supplementary), each with a caption file; 6 publication tables in `results/tables/publication/`; Quarto report reading every value from files the analysis wrote, refusing to render if they are absent. The "heuristic, not predictive" statement is present in the report, README and MOES figure legend, and is machine-checked by `scripts/08_report/02_lint_outputs.R` along with the contract's prohibited vocabulary.
+
+The paralog palette was replaced after failing its own accessibility check (D-041): the M1 palette reached only ΔE 12.7 under deuteranopia against a floor of 15.
 
 ---
 
-## M11 — Release readiness (Phase 7)
-Clean checkout test, path verification, dependency docs, reproducibility notes, commit history tidy, release-ready README, optional GitHub Actions.
-**Gate (hard):** a fresh `git clone` on a clean machine reproduces every figure. Not "should" — actually tested.
+## ✅ M11 — Release readiness (Phase 7) — COMPLETE 2026-07-28
+**Gate PASSED for what it covers.** `scripts/00_setup/07_clean_clone_verify.sh` clones the repository, rebuilds all 8 figures **from the clone with no data present**, and compares them byte-for-byte against the committed set: 8 byte-identical PNGs, 0 differing. Decision audit 34 PASS / 0 FAIL / 0 SKIP; output lint 0 failures.
+
+**What the gate does not cover, stated rather than implied.** It does not install 232 packages on a bare machine and does not re-download the 12 GB of source data. Every clean-clone run so far was made inside a WSL instance with a warm renv cache — `renv::restore()` reported 215 packages "linked from cache" in 0.7 s. So the lockfile is proven complete and internally consistent; **compiling these packages from source on a machine that has never built them remains unproven** (D-048). The run did surface two previously undocumented system packages, `cmake` (for `fs`) and `gsfonts` (for `magick`), now in the README install line. Closing this properly needs a container or CI runner with no R library and no renv cache.
+
+Three defects found by running the gate rather than trusting it (D-048): a hardcoded `/mnt/c/Users/Priya/Downloads` path in `06_drug_response.R`; an audit that reported 3 FAIL on a correct clone because it tested deliberately gitignored artefacts; and a gitlink to a nested verification clone committed by `git add -A`. All three fixed.
 
 ---
 

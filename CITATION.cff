@@ -4,11 +4,16 @@ title: "MYC-paralog regulatory hubs in small cell lung cancer"
 abstract: >-
   A reproducible multi-omics analysis that translates paralog-resolved MYC,
   MYCN and MYCL1 regulatory programs from small cell lung cancer cell lines
-  into patient tumours, and prioritises candidate regulatory hubs using a
-  weight-free, two-stage rank-aggregation evidence-integration framework.
-  Regulons are anchored on measured paralog binding rather than motif
-  inference, because all three paralogs share the canonical E-box and
-  motif-based methods cannot distinguish them.
+  into patient tumours, and applies a weight-free, two-stage rank-aggregation
+  framework to combine independent evidence layers. Regulons are anchored on
+  measured paralog binding rather than motif inference, because all three
+  paralogs share the canonical E-box and motif-based methods cannot
+  distinguish them. The two principal findings are negative and were
+  registered as reportable before any result existed: paralog identity does
+  not survive in patient tumours, where neuroendocrine lineage state accounts
+  for regulon activity, and the integration framework returns no ranked hub
+  list, its two surviving evidence domains converging in aggregate but not at
+  the level of individual genes.
 type: software
 authors:
   - family-names: Dharshani

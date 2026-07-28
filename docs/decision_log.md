@@ -1858,6 +1858,11 @@ allowlist is deliberately narrow: a broad one would defeat the check.
 The contract declared controls before any result existed. Reporting them honestly
 meant reporting that most did not come out well.
 
+> **Superseded in part by D-046.** The Jung 2017 row below reads NOT DONE because
+> the signature was uncurated at the time of this entry. It was curated from the
+> source table and run on 2026-07-28; the benchmark is met. This log is
+> append-only, so the row is left as it stood rather than edited after the fact.
+
 | control | outcome |
 |---|---|
 | Negative (M8 hard gate) | **VACUOUS — no evidence either way** |

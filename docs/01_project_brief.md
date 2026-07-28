@@ -3,7 +3,16 @@
 **Project:** SCLC MYC-Paralog Regulatory Hubs
 **Owner:** Priya
 **Started:** 2026-07-26
-**Status:** Phase 2 (specification) — coding not yet authorised
+
+This brief records the project **as specified** at the outset. It is kept
+unedited as the statement of original intent, so that the aims below can be read
+against what actually happened. Outcomes are not recorded here — see
+[`07_milestone_roadmap.md`](07_milestone_roadmap.md) for each milestone's result
+and [`decision_log.md`](decision_log.md) for every deviation and its reason.
+
+Two aims did not survive contact with the data: the drug-response source under
+Aim 3 changed, and the network domain under Aim 3/4 was excluded. Both are
+recorded in the roadmap.
 
 ---
 
@@ -74,5 +83,12 @@ In two independent GeoMx cohorts, ask only whether prioritised hubs show coheren
 | `05_dependency_inventory.md` | R/Python/system/GitHub requirements |
 | `06_risk_log.md` | Open risks and mitigations |
 | `07_milestone_roadmap.md` | Phased plan with gates |
-| `08_qc_checklist.md` | To be written in Phase 3 |
-| `09_figure_list.md` | To be written in Phase 3 |
+| `project_contract.md` | Frozen scope, pre-registered controls, interpretive limits |
+| `decision_log.md` | Every methodological decision and deviation, numbered |
+| `research_journal.md` | Running narrative of the work |
+
+`08_qc_checklist.md` and `09_figure_list.md` were planned here and never
+written. QC assertions live in `tests/` and in the per-stage QC logs instead, and
+the figure set is defined by `figures/figure_manifest.csv`, which is checked
+against disk by `scripts/07_figures/99_build_all.sh`. Both planned documents
+would have duplicated a machine-checked artefact with a hand-maintained one.
