@@ -1563,7 +1563,19 @@ that the analysis wrote.** Console output is not a result store.
 
 ---
 
-### D-041 · SCI · 2026-07-28 — the reduced MOES returns no prioritised hubs; the two surviving domains do not converge
+### D-041 · SCI · 2026-07-28 — the reduced MOES returns no prioritised hubs; convergence is real but too diffuse to attribute
+
+> **AMENDED the same day, before release.** This entry originally concluded that
+> the two surviving domains "do not converge", on the basis of a Spearman
+> correlation near zero and zero genes at FDR < 0.05. That was **too strong, and
+> wrong**. Spearman measures monotone association across all 10,387 genes and is
+> blind to agreement confined to the TOP of both lists — which is precisely what
+> RRA tests. A concordance-at-K analysis with a proper global permutation test
+> finds real aggregate convergence (global p 0.019 / 0.008 / 0.065). The per-gene
+> null is unchanged; the *explanation* for it is not. Corrected below rather than
+> quietly rewritten, because the original error — using a global correlation to
+> claim absence of a top-specific effect — is the kind a reader should be able to
+> see was made and caught.
 
 **Status:** RUN, REPORTED AS A NULL. Not a failure to complete — a completed
 analysis whose answer is negative.
@@ -1593,13 +1605,39 @@ Two things were verified before any score was believed:
 **Zero genes reach FDR < 0.05 for any paralog.** Best FDR achieved: 0.381 (MYC),
 0.371 (MYCN), 0.358 (MYCL1).
 
-The mechanism is visible in one number. The Spearman correlation between the two
-domains' rankings is **−0.023, +0.012, −0.008**. The domains are effectively
-independent, so genes ranking highly in one do not rank highly in the other more
-often than chance predicts, and RRA has nothing to aggregate. This is not a
-threshold artefact; it is the absence of the convergence MOES exists to detect.
+But the domains are **not** independent, and the reason no gene is significant is
+not that there is nothing there.
 
-#### The null is real, and the method has the power to say so
+Asked as an aggregate question — do the top K genes of each domain overlap more
+than the K²/N expected by chance? — the answer is yes:
+
+| paralog | max overlap ratio | global p |
+|---|---|---|
+| MYC | 2.03 | 0.019 |
+| MYCN | 2.18 | 0.008 |
+| MYCL1 | 1.72 | 0.065 |
+
+The global p compares the maximum ratio over K against the permutation
+distribution of *that same maximum*, controlling family-wise error across the
+whole curve. Counting pointwise exceedances would have badly overstated this —
+the K values are nested, so one excursion yields a run of them, and a naive count
+gave "20 of 45" for MYCN where the honest global figure is a single p = 0.008. K
+is restricted to where at least 5 genes are expected to overlap by chance; below
+that the ratio is integer noise.
+
+This coexists with the near-zero Spearman correlation (**−0.023, +0.012, −0.008**)
+without contradiction, and the apparent conflict is the lesson. Spearman measures
+monotone association across all 10,387 genes; concordance-at-K measures agreement
+at the **top** of both lists. The two domains agree weakly about which genes matter
+most and not at all about the ordering of the rest. A global correlation cannot
+detect a top-specific effect, and using it to declare one absent was an error.
+
+So the per-gene null has a specific cause: the convergence is real at roughly 2×
+and spread thinly across the top of both rankings, leaving no individual gene with
+enough evidence to survive multiple testing over 10,387 genes. **Aggregate
+detectable, per-gene unattributable.**
+
+#### The per-gene null is real, and the method has the power to say so
 
 A null from an untested method is not a finding. `03_moes_positive_control.R`
 blends a synthetic functional layer with the real cis ranking at increasing
@@ -1613,8 +1651,15 @@ strength and runs the identical FDR machinery:
 | 1.00 | +1.000 | 0.000 | 288 |
 
 Monotone and graded: nothing on pure noise, discoveries once the layers correlate
-at ρ ≈ 0.2, hundreds when they are identical. **Observed ρ = −0.023.** The
-convergence is absent at a level the method demonstrably detects.
+at ρ ≈ 0.2, hundreds when they are identical.
+
+The control calibrates what the per-gene test can see: it needs a **global**
+monotone association of roughly ρ ≈ 0.2 before any single gene becomes
+attributable. The observed global ρ is −0.023, so the per-gene null is exactly
+what this control predicts — and it is compatible with the top-specific
+convergence reported above, which a global ρ does not measure. The two results
+together say the signal is present in the shape the aggregate test detects and
+absent in the shape the per-gene test requires.
 
 #### Three structural findings, computed rather than asserted
 
@@ -1643,16 +1688,28 @@ M1 design anticipated, and it would look like a result.
 The full ranking with its FDR column is written to `data/metadata/moes_ranking.csv`
 so the absence is inspectable rather than hidden.
 
+A top-N table would in fact be wrong twice over: it would present genes whose
+individual FDR is ~0.36 as prioritised hits, **and** it would imply a paralog
+attribution that the shared-layer analysis above shows comes from chromatin alone.
+
+The full ranking with its FDR column is written to `data/metadata/moes_ranking.csv`
+so the absence is inspectable rather than hidden.
+
 The multi-layer paralog-specific prioritisation specified at M1 is **not
 achievable on this evidence**. Three of four domains were excluded on their own
-evidence (D-033, D-036, D-037), and the two that survived do not converge. This is
-now the project's second major negative result, alongside R-01 (D-034), and both
-are reported as findings.
+evidence (D-033, D-036, D-037), and the two that survived converge only weakly and
+without gene-level resolution. This is now the project's second major negative
+result, alongside R-01 (D-034), and both are reported as findings.
 
 #### What this does not say
 
 Not that the regulons are wrong — they pass internal validation (Figure 2D) and
 reproduce Plotnik's MYC-enhancer→neurogenesis link independently. Not that the
-dependency enrichment is wrong — pooled OR 2.71 stands (D-036). It says the two
-kinds of evidence do not point at the same genes, which is a statement about the
-biology as measured here and about the limits of integrating two thin layers.
+dependency enrichment is wrong — pooled OR 2.71 stands (D-036).
+
+And **not** that the two kinds of evidence are unrelated: they overlap at the top
+of both rankings about twice as often as chance allows, which is a positive
+finding and is reported as one. What fails is the *resolution*. The convergence is
+real but too thin to name genes, and one of the two layers cannot tell the
+paralogs apart at all. That is a statement about the limits of integrating two
+thin layers, not about the absence of shared biology.

@@ -1,6 +1,6 @@
 # Reduced two-domain MOES
 
-Generated: 2026-07-27 20:04:35 UTC
+Generated: 2026-07-27 20:28:58 UTC
 
 ## What this is, and is not
 
@@ -49,15 +49,33 @@ Universe: 10,387 genes with evidence in both domains. Permutations: 10,000. Boot
 
 | paralog | genes at FDR < 0.05 | best FDR achieved | rank-stable |
 |---|---|---|---|
-| MYC | 0 | 0.381 | 0 |
-| MYCN | 0 | 0.371 | 0 |
+| MYC | 0 | 0.383 | 0 |
+| MYCN | 0 | 0.375 | 0 |
 | MYCL1 | 0 | 0.358 | 0 |
 
-**No gene reaches FDR < 0.05 for any paralog.** The best FDR achieved is 0.358. This is not a marginal miss: the two admitted domains are close to independent (layer rho between -0.023 and +0.012), so genes ranking highly in one do not rank highly in the other more often than chance predicts. RRA has nothing to aggregate.
+**No gene reaches FDR < 0.05 for any paralog.** The best FDR achieved is 0.358.
 
-MOES therefore returns **no prioritised hub list**. Reporting a top-N table here would present the head of an unranked distribution as a result. The ranking is written to `data/metadata/moes_ranking.csv` with its FDR column so the absence is inspectable, not hidden.
+## Aggregate concordance — weak, real, and not localisable
 
-See the sensitivity section below before reading this null as uninformative.
+The per-gene null above should NOT be read as 'the two domains share nothing'. Asked as an aggregate question — do the top K genes of each domain overlap more than the K²/N expected by chance? — the answer is yes for two of three paralogs:
+
+| paralog | max overlap ratio | global p |
+|---|---|---|
+| MYC | 2.03 | 0.019 |
+| MYCN | 2.19 | 0.008 |
+| MYCL1 | 1.72 | 0.065 |
+
+The global p compares the maximum ratio over K against the permutation distribution of that same maximum, so it controls family-wise error across the whole curve. Pointwise exceedances are recorded in `moes_concordance.csv` but are not a test: the K values are nested, so a single excursion produces a run of them. K is restricted to where at least 5 genes are expected to overlap by chance.
+
+This sits alongside near-zero Spearman correlation between the domains (-0.023 to +0.012) without contradiction. Spearman measures monotone association across all 10,387 genes; concordance-at-K measures agreement specifically at the TOP of both lists. The evidence is that the two domains agree weakly about which genes are most important, and not at all about the ordering of the rest.
+
+## What MOES can and cannot deliver
+
+MOES returns **no prioritised hub list**, but the reason is more specific than an absence of signal. The convergence is real at roughly 2x and too DIFFUSE to attribute: spread thinly across the top of both rankings, no individual gene carries enough evidence to survive multiple testing over 10,387 genes. Aggregate detectable, per-gene unattributable.
+
+Reporting a top-N table would therefore be wrong twice over: it would present genes whose individual FDR is ~0.36 as prioritised hits, and it would imply a paralog attribution that panel D of Figure 4 shows comes from chromatin alone. The full ranking with its FDR column is in `data/metadata/moes_ranking.csv` so this is inspectable, not hidden.
+
+See the sensitivity section below before reading the per-gene null as uninformative.
 
 **Bootstrap caveat.** Intervals resample cis-regulatory links only; the functional domain is held fixed because its per-gene values are precomputed summaries over cell lines. Reported rank intervals therefore UNDERSTATE total uncertainty.
 

@@ -23,6 +23,7 @@ FIGS=(
   fig02_m5_gate.R
   fig03_functional_domain.R
   fig_s02_regulatory_pipeline.R
+  fig04_moes_null.R
   fig_s03_lineage_confound.R
 )
 

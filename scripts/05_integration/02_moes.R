@@ -99,6 +99,69 @@ for (p in PARALOGS) cat(sprintf("  %-6s rho = %+.4f\n", p, layer_rho[p]))
 obs <- lapply(PARALOGS, function(p) rra2(r_cis[[p]], r_func))
 names(obs) <- PARALOGS
 
+# --- concordance at K, with a permutation envelope -----------------------------
+# RRA's question stated directly: of the top K genes by cis evidence, how many are
+# also in the top K by functional evidence, against the K^2/N expected by chance?
+# Reported WITH a permutation envelope, because the raw ratio is unstable at small
+# K -- at K = 100 the expected overlap is ~1 gene, so a single coincidence reads
+# as a 2x "enrichment". An excursion above 1.0 means nothing without the band.
+NCONC <- 1000L
+Ks <- unique(round(10^seq(log10(20), log10(N), length.out = 45)))
+#
+# Judged by a GLOBAL test, not by counting pointwise exceedances. The K values are
+# nested (top-20 is inside top-30 is inside top-50), so a single sustained
+# excursion produces a long run of consecutive "significant" points and counting
+# them would badly overstate the evidence. The global statistic is the maximum
+# ratio over K, compared against the permutation distribution of that same
+# maximum, which controls the family-wise error across the whole curve.
+#
+# The range is restricted to K where at least MIN_EXP genes are expected to
+# overlap by chance. Below that the ratio is dominated by integer noise: at
+# K = 100 the expectation is ~1 gene, so one coincidence reads as "2x enriched".
+MIN_EXP <- 5
+conc_for <- function(rc) {
+  ord <- order(rc)
+  fr  <- rank(r_func, ties.method = "average")[ord]
+  count_at <- function(v) vapply(Ks, function(k) sum(v[seq_len(k)] <= k), numeric(1))
+  obs_o <- count_at(fr)
+  exp_k <- Ks^2 / N
+  testable <- exp_k >= MIN_EXP
+  nullm <- matrix(NA_real_, NCONC, length(Ks))
+  null_max <- numeric(NCONC)
+  for (i in seq_len(NCONC)) {
+    cnt <- count_at(sample(fr))
+    nullm[i, ] <- cnt
+    null_max[i] <- max((cnt / exp_k)[testable])
+  }
+  q <- apply(nullm, 2, stats::quantile, probs = c(0.025, 0.975))
+  obs_max <- max((obs_o / exp_k)[testable])
+  list(tab = data.frame(K = Ks, observed = obs_o, expected = exp_k,
+                        ratio = obs_o / exp_k,
+                        null_lo = q[1, ] / exp_k, null_hi = q[2, ] / exp_k,
+                        testable = testable,
+                        above_envelope = obs_o > q[2, ]),
+       obs_max = obs_max,
+       global_p = (1 + sum(null_max >= obs_max)) / (1 + NCONC))
+}
+cat("\n=========== concordance at K (", NCONC, " permutations) ===========\n", sep = "")
+cat("Global test: max ratio over K vs the permutation distribution of the max.\n")
+cat("Pointwise exceedances are also shown, but are NOT a test — the K values are\n")
+cat("nested, so one excursion yields a run of them.\n")
+conc <- data.frame(); conc_glob <- data.frame()
+for (p in PARALOGS) {
+  r <- conc_for(r_cis[[p]])
+  d <- r$tab; d$paralog <- p
+  conc <- rbind(conc, d)
+  conc_glob <- rbind(conc_glob, data.frame(paralog = p, max_ratio = round(r$obs_max, 3),
+                                           global_p = r$global_p,
+                                           n_pointwise_above = sum(d$above_envelope[d$testable]),
+                                           n_testable = sum(d$testable)))
+  cat(sprintf("  %-6s max ratio %.2f | GLOBAL p = %.3f | pointwise %d/%d (not a test)\n",
+              p, r$obs_max, r$global_p, sum(d$above_envelope[d$testable]), sum(d$testable)))
+}
+write.csv(conc, "data/metadata/moes_concordance.csv", row.names = FALSE)
+write.csv(conc_glob, "data/metadata/moes_concordance_global.csv", row.names = FALSE)
+
 # --- permutation FDR -----------------------------------------------------------
 # The RRA score is analytically a p-value under random ranks, but the actual rank
 # vectors carry ties (many genes share a cis score) so the analytic null is not
@@ -282,16 +345,40 @@ md <- c(
     sprintf("| %s | %d | %.3f | %d |", p, nrow(s), min(fdr[[p]]), sum(s$stable))
   }, character(1)), "",
   paste0("**No gene reaches FDR < 0.05 for any paralog.** The best FDR achieved is ",
-         sprintf("%.3f", min(unlist(fdr))), ". This is not a marginal miss: the two ",
-         "admitted domains are close to independent (layer rho between ",
-         sprintf("%+.3f and %+.3f", min(layer_rho), max(layer_rho)),
-         "), so genes ranking highly in one do not rank highly in the other more ",
-         "often than chance predicts. RRA has nothing to aggregate."), "",
-  paste0("MOES therefore returns **no prioritised hub list**. Reporting a top-N ",
-         "table here would present the head of an unranked distribution as a ",
-         "result. The ranking is written to `data/metadata/moes_ranking.csv` with ",
-         "its FDR column so the absence is inspectable, not hidden."), "",
-  "See the sensitivity section below before reading this null as uninformative.", "",
+         sprintf("%.3f", min(unlist(fdr))), "."), "",
+  "## Aggregate concordance — weak, real, and not localisable", "",
+  paste0("The per-gene null above should NOT be read as 'the two domains share ",
+         "nothing'. Asked as an aggregate question — do the top K genes of each ",
+         "domain overlap more than the K²/N expected by chance? — the answer is ",
+         "yes for two of three paralogs:"), "",
+  "| paralog | max overlap ratio | global p |", "|---|---|---|",
+  sprintf("| %s | %.2f | %.3f |", conc_glob$paralog, conc_glob$max_ratio, conc_glob$global_p), "",
+  paste0("The global p compares the maximum ratio over K against the permutation ",
+         "distribution of that same maximum, so it controls family-wise error ",
+         "across the whole curve. Pointwise exceedances are recorded in ",
+         "`moes_concordance.csv` but are not a test: the K values are nested, so a ",
+         "single excursion produces a run of them. K is restricted to where at ",
+         "least ", MIN_EXP, " genes are expected to overlap by chance."), "",
+  paste0("This sits alongside near-zero Spearman correlation between the domains (",
+         sprintf("%+.3f to %+.3f", min(layer_rho), max(layer_rho)),
+         ") without contradiction. Spearman measures monotone association across ",
+         "all ", format(N, big.mark = ","), " genes; concordance-at-K measures ",
+         "agreement specifically at the TOP of both lists. The evidence is that ",
+         "the two domains agree weakly about which genes are most important, and ",
+         "not at all about the ordering of the rest."), "",
+  "## What MOES can and cannot deliver", "",
+  paste0("MOES returns **no prioritised hub list**, but the reason is more specific ",
+         "than an absence of signal. The convergence is real at roughly 2x and too ",
+         "DIFFUSE to attribute: spread thinly across the top of both rankings, no ",
+         "individual gene carries enough evidence to survive multiple testing over ",
+         format(N, big.mark = ","), " genes. Aggregate detectable, per-gene ",
+         "unattributable."), "",
+  paste0("Reporting a top-N table would therefore be wrong twice over: it would ",
+         "present genes whose individual FDR is ~0.36 as prioritised hits, and it ",
+         "would imply a paralog attribution that panel D of Figure 4 shows comes ",
+         "from chromatin alone. The full ranking with its FDR column is in ",
+         "`data/metadata/moes_ranking.csv` so this is inspectable, not hidden."), "",
+  "See the sensitivity section below before reading the per-gene null as uninformative.", "",
   paste0("**Bootstrap caveat.** Intervals resample cis-regulatory links only; the ",
          "functional domain is held fixed because its per-gene values are ",
          "precomputed summaries over cell lines. Reported rank intervals therefore ",
