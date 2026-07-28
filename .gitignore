@@ -197,4 +197,8 @@ desktop.ini
 !/.gitignore
 !/.gitattributes
 !/.Rprofile
-!/.github/          # CI workflows — the allowlist above would otherwise hide them
+# CI workflows. The allowlist above would otherwise hide them entirely.
+# NOTE: .gitignore has no inline comments — a trailing "# ..." on this line is
+# parsed as part of the pattern and silently matches nothing, which is exactly
+# how the workflow directory stayed invisible on the first attempt.
+!/.github
