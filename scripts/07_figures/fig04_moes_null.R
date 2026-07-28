@@ -64,10 +64,13 @@ cat("confirmed: 0 genes at FDR < ", FDR_T, " across ", format(N, big.mark = ",")
 # block. The tie mass is large and differs sharply by paralog — MYCN has cis
 # evidence for only ~3.4k of the 10.4k universe genes — so it is reported in the
 # subtitle rather than drawn as if it were data.
-ev <- readRDS("data/processed/integration/moes_evidence.rds")
-rank_tab$has_cis <- mapply(function(p, g) g %in% names(ev$cis[[p]]),
-                           as.character(rank_tab$paralog), rank_tab$gene)
-n_scored <- table(rank_tab$paralog[rank_tab$has_cis])
+# Per-paralog cis coverage from the committed summary rather than from
+# moes_evidence.rds. n_in_universe is defined as the count of genes with cis
+# evidence inside the MOES universe, which is exactly what this figure reports.
+# The .rds read was the second one in this script and was missed on the first
+# pass — the clean-clone gate caught it.
+evs <- read.csv("data/metadata/moes_evidence_summary.csv", stringsAsFactors = FALSE)
+n_scored <- setNames(evs$n_in_universe, evs$paralog)
 
 # Concordance-at-K with its permutation envelope, both computed in 02_moes.R.
 # This replaced a rank-rank scatter, which is the wrong instrument: the cis scores
