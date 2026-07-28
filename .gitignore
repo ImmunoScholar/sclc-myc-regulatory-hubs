@@ -187,6 +187,13 @@ desktop.ini
 # scaffolding, not analysis: nothing here is needed to reproduce a result, and
 # one was committed by accident before this rule existed. Anything that IS needed
 # to reproduce a result belongs in scripts/ with a number and a header.
-/.commit_*.sh
-/.run_*.sh
-/.*_tmp.md
+#
+# ALLOWLIST, not a blocklist. The first version of this rule named the prefixes in
+# use at the time (/.commit_*, /.run_*) and was immediately outgrown — a later
+# batch of .check_*, .test_* and .probe_* wrappers was committed by accident
+# because none of them matched. Enumerating scratch prefixes is a losing game, so
+# every dot-file at the repo root is ignored and the legitimate ones are named.
+/.*
+!/.gitignore
+!/.gitattributes
+!/.Rprofile
