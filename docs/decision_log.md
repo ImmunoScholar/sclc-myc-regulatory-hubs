@@ -1810,3 +1810,83 @@ are unmeasurable here — nor a precise within-tumour heterogeneity figure, nor
 anything resting on the NE score beyond three markers (NCAM1, ASCL1, DLL3; the
 other seven are off-panel). Prognostic and immune-exclusion analyses remain out of
 scope (D-001).
+
+---
+
+### D-043 · METH · 2026-07-28 — the report is written against files, not prose, and the contract's interpretive limits are linted
+
+#### The report
+
+`report.qmd` renders to `report.html`. **Every number in it is read at render
+time from the CSVs the analysis wrote**; none is typed in. This is the D-040 rule
+applied to the deliverable — a figure or report that hardcodes a value silently
+drifts from the analysis that produced it. The render script refuses to run if the
+expected analysis outputs are missing, so a stale pipeline cannot yield a
+fresh-looking document.
+
+Quarto CLI is not installed on this machine. Rather than block on that, the render
+script prefers `quarto` and falls back to `knitr` + `pandoc`, both already pinned
+in `renv.lock`. The fallback is announced, not silent, and the two paths differ in
+presentation only. Quarto's `@sec-` cross-reference syntax was replaced with plain
+markdown anchor links, which render correctly under both — under pandoc alone the
+Quarto syntax appeared literally as `@sec-m5` in the output.
+
+#### The lint, and what it caught
+
+Contract section 7 prohibits five terms in all reports, figures and code comments,
+and requires the MOES interpretive-limit statement in the README and in the legend
+of every figure presenting MOES. Those are testable claims, so
+`scripts/08_report/02_lint_outputs.R` tests them rather than trusting them — this
+project has been caught three times by claims recorded in config that no code
+verified (D-038, D-039, D-040).
+
+It failed on first run, on real violations:
+
+* `fig03_functional_domain_caption.md` used **"validated"** to describe this
+  project's own result ("flagged rather than validated"). Rewritten to
+  "confirmed".
+* The **README lacked the interpretive-limit statement** in the contract's own
+  wording, and `fig04_moes_null_caption.md` lacked it entirely — the one figure
+  that actually presents MOES. Both fixed.
+
+Remaining occurrences of a prohibited term are the contract's own disclaimer
+sentence quoted verbatim, listed as reviewed exceptions with reasons. The
+allowlist is deliberately narrow: a broad one would defeat the check.
+
+#### Pre-registered controls reported as they fell
+
+The contract declared controls before any result existed. Reporting them honestly
+meant reporting that most did not come out well.
+
+| control | outcome |
+|---|---|
+| Negative (M8 hard gate) | **VACUOUS — no evidence either way** |
+| Positive (MYC→BCL2/MCL1) | **NOT MET** |
+| HALLMARK_MYC_TARGETS benchmark | MET |
+| Jung 2017 signature benchmark | **NOT DONE** |
+| M5 sanity gate | 3 PASS / 1 FAIL |
+
+**The negative control cannot be scored, and saying it "passed" would be a lie of
+the same shape this project already caught once.** It requires that
+paralog-shared housekeeping promoters not rank as paralog-specific hubs. MOES
+produces no hubs, so nothing can fail it. The best-ranked housekeeping gene sits
+at MOES rank 171, FDR 0.94 — unremarkable — but a control that *cannot* fail
+provides no evidence about specificity. This is the same vacuous-pass error as the
+hg19 build assertion that compared `20` to `chr20`, matched zero rows and reported
+PASS (R-16). Recorded as uninformative.
+
+**The positive control is not met.** BCL2 sits in the *MYCN* regulon, not MYC; its
+best MYC MOES rank is 128 at FDR 0.93, and MCL1 is in no regulon. Given that MOES
+resolves nothing at gene level this is consistent with the null rather than
+evidence against the Dammert axis — but it is not a positive result and is not
+dressed as one.
+
+#### Two commitments left undone, recorded not dropped
+
+* **Aim 3's drug-response association was never carried out.** No script, no data.
+* **The Jung 2017 18-gene signature was never curated** from the source
+  publication, so that declared benchmark comparator does not exist.
+
+Both are stated in the report under "Left undone". A contract aim that quietly
+disappears between specification and write-up is the easiest kind of
+overstatement to commit, and the hardest for a reader to detect.

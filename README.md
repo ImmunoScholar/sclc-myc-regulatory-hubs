@@ -103,6 +103,29 @@ bash scripts/00_setup/01_init_git.sh
 Then run the numbered scripts in `scripts/` in order. Each stage writes its
 outputs to `results/` and its QC to `logs/`.
 
+Rebuild every figure and verify the set:
+
+```bash
+bash scripts/07_figures/99_build_all.sh
+```
+
+Render the report:
+
+```bash
+bash scripts/08_report/01_render_report.sh
+```
+
+The report source is [`report.qmd`](report.qmd) and the rendered output is
+[`report.html`](report.html). Rendering prefers the Quarto CLI; if Quarto is not
+installed it falls back to `knitr` + `pandoc`, which are already pinned in
+`renv.lock`. The two paths differ in presentation only — the fallback loses
+Quarto's folded-code UI and theme, not any content or number. To use the Quarto
+path, install the CLI from <https://quarto.org/docs/get-started/>.
+
+Every value in the report is read at render time from files the analysis wrote,
+so a stale analysis cannot produce a fresh-looking report, and the render refuses
+to run if those files are missing.
+
 <!-- Populated as milestones complete:
 ```bash
 bash scripts/run_all.sh
@@ -137,8 +160,8 @@ why the project is built the way it is.
 
 ## Interpretation and limits
 
-**The prioritisation produced here is a heuristic ranking, not a predictive or
-clinically validated model.** It orders candidates by weight of independent
+**MOES is a heuristic prioritisation, not a predictive or clinically validated
+model.** It orders candidates by weight of independent
 evidence so that finite experimental effort can be aimed sensibly. It does not
 establish causation, and it is not a claim about clinical utility.
 

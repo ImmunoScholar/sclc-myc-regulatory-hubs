@@ -62,3 +62,6 @@ would present genes whose individual FDR is ~0.36 as prioritised hits, and it
 would imply a paralog attribution that panel D shows comes from chromatin
 alone. The full ranking with its FDR column is in
 `data/metadata/moes_ranking.csv` so this is inspectable rather than hidden.
+
+MOES is a heuristic prioritisation, not a predictive or clinically validated
+model (project contract, section 7).

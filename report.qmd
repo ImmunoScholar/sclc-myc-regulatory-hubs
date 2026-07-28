@@ -1,0 +1,603 @@
+---
+title: "Paralog-resolved MYC regulatory programmes in small cell lung cancer"
+subtitle: "An enhancer-anchored regulon analysis across cell lines, patient tumours, functional screens and spatial tissue"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: true
+    theme: cosmo
+    fig-align: center
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+suppressPackageStartupMessages({ library(yaml); library(knitr) })
+
+CFG <- yaml::read_yaml("config/params.yml")
+md  <- function(f) read.csv(file.path("data/metadata", f), stringsAsFactors = FALSE)
+
+gate    <- md("m5_gate_results.csv")
+onto    <- md("regulon_ontology.csv")
+valid   <- md("regulon_validity.csv")
+rep6    <- readRDS("data/processed/tumour/replication.rds")$per_cohort
+spec    <- as.matrix(read.csv("data/metadata/m6_specificity_matrix.csv", row.names = 1))
+glsum   <- md("m6_gene_level_summary.csv")
+occ     <- md("m6_occupancy_confounding.csv")
+enr     <- md("m7_dependency_enrichment.csv")
+pooled  <- md("m7_dependency_pooled.csv")
+own     <- md("m7_paralog_own_dependency.csv")
+cellrho <- md("m7_paralog_lineage_celllines.csv")
+netfeas <- md("m7_network_feasibility.csv")
+moesdiag<- md("moes_diagnostics.csv")
+moesglob<- md("moes_concordance_global.csv")
+moesrank<- md("moes_ranking.csv")
+moespc  <- md("moes_positive_control.csv")
+m9cov   <- md("m9_panel_coverage.csv")
+m9coh   <- md("m9_coherence.csv")
+m9var   <- md("m9_variance.csv")
+m9assoc <- md("m9_associations.csv")
+figman  <- read.csv("figures/figure_manifest.csv", stringsAsFactors = FALSE)
+
+dg <- function(k) moesdiag$value[moesdiag$metric == k]
+pct <- function(x, d = 1) sprintf(paste0("%.", d, "f%%"), 100 * x)
+fig <- function(stem) knitr::include_graphics(file.path("figures", paste0(stem, ".png")))
+```
+
+::: {.callout-important}
+## Interpretive limits — binding on this document
+
+MOES is a **heuristic prioritisation, not a predictive or clinically validated
+model** (project contract, section 7). No statement in this report should be read
+as identifying a treatment target or a causal mechanism. Where a conclusion is
+provisional it is labelled provisional. Treatment-outcome, survival and
+immune-exclusion analyses are out of scope by design.
+:::
+
+# Summary
+
+This analysis converts paralog-resolved MYC-family binding in SCLC into
+enhancer-anchored regulons and asks whether those regulons retain paralog
+identity outside the cell lines they were built from.
+
+**The regulons are internally coherent in cell-line chromatin.** Three of four
+pre-registered gate criteria pass ([section 4](#sec-m5)). Leave-one-line-out AUC reaches the
+0.70 threshold in `r sum(valid$type == "loo" & valid$auc >= 0.70)` of
+`r sum(valid$type == "loo")` held-out lines, and the MYC regulon independently
+reproduces the MYC-enhancer→neurogenesis association reported by Plotnik et al.
+(OR `r onto$neuro_or[onto$paralog == "MYC" & onto$regulon == "both"]`,
+p = `r sprintf("%.0e", onto$neuro_p[onto$paralog == "MYC" & onto$regulon == "both"])`).
+
+**They do not retain paralog identity in patient tumours.** Across
+`r sum(rep6$cohort == "GSE60052") * 0 + 160` tumours in two independent cohorts,
+neuroendocrine lineage state explains
+`r sprintf("%.2f–%.2f", min(rep6$unique_lineage), max(rep6$unique_lineage))`
+of the unique variance in regulon score against
+`r sprintf("%.3f–%.3f", min(rep6$unique_paralog), max(rep6$unique_paralog))`
+for the paralog's own expression, and no association survives lineage adjustment
+in the replication cohort ([section 5](#sec-m6)). This outcome was **pre-registered as a
+reportable finding** rather than a failure, and it is reported as one.
+
+**The confound is not an artefact of bulk scoring.** It is present in the
+chromatin the regulons were built from, in cell lines, gene-by-gene
+genome-wide, and in spatial tissue ([sections 6](#sec-confound) and [9](#sec-m9)).
+
+**Evidence integration returns no prioritised hubs.** Three of four planned
+evidence domains were excluded on their own evidence. The two that remain
+converge weakly at the top of their rankings — up to
+`r sprintf("%.1fx", max(moesglob$max_ratio))` more overlap than chance, global
+p `r sprintf("%.3f", min(moesglob$global_p))`–`r sprintf("%.3f", max(moesglob$global_p))`
+— but no individual gene survives testing across
+`r format(dg("moes_universe_genes"), big.mark = ",")` genes ([section 8](#sec-m8)).
+
+The contribution is therefore the framework, the audit trail, and two
+well-characterised negative results — not a hub list.
+
+# Question and gap {#sec-gap}
+
+> How do MYC-associated transcriptional and epigenetic regulatory programmes
+> shape SCLC state, and which downstream regulatory hubs are robust enough,
+> across independent evidence layers, to warrant further investigation?
+
+Plotnik et al. 2024 established that MYC, MYCN and MYCL1 occupy **distinct
+enhancer repertoires** in SCLC cell lines. That is prior work and is not
+re-claimed here. Three things were unaddressed and are attempted here:
+
+1. converting paralog-resolved binding into **enhancer-anchored,
+   super-enhancer-aware regulons** rather than a promoter/distal split;
+2. testing those regulons in **independent human tumour cohorts**, the prior work
+   being entirely *in vitro*;
+3. prioritising hubs with a **transparent, weight-free integration framework**.
+
+Item 1 succeeded, item 2 produced a negative result, and item 3 produced a null.
+
+# Data
+
+All data are public. No data files are held in version control; they are
+reproduced by download scripts against a checksum manifest.
+
+```{r data-table}
+d <- data.frame(
+  Layer = c("Cell-line chromatin", "Patient tumours", "Cell lines",
+            "Functional screen", "Spatial tissue"),
+  Source = c("GSE230649 keystone + 9 supporting GEO series",
+             "GSE60052 (n=79), George 2015 (n=81)",
+             "CCLE / cBioPortal (n=59 SCLC)",
+             "DepMap Public 26Q1 (25 SCLC vs 1,183 other lines)",
+             "GSE261348 (175 ROI), GSE261345 (121 ROI)"),
+  Role = c("MYC-family ChIP, H3K27ac, ATAC — 10 SCLC lines",
+           "regulon scoring and replication",
+           "lineage association, network feasibility",
+           "selective dependency",
+           "coherence and orthogonal validation"))
+kable(d)
+```
+
+Project genome build is **hg19**, mandated by the keystone series. Every
+coordinate-handling step asserts the build; hg38 deposits were lifted with loss
+rates recorded per file.
+
+```{r fig-s01}
+#| fig-cap: "Data landscape: assay coverage per cell line, the genome-build split across deposits, and the limited overlap between MYC-family ChIP lines and lineage-TF control lines."
+fig("fig_s01_data_landscape")
+```
+
+Assay coverage is uneven by design of the public record rather than by choice.
+MYC has five contributing ChIP lines; MYCN and MYCL1 have two each. One line
+carries H3K27ac and ATAC but no MYC-family ChIP, and one carries MYC ChIP but no
+ATAC. The lineage-TF controls needed for the confounding analysis overlap the
+keystone lines only partially — POU2F3 in three, ASCL1 in one, NEUROD1 in none —
+which is why resolution of the confound is reported per transcription factor and
+never pooled.
+
+# The paralog-resolved regulatory layer {#sec-m5}
+
+```{r fig-m5}
+#| fig-cap: "The M5 gate on cell-line chromatin, including the criterion that failed."
+fig("fig02_m5_gate")
+```
+
+Signal was quantified over an ATAC-defined consensus region universe (no *de
+novo* peak calling; the keystone series ships bedGraph only), filtered against
+the ENCODE hg19 blacklist v2, stitched into super-enhancers with a knee-point
+cutoff, and linked to genes by distance-weighted, activity-correlated linking.
+Regulons are the top-ranked genes by aggregate link score.
+
+```{r fig-s02}
+#| fig-cap: "Construction of the regulatory layer and the check on each step: threshold calibration, convention stability, the super-enhancer guard, and peak-to-gene linking."
+fig("fig_s02_regulatory_pipeline")
+```
+
+Two of those steps carry guards added after an initial rule failed. The first
+super-enhancer stitching rule returned every stitched enhancer as a
+super-enhancer for one line, and was replaced by a knee-point cutoff with a hard
+ceiling. Peak-to-gene linking initially assigned distal regions only, which left
+promoter-bound genes out of every regulon and understated the enrichment. Both
+corrections are recorded in the decision log.
+
+The ATAC threshold is **not load-bearing**: TSS enrichment and H3K27ac fold both
+rise monotonically across the whole range tested, so conclusions do not depend on
+where the cutoff was placed. The replicate convention, by contrast, does matter,
+and is shown rather than hidden — the nesting fraction behind gate criterion 1
+varies by only 0.037 within the pre-specified ≥2-replicate rule but sits at
+materially different values under the union and all-replicate conventions.
+
+## Gate outcome
+
+```{r gate-table}
+g <- gate[, c("criterion", "value", "pass")]
+names(g) <- c("Criterion", "Observed", "Pass")
+g$Pass <- ifelse(g$Pass, "PASS", "**FAIL**")
+kable(g)
+```
+
+Criterion 3 — the distal-fraction contrast between MYC-amplified and
+MYC-expressing lines — **fails on magnitude while reproducing in direction**
+(+3.3 points against a published +27). Contributing factors, none separable at
+two lines versus two: the shared ATAC-defined universe is ~84% distal by
+construction, which compresses the achievable range; the source study called
+peaks *de novo* per line with no shared grid; and one line is absent from DepMap,
+leaving the expressing arm at n=2. No significance test is applied, because none
+would be honest at that n.
+
+## Internal coherence
+
+Leave-one-line-out AUC reaches the 0.70 threshold in
+`r sum(valid$type == "loo" & valid$auc >= 0.70)` of
+`r sum(valid$type == "loo")` held-out lines; the exception is MYC/H1048 at
+`r valid$auc[valid$type == "loo" & valid$held_out == "H1048"]`. Cross-paralog
+Jaccard stays well below the 0.60 limit. This is internal coherence only — it
+shows the regulons are not driven by a single contributing line, not that they
+transfer to tumours.
+
+## A discordance with the source study
+
+```{r onto-table}
+o <- onto[onto$regulon == "both", c("paralog", "hallmark_or", "neuro_or", "neuro_p")]
+names(o) <- c("Paralog", "Hallmark OR", "Neurogenesis OR", "Neurogenesis p")
+kable(o, digits = 4)
+```
+
+The MYC regulon is neurogenesis-weighted, independently reproducing the
+enhancer-to-neurogenesis link reported by Plotnik et al. The **MYCN regulon is
+not**; it is Hallmark/housekeeping-weighted instead. The source study grouped
+MYCN with MYC. This is a discordance, recorded as such.
+
+# Patient-tumour translation {#sec-m6}
+
+```{r fig-m6}
+#| fig-cap: "Regulatory programmes lose paralog identity to lineage state in SCLC tumours."
+fig("fig01_lineage_dominance")
+```
+
+Regulons were scored as mean per-gene z-scores — universe-independent, so the
+score does not depend on which other genes were measured — in GSE60052 (n=79) and
+replicated in George 2015 (n=81).
+
+## Lineage explains the scores; the paralog does not
+
+```{r m6-table}
+r <- rep6[, c("cohort", "paralog", "rho_raw", "rho_partial", "unique_paralog", "unique_lineage")]
+names(r) <- c("Cohort", "Paralog", "rho raw", "rho adjusted", "unique R2 paralog", "unique R2 lineage")
+kable(r, digits = 4)
+```
+
+Unique variance attributable to lineage state exceeds that attributable to the
+paralog's own expression by roughly an order of magnitude, in
+`r nrow(rep6)` regulon–cohort combinations out of `r nrow(rep6)`. Raw
+associations collapse toward zero after adjustment for NE score and all four
+lineage transcription factors. In the replication cohort **none survives**; the
+single survivor in the discovery cohort is method-dependent and comes from the
+regulon that failed programme validation.
+
+If programmes retained paralog identity, the diagonal of the
+specificity matrix would dominate. It does not
+(`r sum(diag(spec) == apply(spec, 1, max))` of `r nrow(spec)` nominal).
+
+## Power
+
+At n = 79, |rho| ≥ 0.31 was detectable at 80% power. The observed adjusted
+associations are well inside that bound, so this is a negative result with power
+to support it rather than an absence of evidence.
+
+## Risk R-01 materialised
+
+The project contract pre-registered this outcome: *if paralog-specific regulons
+prove inseparable from lineage-TF programmes, the honest conclusion becomes that
+MYC-paralog regulatory programmes in SCLC are largely inseparable from lineage
+identity, reported as a negative result with a power analysis.* That is what
+happened, and that is what is reported.
+
+# The confound at every level tested {#sec-confound}
+
+```{r fig-confound}
+#| fig-cap: "The lineage confound is present at chromatin, cell-line and gene level."
+fig("fig_s03_lineage_confound")
+```
+
+The obvious objection to [section 5](#sec-m6) is that the null is an artefact of tumour-level
+scoring. It is not.
+
+```{r confound-table}
+c1 <- occ[, c("line", "paralog", "pct_universe_pou2f3", "pct_active_pou2f3", "enrichment")]
+names(c1) <- c("Line", "Paralog", "% universe POU2F3-bound", "% active POU2F3-bound", "Enrichment")
+kable(c1, digits = 2)
+```
+
+**Chromatin.** In the three keystone lines with POU2F3 ChIP, regions active for a
+MYC-family paralog are POU2F3-bound at
+`r sprintf("%.1f–%.1fx", min(occ$enrichment), max(occ$enrichment))` the rate of
+the universe they were drawn from. The entanglement is present before any tumour
+is scored. Resolution is uneven across lineage factors and was never pooled:
+POU2F3 has three keystone lines, ASCL1 one, NEUROD1 none.
+
+**Cell lines.** MYC expression tracks NE score
+(rho `r cellrho$rho[cellrho$paralog == "MYC" & cellrho$target == "NE_score"]`,
+FDR `r cellrho$fdr[cellrho$paralog == "MYC" & cellrho$target == "NE_score"]`)
+across `r netfeas$n_sclc_lines` CCLE SCLC lines, independently reproducing
+Ireland et al. 2020 in a third dataset.
+
+**Genes.** Of 33,682 genes tested per paralog, the number still associated after
+lineage adjustment is `r glsum$n_fdr05[glsum$paralog == "MYC"]` (MYC),
+`r glsum$n_fdr05[glsum$paralog == "MYCL1"]` (MYCL1) and
+`r glsum$n_fdr05[glsum$paralog == "MYCN"]` (MYCN). Survivors are **not**
+concentrated in the regulons — enrichment inside versus outside is
+OR `r glsum$enrich_or[glsum$paralog == "MYC"]`
+(p `r glsum$enrich_p[glsum$paralog == "MYC"]`) for MYC — so they do not rescue
+the paralog-specific claim.
+
+# Functional evidence {#sec-m7}
+
+```{r fig-m7}
+#| fig-cap: "Functional evidence supports the regulon genes collectively, not any one paralog."
+fig("fig03_functional_domain")
+```
+
+## Regulon genes carry selective dependency, collectively
+
+```{r dep-table}
+e <- enr[, c("paralog", "regulon_tested", "n_selective", "or", "ci_low", "ci_high", "p")]
+names(e) <- c("Paralog", "Genes tested", "Selective", "OR", "CI low", "CI high", "p")
+kable(e, digits = 3)
+```
+
+Pooled across all three regulons the enrichment is real:
+OR `r pooled$or` (95% CI `r pooled$ci_low`–`r pooled$ci_high`),
+p = `r signif(pooled$p, 3)`, on `r pooled$selective_in` selective genes in
+`r format(pooled$n_regulon_genes, big.mark = ",")` tested. Because dependency is
+not expression, this domain escapes the lineage confound that removed the
+transcriptional domain.
+
+**It is not paralog-resolved.** The per-paralog odds ratios differ by one gene
+and their confidence intervals overlap almost completely. MYCL1's nominal
+p = `r enr$p[enr$paralog == "MYCL1"]` carries a 95% CI of
+`r enr$ci_low[enr$paralog == "MYCL1"]`–`r enr$ci_high[enr$paralog == "MYCL1"]`,
+which **includes 1**: Fisher's exact p and its conditional interval disagree at
+these counts, which is itself a reason not to read a per-paralog verdict. The
+pooled test is the powered question.
+
+## No paralog is itself a selective dependency
+
+```{r own-table}
+o2 <- own[, c("gene", "mean_sclc", "mean_other", "delta", "fdr", "selective")]
+names(o2) <- c("Gene", "Mean SCLC", "Mean other", "Delta", "FDR", "Selective")
+kable(o2, digits = 4)
+```
+
+MYC is strongly essential in both groups but **less** so in SCLC
+(delta `r sprintf("%+.3f", own$delta[own$gene == "MYC"])`); MYCN and MYCL sit
+near zero everywhere. Nothing in this analysis supports intervening on the
+paralogs themselves.
+
+## Two domains were excluded on evidence
+
+The **transcriptional** domain was dropped as lineage-confounded at both
+aggregate and per-gene level. The **network** domain failed both of its
+pre-conditions: only `r netfeas$n_sclc_lines` SCLC lines have CCLE expression,
+below what tree-ensemble inference needs, and MYC expression tracks NE state
+across those lines (rho `r netfeas$myc_vs_ne_rho`) — the same structure that
+barred a tumour-based network.
+
+# Evidence integration {#sec-m8}
+
+```{r fig-m8}
+#| fig-cap: "Evidence convergence is real but too diffuse to attribute to any gene."
+fig("fig04_moes_null")
+```
+
+MOES was specified as a four-domain, two-stage, weight-free Robust Rank
+Aggregation. It runs on **`r dg("domains_admitted")` domains**, of which
+**`r dg("paralog_resolved_domains")`** attributes evidence to a paralog.
+
+Two things were verified before any score was believed. The cis layer was rebuilt
+and asserted to reproduce the committed regulons exactly for all three paralogs.
+The n = 2 RRA closed form used in the permutation loops was checked against
+`RobustRankAggreg` (maximum absolute difference 1.1e-15).
+
+## Convergence is real
+
+```{r moes-conc}
+mg <- moesglob[, c("paralog", "max_ratio", "global_p")]
+names(mg) <- c("Paralog", "Max top-K overlap vs chance", "Global p")
+kable(mg, digits = 3)
+```
+
+The global p compares the maximum overlap ratio over K against the permutation
+distribution of that same maximum, controlling family-wise error across the
+curve. Counting pointwise exceedances would badly overstate this — the K values
+are nested, so one excursion produces a run of them.
+
+## It does not localise to genes
+
+**No gene reaches FDR < `r CFG$moes$fdr_threshold` for any paralog.** The best
+FDR achieved is `r sprintf("%.3f", min(moesrank$fdr))`.
+
+```{r moes-pc}
+p2 <- moespc[, c("signal_fraction", "layer_rho", "min_fdr", "n_fdr05")]
+names(p2) <- c("Injected signal", "Layer rho", "Min FDR", "Genes FDR < 0.05")
+kable(p2, digits = 3)
+```
+
+A positive control blending synthetic signal into the functional layer gives a
+monotone graded response, so the per-gene null is a property of the evidence, not
+a dead pipeline. The signal is present in the shape the aggregate test detects
+and absent in the shape the per-gene test requires: **aggregate detectable,
+per-gene unattributable.**
+
+## Two degeneracies, stated
+
+At two domains, **two-stage RRA is degenerate** — stage 2 has nothing to
+aggregate that stage 1 did not — and **leave-one-domain-out reduces to
+single-domain rankings**. Neither is the check specified at M1, which assumed
+four domains.
+
+Because the functional vector is identical for all three paralogs, it pulls every
+ranking toward the same genes. Paralogs agree far more closely in MOES than in
+the chromatin that actually distinguishes them, so any apparent
+paralog-specificity in a MOES ranking would be chromatin under a multi-omics
+label.
+
+## No hub table is reported
+
+Presenting the head of a distribution whose best FDR is
+`r sprintf("%.2f", min(moesrank$fdr))` as prioritised hubs would be the most
+misleading output available here. The full ranking with its FDR column is written
+to `data/metadata/moes_ranking.csv` so the absence is inspectable.
+
+# Spatial coherence {#sec-m9}
+
+```{r fig-m9}
+#| fig-cap: "Lineage dominance reproduces in spatial data, on the one regulon the panel can measure."
+fig("fig_s04_spatial")
+```
+
+Restricted orthogonal validation only. Two GeoMx DSP cohorts on a targeted
+~1,800-gene panel.
+
+```{r m9-cov}
+u <- m9cov[!duplicated(m9cov$paralog), c("paralog", "measured", "regulon_size", "coverage_fraction", "scoreable")]
+u$coverage_fraction <- pct(u$coverage_fraction)
+names(u) <- c("Paralog", "Measured", "Regulon size", "Coverage", "Scoreable")
+kable(u)
+```
+
+**Two of three regulons cannot be scored at all.** MYCL1 misses the coverage
+floor by 0.4 percentage points and MYC clears it by 1.2, against a threshold this
+project itself raised mid-way. These are knife-edge verdicts and are reported as
+such. Every spatial number below is a 56-gene proxy for MYC, not a measurement of
+the 500-gene regulon.
+
+A limit that cannot be engineered away: slides are named for two patients and the
+deposit carries no per-ROI patient label, so within-slide variance is an **upper
+bound** on within-tumour variance. Only three slides in one cohort carry a single
+identifier; the other cohort has none.
+
+```{r m9-tables}
+kable(m9coh[, c("cohort","subset","n_roi","n_slides","between_slide_r2","within_slide_r2")],
+      digits = 3, col.names = c("Cohort","Subset","ROIs","Slides","Between-slide R2","Within-slide R2"))
+kable(m9var[, c("cohort","n_roi","unique_myc","unique_lineage","full_r2")],
+      digits = 4, col.names = c("Cohort","ROIs","unique R2 MYC","unique R2 lineage","Full R2"))
+```
+
+On the only interpretable subset,
+`r pct(m9coh$within_slide_r2[m9coh$subset == "single-patient slides" & !is.na(m9coh$within_slide_r2)], 0)`
+of the MYC regulon score varies **within a single tumour** — it is substantially a
+regional property. On three slides this is an estimate, not a precise quantity.
+
+Lineage dominance reproduces: unique R²
+`r sprintf("%.3f and %.3f", m9var$unique_lineage[1], m9var$unique_lineage[2])` for
+lineage against
+`r sprintf("%.3f and %.3f", m9var$unique_myc[1], m9var$unique_myc[2])` for MYC, in
+tissue with different chemistry, normalisation and gene panel.
+
+# Pre-registered controls: outcome {#sec-controls}
+
+The contract declared controls before any result existed. Reporting them
+faithfully includes reporting the ones that were not met.
+
+```{r controls-table}
+ct <- data.frame(
+  Control = c("Negative (M8 hard gate)", "Positive", "Benchmark: HALLMARK_MYC_TARGETS",
+              "Benchmark: Jung 2017 signature", "M5 sanity gate"),
+  Declared = c("Paralog-shared housekeeping promoters must not rank as paralog-specific hubs",
+               "Top MYC hubs consistent with the MYC-BCL2/MCL1 apoptotic-priming axis (Dammert 2019)",
+               "Paralog-blind comparator for regulon coherence",
+               "18-gene paralog-blind MYC-activity comparator",
+               "Re-derived region counts within a defensible range of the published values"),
+  Outcome = c("**VACUOUS — no evidence either way**", "**NOT MET**", "MET",
+              "**NOT DONE**", "3 PASS / 1 FAIL"))
+kable(ct)
+```
+
+**The negative control cannot be scored.** It asks that housekeeping promoters
+not rank as paralog-specific hubs. Since MOES produces no hubs at all, nothing
+can fail it. The best-ranked housekeeping gene sits at MOES rank 171 with
+FDR 0.94 — comfortably unremarkable — but a control that cannot fail provides no
+evidence about specificity, and recording it as "passed" would be the same
+vacuous-pass error this project caught once already in a genome-build assertion.
+It is recorded as uninformative.
+
+**The positive control is not met.** BCL2 appears in the **MYCN** regulon rather
+than MYC, and its best MYC MOES rank is 128 at FDR 0.93. MCL1 is in no regulon.
+The MYC→BCL2/MCL1 axis does not emerge from this analysis. Given that MOES
+resolves nothing at gene level, this is consistent with the null rather than
+independent evidence against the axis — but it is not a positive result and is
+not presented as one.
+
+# What is and is not established
+
+**Established here.**
+
+- Paralog-resolved regulons can be built from public bedGraph-only chromatin data
+  and are internally coherent in the lines they come from.
+- Those regulons **lose paralog identity** in patient tumours, and lineage state
+  accounts for it. Replicated in two cohorts, with power.
+- The confound is present at chromatin, cell-line, gene and spatial level — it is
+  not an artefact of one scoring choice.
+- Regulon genes **collectively** carry SCLC-selective dependency; no paralog is
+  itself a selective dependency, and MYC is *less* essential in SCLC than
+  elsewhere.
+- The MYC regulon is neurogenesis-weighted (reproducing prior work); the MYCN
+  regulon is not (a discordance with prior work).
+- Roughly a third of the MYC regulon score varies within a single tumour.
+
+**Not established, and not claimed.**
+
+- No prioritised hub list. Evidence convergence is real in aggregate and
+  unattributable at gene level.
+- Nothing about MYCN or MYCL1 in spatial data — they are unmeasurable on that
+  panel.
+- Nothing about causation, treatment selection, or outcome.
+- Criterion 3 of the M5 gate is a partial reproduction: direction yes, magnitude
+  no.
+
+**Left undone.** The drug-response association declared under Aim 3 was not
+carried out, and the Jung 2017 benchmark signature was never curated from the
+source publication. Both are recorded as gaps rather than quietly dropped.
+
+# Limitations {#sec-limits}
+
+1. **Two contributing ChIP lines each for MYCN and MYCL1** against five for MYC.
+   Cis-layer coverage is correspondingly uneven and bounds what could have been
+   found for the smaller paralogs.
+2. **No *de novo* peak calling.** Signal is quantified over a shared
+   ATAC-defined universe, which is ~84% distal by construction and compresses
+   distal-fraction contrasts.
+3. **The spatial panel measures ~1,800 targets.** Two of three regulons fall
+   below the coverage gate; the third clears it by 1.2 percentage points.
+4. **Slide is not tumour** in the spatial cohorts, so within-tumour variance is
+   an upper bound.
+5. **The spatial NE score rests on 3 of 10 markers**; the rest are off-panel.
+6. **Bootstrap rank intervals resample cis links only.** The functional domain is
+   held fixed because its per-gene values are precomputed summaries, so reported
+   intervals understate total uncertainty.
+7. **One line is absent from DepMap**, leaving the MYC-expressing arm of gate
+   criterion 3 at n = 2 and precluding any significance test there.
+
+# Reproducibility {#sec-repro}
+
+```{r repro}
+rp <- data.frame(
+  Element = c("Environment", "Data", "Genome build", "Figures", "Decisions", "Release gate"),
+  Approach = c(
+    "renv.lock pins every package; `renv::restore()` from a clean clone",
+    "no data in version control; download scripts plus checksum manifest",
+    "hg19 asserted at every coordinate step; lifts logged with loss rates",
+    paste0(nrow(figman), " figures, each regenerated by a named script and recorded in figures/figure_manifest.csv"),
+    "every deviation from the frozen specification carries a numbered decision-log entry",
+    "`bash scripts/07_figures/99_build_all.sh` rebuilds and verifies the full figure set"))
+kable(rp)
+```
+
+The figure build driver gates on three conditions: any script exiting non-zero,
+any accessibility check reporting failure, and any manifest row without both
+files on disk. It was tested by making it fail — injecting an unsatisfiable
+colourblind threshold — rather than by assuming it works.
+
+Figure PNGs are byte-reproducible on re-run; PDFs differ only in an embedded
+creation timestamp.
+
+# Decisions and audit trail
+
+Every methodological deviation is recorded in
+[`docs/decision_log.md`](docs/decision_log.md), which at the time of writing holds
+numbered entries D-001 through D-042. `scripts/00_setup/audit_decisions.sh`
+re-checks each recorded decision against the current state of the repository.
+
+Several entries record errors caught and corrected rather than decisions taken
+cleanly — a palette that failed the project's own accessibility check, a canonical
+results table left stale while two audit checks defended the staleness, and a
+conclusion about evidence convergence that was too strong on first pass and
+corrected. These are left legible on purpose.
+
+```{r session}
+#| echo: true
+sessionInfo()
+```

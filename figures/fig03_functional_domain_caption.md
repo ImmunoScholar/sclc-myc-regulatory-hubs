@@ -19,7 +19,7 @@ paralogs themselves, and the figure is drawn so that cannot be misread.
 reported by Plotnik et al. The MYCN regulon is not (OR 1.09, p = 0.33); it is
 Hallmark/housekeeping-weighted instead (OR 2.99, p = 3.6e-4). This is a
 discordance with the source paper, which grouped MYCN with MYC. The MYCL1
-regulon reaches neither programme and was flagged rather than validated (D-030).
+regulon reaches neither programme and was flagged rather than confirmed (D-030).
 
 **D.** MOES domain accounting. Four evidence domains were specified at M1; two
 are admitted. Transcriptional was dropped as lineage-confounded at both the

@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Paralog-resolved MYC regulatory programmes in small cell lung cancer</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Paralog-resolved MYC regulatory programmes in small
+cell lung cancer</h1>
+<p class="subtitle">An enhancer-anchored regulon analysis across cell
+lines, patient tumours, functional screens and spatial tissue</p>
+<p class="date">today</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#interpretive-limits-binding-on-this-document"
+id="toc-interpretive-limits-binding-on-this-document"><span
+class="toc-section-number">0.1</span> Interpretive limits — binding on
+this document</a></li>
+<li><a href="#summary" id="toc-summary"><span
+class="toc-section-number">1</span> Summary</a></li>
+<li><a href="#sec-gap" id="toc-sec-gap"><span
+class="toc-section-number">2</span> Question and gap</a></li>
+<li><a href="#data" id="toc-data"><span
+class="toc-section-number">3</span> Data</a></li>
+<li><a href="#sec-m5" id="toc-sec-m5"><span
+class="toc-section-number">4</span> The paralog-resolved regulatory
+layer</a>
+<ul>
+<li><a href="#gate-outcome" id="toc-gate-outcome"><span
+class="toc-section-number">4.1</span> Gate outcome</a></li>
+<li><a href="#internal-coherence" id="toc-internal-coherence"><span
+class="toc-section-number">4.2</span> Internal coherence</a></li>
+<li><a href="#a-discordance-with-the-source-study"
+id="toc-a-discordance-with-the-source-study"><span
+class="toc-section-number">4.3</span> A discordance with the source
+study</a></li>
+</ul></li>
+<li><a href="#sec-m6" id="toc-sec-m6"><span
+class="toc-section-number">5</span> Patient-tumour translation</a>
+<ul>
+<li><a href="#lineage-explains-the-scores-the-paralog-does-not"
+id="toc-lineage-explains-the-scores-the-paralog-does-not"><span
+class="toc-section-number">5.1</span> Lineage explains the scores; the
+paralog does not</a></li>
+<li><a href="#power" id="toc-power"><span
+class="toc-section-number">5.2</span> Power</a></li>
+<li><a href="#risk-r-01-materialised"
+id="toc-risk-r-01-materialised"><span
+class="toc-section-number">5.3</span> Risk R-01 materialised</a></li>
+</ul></li>
+<li><a href="#sec-confound" id="toc-sec-confound"><span
+class="toc-section-number">6</span> The confound at every level
+tested</a></li>
+<li><a href="#sec-m7" id="toc-sec-m7"><span
+class="toc-section-number">7</span> Functional evidence</a>
+<ul>
+<li><a href="#regulon-genes-carry-selective-dependency-collectively"
+id="toc-regulon-genes-carry-selective-dependency-collectively"><span
+class="toc-section-number">7.1</span> Regulon genes carry selective
+dependency, collectively</a></li>
+<li><a href="#no-paralog-is-itself-a-selective-dependency"
+id="toc-no-paralog-is-itself-a-selective-dependency"><span
+class="toc-section-number">7.2</span> No paralog is itself a selective
+dependency</a></li>
+<li><a href="#two-domains-were-excluded-on-evidence"
+id="toc-two-domains-were-excluded-on-evidence"><span
+class="toc-section-number">7.3</span> Two domains were excluded on
+evidence</a></li>
+</ul></li>
+<li><a href="#sec-m8" id="toc-sec-m8"><span
+class="toc-section-number">8</span> Evidence integration</a>
+<ul>
+<li><a href="#convergence-is-real" id="toc-convergence-is-real"><span
+class="toc-section-number">8.1</span> Convergence is real</a></li>
+<li><a href="#it-does-not-localise-to-genes"
+id="toc-it-does-not-localise-to-genes"><span
+class="toc-section-number">8.2</span> It does not localise to
+genes</a></li>
+<li><a href="#two-degeneracies-stated"
+id="toc-two-degeneracies-stated"><span
+class="toc-section-number">8.3</span> Two degeneracies, stated</a></li>
+<li><a href="#no-hub-table-is-reported"
+id="toc-no-hub-table-is-reported"><span
+class="toc-section-number">8.4</span> No hub table is reported</a></li>
+</ul></li>
+<li><a href="#sec-m9" id="toc-sec-m9"><span
+class="toc-section-number">9</span> Spatial coherence</a></li>
+<li><a href="#sec-controls" id="toc-sec-controls"><span
+class="toc-section-number">10</span> Pre-registered controls:
+outcome</a></li>
+<li><a href="#what-is-and-is-not-established"
+id="toc-what-is-and-is-not-established"><span
+class="toc-section-number">11</span> What is and is not
+established</a></li>
+<li><a href="#sec-limits" id="toc-sec-limits"><span
+class="toc-section-number">12</span> Limitations</a></li>
+<li><a href="#sec-repro" id="toc-sec-repro"><span
+class="toc-section-number">13</span> Reproducibility</a></li>
+<li><a href="#decisions-and-audit-trail"
+id="toc-decisions-and-audit-trail"><span
+class="toc-section-number">14</span> Decisions and audit trail</a></li>
+</ul>
+</nav>
+<section id="interpretive-limits-binding-on-this-document"
+class="callout-important" data-number="0.1">
+<h2 data-number="0.1"><span class="header-section-number">0.1</span>
+Interpretive limits — binding on this document</h2>
+<p>MOES is a <strong>heuristic prioritisation, not a predictive or
+clinically validated model</strong> (project contract, section 7). No
+statement in this report should be read as identifying a treatment
+target or a causal mechanism. Where a conclusion is provisional it is
+labelled provisional. Treatment-outcome, survival and immune-exclusion
+analyses are out of scope by design.</p>
+</section>
+<h1 data-number="1" id="summary"><span
+class="header-section-number">1</span> Summary</h1>
+<p>This analysis converts paralog-resolved MYC-family binding in SCLC
+into enhancer-anchored regulons and asks whether those regulons retain
+paralog identity outside the cell lines they were built from.</p>
+<p><strong>The regulons are internally coherent in cell-line
+chromatin.</strong> Three of four pre-registered gate criteria pass (<a
+href="#sec-m5">section 4</a>). Leave-one-line-out AUC reaches the 0.70
+threshold in 8 of 9 held-out lines, and the MYC regulon independently
+reproduces the MYC-enhancer→neurogenesis association reported by Plotnik
+et al. (OR 1.85, p = 7e-06).</p>
+<p><strong>They do not retain paralog identity in patient
+tumours.</strong> Across 160 tumours in two independent cohorts,
+neuroendocrine lineage state explains 0.24–0.43 of the unique variance
+in regulon score against 0.000–0.068 for the paralog’s own expression,
+and no association survives lineage adjustment in the replication cohort
+(<a href="#sec-m6">section 5</a>). This outcome was
+<strong>pre-registered as a reportable finding</strong> rather than a
+failure, and it is reported as one.</p>
+<p><strong>The confound is not an artefact of bulk scoring.</strong> It
+is present in the chromatin the regulons were built from, in cell lines,
+gene-by-gene genome-wide, and in spatial tissue (<a
+href="#sec-confound">sections 6</a> and <a href="#sec-m9">9</a>).</p>
+<p><strong>Evidence integration returns no prioritised hubs.</strong>
+Three of four planned evidence domains were excluded on their own
+evidence. The two that remain converge weakly at the top of their
+rankings — up to 2.2x more overlap than chance, global p 0.008–0.065 —
+but no individual gene survives testing across 10,387 genes (<a
+href="#sec-m8">section 8</a>).</p>
+<p>The contribution is therefore the framework, the audit trail, and two
+well-characterised negative results — not a hub list.</p>
+<h1 data-number="2" id="sec-gap"><span
+class="header-section-number">2</span> Question and gap</h1>
+<blockquote>
+<p>How do MYC-associated transcriptional and epigenetic regulatory
+programmes shape SCLC state, and which downstream regulatory hubs are
+robust enough, across independent evidence layers, to warrant further
+investigation?</p>
+</blockquote>
+<p>Plotnik et al. 2024 established that MYC, MYCN and MYCL1 occupy
+<strong>distinct enhancer repertoires</strong> in SCLC cell lines. That
+is prior work and is not re-claimed here. Three things were unaddressed
+and are attempted here:</p>
+<ol type="1">
+<li>converting paralog-resolved binding into <strong>enhancer-anchored,
+super-enhancer-aware regulons</strong> rather than a promoter/distal
+split;</li>
+<li>testing those regulons in <strong>independent human tumour
+cohorts</strong>, the prior work being entirely <em>in vitro</em>;</li>
+<li>prioritising hubs with a <strong>transparent, weight-free
+integration framework</strong>.</li>
+</ol>
+<p>Item 1 succeeded, item 2 produced a negative result, and item 3
+produced a null.</p>
+<h1 data-number="3" id="data"><span
+class="header-section-number">3</span> Data</h1>
+<p>All data are public. No data files are held in version control; they
+are reproduced by download scripts against a checksum manifest.</p>
+<table>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 42%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Layer</th>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Cell-line chromatin</td>
+<td style="text-align: left;">GSE230649 keystone + 9 supporting GEO
+series</td>
+<td style="text-align: left;">MYC-family ChIP, H3K27ac, ATAC — 10 SCLC
+lines</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Patient tumours</td>
+<td style="text-align: left;">GSE60052 (n=79), George 2015 (n=81)</td>
+<td style="text-align: left;">regulon scoring and replication</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cell lines</td>
+<td style="text-align: left;">CCLE / cBioPortal (n=59 SCLC)</td>
+<td style="text-align: left;">lineage association, network
+feasibility</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Functional screen</td>
+<td style="text-align: left;">DepMap Public 26Q1 (25 SCLC vs 1,183 other
+lines)</td>
+<td style="text-align: left;">selective dependency</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Spatial tissue</td>
+<td style="text-align: left;">GSE261348 (175 ROI), GSE261345 (121
+ROI)</td>
+<td style="text-align: left;">coherence and orthogonal validation</td>
+</tr>
+</tbody>
+</table>
+<p>Project genome build is <strong>hg19</strong>, mandated by the
+keystone series. Every coordinate-handling step asserts the build; hg38
+deposits were lifted with loss rates recorded per file.</p>
+<div class="figure">
+<img src="figures/fig_s01_data_landscape.png" alt="Data landscape: assay coverage per cell line, the genome-build split across deposits, and the limited overlap between MYC-family ChIP lines and lineage-TF control lines." width="3149" />
+<p class="caption">
+Data landscape: assay coverage per cell line, the genome-build split
+across deposits, and the limited overlap between MYC-family ChIP lines
+and lineage-TF control lines.
+</p>
+</div>
+<p>Assay coverage is uneven by design of the public record rather than
+by choice. MYC has five contributing ChIP lines; MYCN and MYCL1 have two
+each. One line carries H3K27ac and ATAC but no MYC-family ChIP, and one
+carries MYC ChIP but no ATAC. The lineage-TF controls needed for the
+confounding analysis overlap the keystone lines only partially — POU2F3
+in three, ASCL1 in one, NEUROD1 in none — which is why resolution of the
+confound is reported per transcription factor and never pooled.</p>
+<h1 data-number="4" id="sec-m5"><span
+class="header-section-number">4</span> The paralog-resolved regulatory
+layer</h1>
+<div class="figure">
+<img src="figures/fig02_m5_gate.png" alt="The M5 gate on cell-line chromatin, including the criterion that failed." width="3149" />
+<p class="caption">
+The M5 gate on cell-line chromatin, including the criterion that failed.
+</p>
+</div>
+<p>Signal was quantified over an ATAC-defined consensus region universe
+(no <em>de novo</em> peak calling; the keystone series ships bedGraph
+only), filtered against the ENCODE hg19 blacklist v2, stitched into
+super-enhancers with a knee-point cutoff, and linked to genes by
+distance-weighted, activity-correlated linking. Regulons are the
+top-ranked genes by aggregate link score.</p>
+<div class="figure">
+<img src="figures/fig_s02_regulatory_pipeline.png" alt="Construction of the regulatory layer and the check on each step: threshold calibration, convention stability, the super-enhancer guard, and peak-to-gene linking." width="3149" />
+<p class="caption">
+Construction of the regulatory layer and the check on each step:
+threshold calibration, convention stability, the super-enhancer guard,
+and peak-to-gene linking.
+</p>
+</div>
+<p>Two of those steps carry guards added after an initial rule failed.
+The first super-enhancer stitching rule returned every stitched enhancer
+as a super-enhancer for one line, and was replaced by a knee-point
+cutoff with a hard ceiling. Peak-to-gene linking initially assigned
+distal regions only, which left promoter-bound genes out of every
+regulon and understated the enrichment. Both corrections are recorded in
+the decision log.</p>
+<p>The ATAC threshold is <strong>not load-bearing</strong>: TSS
+enrichment and H3K27ac fold both rise monotonically across the whole
+range tested, so conclusions do not depend on where the cutoff was
+placed. The replicate convention, by contrast, does matter, and is shown
+rather than hidden — the nesting fraction behind gate criterion 1 varies
+by only 0.037 within the pre-specified ≥2-replicate rule but sits at
+materially different values under the union and all-replicate
+conventions.</p>
+<h2 data-number="4.1" id="gate-outcome"><span
+class="header-section-number">4.1</span> Gate outcome</h2>
+<table>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 75%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Criterion</th>
+<th style="text-align: left;">Observed</th>
+<th style="text-align: left;">Pass</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1_mycn_in_myc</td>
+<td style="text-align: left;">0.912 (spread 0.037)</td>
+<td style="text-align: left;">PASS</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2_differential_nesting</td>
+<td style="text-align: left;">MYCN 5.50x vs MYCL1 4.63x, OR 3.14,
+p=1.1e-60</td>
+<td style="text-align: left;">PASS</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3_distal_contrast</td>
+<td style="text-align: left;">amplified 47.5% vs expressing 44.2%, +3.3
+pts (published +27); direction reproduces, magnitude fails</td>
+<td style="text-align: left;"><strong>FAIL</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4_motif_specificity</td>
+<td style="text-align: left;">3/3 own-motif top share (p=0.037); chi-sq
+p=1.6e-101</td>
+<td style="text-align: left;">PASS</td>
+</tr>
+</tbody>
+</table>
+<p>Criterion 3 — the distal-fraction contrast between MYC-amplified and
+MYC-expressing lines — <strong>fails on magnitude while reproducing in
+direction</strong> (+3.3 points against a published +27). Contributing
+factors, none separable at two lines versus two: the shared ATAC-defined
+universe is ~84% distal by construction, which compresses the achievable
+range; the source study called peaks <em>de novo</em> per line with no
+shared grid; and one line is absent from DepMap, leaving the expressing
+arm at n=2. No significance test is applied, because none would be
+honest at that n.</p>
+<h2 data-number="4.2" id="internal-coherence"><span
+class="header-section-number">4.2</span> Internal coherence</h2>
+<p>Leave-one-line-out AUC reaches the 0.70 threshold in 8 of 9 held-out
+lines; the exception is MYC/H1048 at 0.69. Cross-paralog Jaccard stays
+well below the 0.60 limit. This is internal coherence only — it shows
+the regulons are not driven by a single contributing line, not that they
+transfer to tumours.</p>
+<h2 data-number="4.3" id="a-discordance-with-the-source-study"><span
+class="header-section-number">4.3</span> A discordance with the source
+study</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Paralog</th>
+<th style="text-align: right;">Hallmark OR</th>
+<th style="text-align: right;">Neurogenesis OR</th>
+<th style="text-align: right;">Neurogenesis p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">1.11</td>
+<td style="text-align: right;">1.85</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">2.99</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">0.326</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">MYCL1</td>
+<td style="text-align: right;">1.71</td>
+<td style="text-align: right;">1.11</td>
+<td style="text-align: right;">0.270</td>
+</tr>
+</tbody>
+</table>
+<p>The MYC regulon is neurogenesis-weighted, independently reproducing
+the enhancer-to-neurogenesis link reported by Plotnik et al. The
+<strong>MYCN regulon is not</strong>; it is
+Hallmark/housekeeping-weighted instead. The source study grouped MYCN
+with MYC. This is a discordance, recorded as such.</p>
+<h1 data-number="5" id="sec-m6"><span
+class="header-section-number">5</span> Patient-tumour translation</h1>
+<div class="figure">
+<img src="figures/fig01_lineage_dominance.png" alt="Regulatory programmes lose paralog identity to lineage state in SCLC tumours." width="3149" />
+<p class="caption">
+Regulatory programmes lose paralog identity to lineage state in SCLC
+tumours.
+</p>
+</div>
+<p>Regulons were scored as mean per-gene z-scores —
+universe-independent, so the score does not depend on which other genes
+were measured — in GSE60052 (n=79) and replicated in George 2015
+(n=81).</p>
+<h2 data-number="5.1"
+id="lineage-explains-the-scores-the-paralog-does-not"><span
+class="header-section-number">5.1</span> Lineage explains the scores;
+the paralog does not</h2>
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 13%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 15%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Cohort</th>
+<th style="text-align: left;">Paralog</th>
+<th style="text-align: right;">rho raw</th>
+<th style="text-align: right;">rho adjusted</th>
+<th style="text-align: right;">unique R2 paralog</th>
+<th style="text-align: right;">unique R2 lineage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">rho</td>
+<td style="text-align: left;">GSE60052</td>
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">0.070</td>
+<td style="text-align: right;">0.022</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">0.428</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rho1</td>
+<td style="text-align: left;">GSE60052</td>
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">0.297</td>
+<td style="text-align: right;">0.204</td>
+<td style="text-align: right;">0.016</td>
+<td style="text-align: right;">0.377</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">rho2</td>
+<td style="text-align: left;">GSE60052</td>
+<td style="text-align: left;">MYCL1</td>
+<td style="text-align: right;">0.390</td>
+<td style="text-align: right;">0.317</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">0.355</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rho3</td>
+<td style="text-align: left;">George2015</td>
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">-0.100</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">0.019</td>
+<td style="text-align: right;">0.269</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">rho11</td>
+<td style="text-align: left;">George2015</td>
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">0.099</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">0.244</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rho21</td>
+<td style="text-align: left;">George2015</td>
+<td style="text-align: left;">MYCL1</td>
+<td style="text-align: right;">0.186</td>
+<td style="text-align: right;">0.114</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.426</td>
+</tr>
+</tbody>
+</table>
+<p>Unique variance attributable to lineage state exceeds that
+attributable to the paralog’s own expression by roughly an order of
+magnitude, in 6 regulon–cohort combinations out of 6. Raw associations
+collapse toward zero after adjustment for NE score and all four lineage
+transcription factors. In the replication cohort <strong>none
+survives</strong>; the single survivor in the discovery cohort is
+method-dependent and comes from the regulon that failed programme
+validation.</p>
+<p>If programmes retained paralog identity, the diagonal of the
+specificity matrix would dominate. It does not (2 of 3 nominal).</p>
+<h2 data-number="5.2" id="power"><span
+class="header-section-number">5.2</span> Power</h2>
+<p>At n = 79, |rho| ≥ 0.31 was detectable at 80% power. The observed
+adjusted associations are well inside that bound, so this is a negative
+result with power to support it rather than an absence of evidence.</p>
+<h2 data-number="5.3" id="risk-r-01-materialised"><span
+class="header-section-number">5.3</span> Risk R-01 materialised</h2>
+<p>The project contract pre-registered this outcome: <em>if
+paralog-specific regulons prove inseparable from lineage-TF programmes,
+the honest conclusion becomes that MYC-paralog regulatory programmes in
+SCLC are largely inseparable from lineage identity, reported as a
+negative result with a power analysis.</em> That is what happened, and
+that is what is reported.</p>
+<h1 data-number="6" id="sec-confound"><span
+class="header-section-number">6</span> The confound at every level
+tested</h1>
+<div class="figure">
+<img src="figures/fig_s03_lineage_confound.png" alt="The lineage confound is present at chromatin, cell-line and gene level." width="3149" />
+<p class="caption">
+The lineage confound is present at chromatin, cell-line and gene level.
+</p>
+</div>
+<p>The obvious objection to <a href="#sec-m6">section 5</a> is that the
+null is an artefact of tumour-level scoring. It is not.</p>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 11%" />
+<col style="width: 33%" />
+<col style="width: 30%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Line</th>
+<th style="text-align: left;">Paralog</th>
+<th style="text-align: right;">% universe POU2F3-bound</th>
+<th style="text-align: right;">% active POU2F3-bound</th>
+<th style="text-align: right;">Enrichment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">H1048</td>
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">9.3</td>
+<td style="text-align: right;">23.8</td>
+<td style="text-align: right;">2.57</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">H526</td>
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">28.6</td>
+<td style="text-align: right;">72.3</td>
+<td style="text-align: right;">2.52</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">H211</td>
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">22.9</td>
+<td style="text-align: right;">71.0</td>
+<td style="text-align: right;">3.10</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Chromatin.</strong> In the three keystone lines with POU2F3
+ChIP, regions active for a MYC-family paralog are POU2F3-bound at
+2.5–3.1x the rate of the universe they were drawn from. The entanglement
+is present before any tumour is scored. Resolution is uneven across
+lineage factors and was never pooled: POU2F3 has three keystone lines,
+ASCL1 one, NEUROD1 none.</p>
+<p><strong>Cell lines.</strong> MYC expression tracks NE score (rho
+-0.441, FDR 0.00813) across 59 CCLE SCLC lines, independently
+reproducing Ireland et al. 2020 in a third dataset.</p>
+<p><strong>Genes.</strong> Of 33,682 genes tested per paralog, the
+number still associated after lineage adjustment is 206 (MYC), 62
+(MYCL1) and 0 (MYCN). Survivors are <strong>not</strong> concentrated in
+the regulons — enrichment inside versus outside is OR 1.21 (p 0.566) for
+MYC — so they do not rescue the paralog-specific claim.</p>
+<h1 data-number="7" id="sec-m7"><span
+class="header-section-number">7</span> Functional evidence</h1>
+<div class="figure">
+<img src="figures/fig03_functional_domain.png" alt="Functional evidence supports the regulon genes collectively, not any one paralog." width="3149" />
+<p class="caption">
+Functional evidence supports the regulon genes collectively, not any one
+paralog.
+</p>
+</div>
+<h2 data-number="7.1"
+id="regulon-genes-carry-selective-dependency-collectively"><span
+class="header-section-number">7.1</span> Regulon genes carry selective
+dependency, collectively</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Paralog</th>
+<th style="text-align: right;">Genes tested</th>
+<th style="text-align: right;">Selective</th>
+<th style="text-align: right;">OR</th>
+<th style="text-align: right;">CI low</th>
+<th style="text-align: right;">CI high</th>
+<th style="text-align: right;">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">373</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2.45</td>
+<td style="text-align: right;">0.648</td>
+<td style="text-align: right;">6.573</td>
+<td style="text-align: right;">0.089</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">413</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2.21</td>
+<td style="text-align: right;">0.584</td>
+<td style="text-align: right;">5.913</td>
+<td style="text-align: right;">0.118</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MYCL1</td>
+<td style="text-align: right;">375</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">3.09</td>
+<td style="text-align: right;">0.971</td>
+<td style="text-align: right;">7.590</td>
+<td style="text-align: right;">0.028</td>
+</tr>
+</tbody>
+</table>
+<p>Pooled across all three regulons the enrichment is real: OR 2.706
+(95% CI 1.2898–5.153), p = 0.00477, on 11 selective genes in 984 tested.
+Because dependency is not expression, this domain escapes the lineage
+confound that removed the transcriptional domain.</p>
+<p><strong>It is not paralog-resolved.</strong> The per-paralog odds
+ratios differ by one gene and their confidence intervals overlap almost
+completely. MYCL1’s nominal p = 0.0278 carries a 95% CI of 0.971–7.59,
+which <strong>includes 1</strong>: Fisher’s exact p and its conditional
+interval disagree at these counts, which is itself a reason not to read
+a per-paralog verdict. The pooled test is the powered question.</p>
+<h2 data-number="7.2"
+id="no-paralog-is-itself-a-selective-dependency"><span
+class="header-section-number">7.2</span> No paralog is itself a
+selective dependency</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Gene</th>
+<th style="text-align: right;">Mean SCLC</th>
+<th style="text-align: right;">Mean other</th>
+<th style="text-align: right;">Delta</th>
+<th style="text-align: right;">FDR</th>
+<th style="text-align: left;">Selective</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">-1.4946</td>
+<td style="text-align: right;">-1.9975</td>
+<td style="text-align: right;">0.5029</td>
+<td style="text-align: right;">0.1808</td>
+<td style="text-align: left;">FALSE</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MYCL</td>
+<td style="text-align: right;">-0.1170</td>
+<td style="text-align: right;">-0.0203</td>
+<td style="text-align: right;">-0.0967</td>
+<td style="text-align: right;">0.6699</td>
+<td style="text-align: left;">FALSE</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">-0.1115</td>
+<td style="text-align: right;">-0.1292</td>
+<td style="text-align: right;">0.0177</td>
+<td style="text-align: right;">0.8771</td>
+<td style="text-align: left;">FALSE</td>
+</tr>
+</tbody>
+</table>
+<p>MYC is strongly essential in both groups but <strong>less</strong> so
+in SCLC (delta +0.503); MYCN and MYCL sit near zero everywhere. Nothing
+in this analysis supports intervening on the paralogs themselves.</p>
+<h2 data-number="7.3" id="two-domains-were-excluded-on-evidence"><span
+class="header-section-number">7.3</span> Two domains were excluded on
+evidence</h2>
+<p>The <strong>transcriptional</strong> domain was dropped as
+lineage-confounded at both aggregate and per-gene level. The
+<strong>network</strong> domain failed both of its pre-conditions: only
+59 SCLC lines have CCLE expression, below what tree-ensemble inference
+needs, and MYC expression tracks NE state across those lines (rho
+-0.441) — the same structure that barred a tumour-based network.</p>
+<h1 data-number="8" id="sec-m8"><span
+class="header-section-number">8</span> Evidence integration</h1>
+<div class="figure">
+<img src="figures/fig04_moes_null.png" alt="Evidence convergence is real but too diffuse to attribute to any gene." width="3149" />
+<p class="caption">
+Evidence convergence is real but too diffuse to attribute to any gene.
+</p>
+</div>
+<p>MOES was specified as a four-domain, two-stage, weight-free Robust
+Rank Aggregation. It runs on <strong>2 domains</strong>, of which
+<strong>1</strong> attributes evidence to a paralog.</p>
+<p>Two things were verified before any score was believed. The cis layer
+was rebuilt and asserted to reproduce the committed regulons exactly for
+all three paralogs. The n = 2 RRA closed form used in the permutation
+loops was checked against <code>RobustRankAggreg</code> (maximum
+absolute difference 1.1e-15).</p>
+<h2 data-number="8.1" id="convergence-is-real"><span
+class="header-section-number">8.1</span> Convergence is real</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Paralog</th>
+<th style="text-align: right;">Max top-K overlap vs chance</th>
+<th style="text-align: right;">Global p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">2.029</td>
+<td style="text-align: right;">0.019</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">2.185</td>
+<td style="text-align: right;">0.008</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MYCL1</td>
+<td style="text-align: right;">1.716</td>
+<td style="text-align: right;">0.065</td>
+</tr>
+</tbody>
+</table>
+<p>The global p compares the maximum overlap ratio over K against the
+permutation distribution of that same maximum, controlling family-wise
+error across the curve. Counting pointwise exceedances would badly
+overstate this — the K values are nested, so one excursion produces a
+run of them.</p>
+<h2 data-number="8.2" id="it-does-not-localise-to-genes"><span
+class="header-section-number">8.2</span> It does not localise to
+genes</h2>
+<p><strong>No gene reaches FDR &lt; 0.05 for any paralog.</strong> The
+best FDR achieved is 0.358.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Injected signal</th>
+<th style="text-align: right;">Layer rho</th>
+<th style="text-align: right;">Min FDR</th>
+<th style="text-align: right;">Genes FDR &lt; 0.05</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.878</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">0.028</td>
+<td style="text-align: right;">0.721</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">0.084</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0.20</td>
+<td style="text-align: right;">0.209</td>
+<td style="text-align: right;">0.018</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">0.508</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">288</td>
+</tr>
+</tbody>
+</table>
+<p>A positive control blending synthetic signal into the functional
+layer gives a monotone graded response, so the per-gene null is a
+property of the evidence, not a dead pipeline. The signal is present in
+the shape the aggregate test detects and absent in the shape the
+per-gene test requires: <strong>aggregate detectable, per-gene
+unattributable.</strong></p>
+<h2 data-number="8.3" id="two-degeneracies-stated"><span
+class="header-section-number">8.3</span> Two degeneracies, stated</h2>
+<p>At two domains, <strong>two-stage RRA is degenerate</strong> — stage
+2 has nothing to aggregate that stage 1 did not — and
+<strong>leave-one-domain-out reduces to single-domain rankings</strong>.
+Neither is the check specified at M1, which assumed four domains.</p>
+<p>Because the functional vector is identical for all three paralogs, it
+pulls every ranking toward the same genes. Paralogs agree far more
+closely in MOES than in the chromatin that actually distinguishes them,
+so any apparent paralog-specificity in a MOES ranking would be chromatin
+under a multi-omics label.</p>
+<h2 data-number="8.4" id="no-hub-table-is-reported"><span
+class="header-section-number">8.4</span> No hub table is reported</h2>
+<p>Presenting the head of a distribution whose best FDR is 0.36 as
+prioritised hubs would be the most misleading output available here. The
+full ranking with its FDR column is written to
+<code>data/metadata/moes_ranking.csv</code> so the absence is
+inspectable.</p>
+<h1 data-number="9" id="sec-m9"><span
+class="header-section-number">9</span> Spatial coherence</h1>
+<div class="figure">
+<img src="figures/fig_s04_spatial.png" alt="Lineage dominance reproduces in spatial data, on the one regulon the panel can measure." width="3149" />
+<p class="caption">
+Lineage dominance reproduces in spatial data, on the one regulon the
+panel can measure.
+</p>
+</div>
+<p>Restricted orthogonal validation only. Two GeoMx DSP cohorts on a
+targeted ~1,800-gene panel.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Paralog</th>
+<th style="text-align: right;">Measured</th>
+<th style="text-align: right;">Regulon size</th>
+<th style="text-align: left;">Coverage</th>
+<th style="text-align: left;">Scoreable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">MYC</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: left;">11.2%</td>
+<td style="text-align: left;">TRUE</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MYCN</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: left;">8.4%</td>
+<td style="text-align: left;">FALSE</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MYCL1</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: left;">9.6%</td>
+<td style="text-align: left;">FALSE</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Two of three regulons cannot be scored at all.</strong> MYCL1
+misses the coverage floor by 0.4 percentage points and MYC clears it by
+1.2, against a threshold this project itself raised mid-way. These are
+knife-edge verdicts and are reported as such. Every spatial number below
+is a 56-gene proxy for MYC, not a measurement of the 500-gene
+regulon.</p>
+<p>A limit that cannot be engineered away: slides are named for two
+patients and the deposit carries no per-ROI patient label, so
+within-slide variance is an <strong>upper bound</strong> on
+within-tumour variance. Only three slides in one cohort carry a single
+identifier; the other cohort has none.</p>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 28%" />
+<col style="width: 6%" />
+<col style="width: 9%" />
+<col style="width: 22%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Cohort</th>
+<th style="text-align: left;">Subset</th>
+<th style="text-align: right;">ROIs</th>
+<th style="text-align: right;">Slides</th>
+<th style="text-align: right;">Between-slide R2</th>
+<th style="text-align: right;">Within-slide R2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">GSE261348</td>
+<td style="text-align: left;">all slides</td>
+<td style="text-align: right;">174</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.554</td>
+<td style="text-align: right;">0.446</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GSE261348</td>
+<td style="text-align: left;">single-patient slides</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.701</td>
+<td style="text-align: right;">0.299</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GSE261345</td>
+<td style="text-align: left;">all slides</td>
+<td style="text-align: right;">121</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0.528</td>
+<td style="text-align: right;">0.472</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GSE261345</td>
+<td style="text-align: left;">single-patient slides</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Cohort</th>
+<th style="text-align: right;">ROIs</th>
+<th style="text-align: right;">unique R2 MYC</th>
+<th style="text-align: right;">unique R2 lineage</th>
+<th style="text-align: right;">Full R2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">GSE261348</td>
+<td style="text-align: right;">174</td>
+<td style="text-align: right;">0.0189</td>
+<td style="text-align: right;">0.4744</td>
+<td style="text-align: right;">0.4744</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GSE261345</td>
+<td style="text-align: right;">121</td>
+<td style="text-align: right;">0.0097</td>
+<td style="text-align: right;">0.5076</td>
+<td style="text-align: right;">0.5704</td>
+</tr>
+</tbody>
+</table>
+<p>On the only interpretable subset, 30% of the MYC regulon score varies
+<strong>within a single tumour</strong> — it is substantially a regional
+property. On three slides this is an estimate, not a precise
+quantity.</p>
+<p>Lineage dominance reproduces: unique R² 0.474 and 0.508 for lineage
+against 0.019 and 0.010 for MYC, in tissue with different chemistry,
+normalisation and gene panel.</p>
+<h1 data-number="10" id="sec-controls"><span
+class="header-section-number">10</span> Pre-registered controls:
+outcome</h1>
+<p>The contract declared controls before any result existed. Reporting
+them faithfully includes reporting the ones that were not met.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 55%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Declared</th>
+<th style="text-align: left;">Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Negative (M8 hard gate)</td>
+<td style="text-align: left;">Paralog-shared housekeeping promoters must
+not rank as paralog-specific hubs</td>
+<td style="text-align: left;"><strong>VACUOUS — no evidence either
+way</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Positive</td>
+<td style="text-align: left;">Top MYC hubs consistent with the
+MYC-BCL2/MCL1 apoptotic-priming axis (Dammert 2019)</td>
+<td style="text-align: left;"><strong>NOT MET</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Benchmark: HALLMARK_MYC_TARGETS</td>
+<td style="text-align: left;">Paralog-blind comparator for regulon
+coherence</td>
+<td style="text-align: left;">MET</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Benchmark: Jung 2017 signature</td>
+<td style="text-align: left;">18-gene paralog-blind MYC-activity
+comparator</td>
+<td style="text-align: left;"><strong>NOT DONE</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">M5 sanity gate</td>
+<td style="text-align: left;">Re-derived region counts within a
+defensible range of the published values</td>
+<td style="text-align: left;">3 PASS / 1 FAIL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The negative control cannot be scored.</strong> It asks that
+housekeeping promoters not rank as paralog-specific hubs. Since MOES
+produces no hubs at all, nothing can fail it. The best-ranked
+housekeeping gene sits at MOES rank 171 with FDR 0.94 — comfortably
+unremarkable — but a control that cannot fail provides no evidence about
+specificity, and recording it as “passed” would be the same vacuous-pass
+error this project caught once already in a genome-build assertion. It
+is recorded as uninformative.</p>
+<p><strong>The positive control is not met.</strong> BCL2 appears in the
+<strong>MYCN</strong> regulon rather than MYC, and its best MYC MOES
+rank is 128 at FDR 0.93. MCL1 is in no regulon. The MYC→BCL2/MCL1 axis
+does not emerge from this analysis. Given that MOES resolves nothing at
+gene level, this is consistent with the null rather than independent
+evidence against the axis — but it is not a positive result and is not
+presented as one.</p>
+<h1 data-number="11" id="what-is-and-is-not-established"><span
+class="header-section-number">11</span> What is and is not
+established</h1>
+<p><strong>Established here.</strong></p>
+<ul>
+<li>Paralog-resolved regulons can be built from public bedGraph-only
+chromatin data and are internally coherent in the lines they come
+from.</li>
+<li>Those regulons <strong>lose paralog identity</strong> in patient
+tumours, and lineage state accounts for it. Replicated in two cohorts,
+with power.</li>
+<li>The confound is present at chromatin, cell-line, gene and spatial
+level — it is not an artefact of one scoring choice.</li>
+<li>Regulon genes <strong>collectively</strong> carry SCLC-selective
+dependency; no paralog is itself a selective dependency, and MYC is
+<em>less</em> essential in SCLC than elsewhere.</li>
+<li>The MYC regulon is neurogenesis-weighted (reproducing prior work);
+the MYCN regulon is not (a discordance with prior work).</li>
+<li>Roughly a third of the MYC regulon score varies within a single
+tumour.</li>
+</ul>
+<p><strong>Not established, and not claimed.</strong></p>
+<ul>
+<li>No prioritised hub list. Evidence convergence is real in aggregate
+and unattributable at gene level.</li>
+<li>Nothing about MYCN or MYCL1 in spatial data — they are unmeasurable
+on that panel.</li>
+<li>Nothing about causation, treatment selection, or outcome.</li>
+<li>Criterion 3 of the M5 gate is a partial reproduction: direction yes,
+magnitude no.</li>
+</ul>
+<p><strong>Left undone.</strong> The drug-response association declared
+under Aim 3 was not carried out, and the Jung 2017 benchmark signature
+was never curated from the source publication. Both are recorded as gaps
+rather than quietly dropped.</p>
+<h1 data-number="12" id="sec-limits"><span
+class="header-section-number">12</span> Limitations</h1>
+<ol type="1">
+<li><strong>Two contributing ChIP lines each for MYCN and MYCL1</strong>
+against five for MYC. Cis-layer coverage is correspondingly uneven and
+bounds what could have been found for the smaller paralogs.</li>
+<li><strong>No <em>de novo</em> peak calling.</strong> Signal is
+quantified over a shared ATAC-defined universe, which is ~84% distal by
+construction and compresses distal-fraction contrasts.</li>
+<li><strong>The spatial panel measures ~1,800 targets.</strong> Two of
+three regulons fall below the coverage gate; the third clears it by 1.2
+percentage points.</li>
+<li><strong>Slide is not tumour</strong> in the spatial cohorts, so
+within-tumour variance is an upper bound.</li>
+<li><strong>The spatial NE score rests on 3 of 10 markers</strong>; the
+rest are off-panel.</li>
+<li><strong>Bootstrap rank intervals resample cis links only.</strong>
+The functional domain is held fixed because its per-gene values are
+precomputed summaries, so reported intervals understate total
+uncertainty.</li>
+<li><strong>One line is absent from DepMap</strong>, leaving the
+MYC-expressing arm of gate criterion 3 at n = 2 and precluding any
+significance test there.</li>
+</ol>
+<h1 data-number="13" id="sec-repro"><span
+class="header-section-number">13</span> Reproducibility</h1>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 87%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Element</th>
+<th style="text-align: left;">Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Environment</td>
+<td style="text-align: left;">renv.lock pins every package;
+<code>renv::restore()</code> from a clean clone</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Data</td>
+<td style="text-align: left;">no data in version control; download
+scripts plus checksum manifest</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Genome build</td>
+<td style="text-align: left;">hg19 asserted at every coordinate step;
+lifts logged with loss rates</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Figures</td>
+<td style="text-align: left;">8 figures, each regenerated by a named
+script and recorded in figures/figure_manifest.csv</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Decisions</td>
+<td style="text-align: left;">every deviation from the frozen
+specification carries a numbered decision-log entry</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Release gate</td>
+<td
+style="text-align: left;"><code>bash scripts/07_figures/99_build_all.sh</code>
+rebuilds and verifies the full figure set</td>
+</tr>
+</tbody>
+</table>
+<p>The figure build driver gates on three conditions: any script exiting
+non-zero, any accessibility check reporting failure, and any manifest
+row without both files on disk. It was tested by making it fail —
+injecting an unsatisfiable colourblind threshold — rather than by
+assuming it works.</p>
+<p>Figure PNGs are byte-reproducible on re-run; PDFs differ only in an
+embedded creation timestamp.</p>
+<h1 data-number="14" id="decisions-and-audit-trail"><span
+class="header-section-number">14</span> Decisions and audit trail</h1>
+<p>Every methodological deviation is recorded in <a
+href="docs/decision_log.md"><code>docs/decision_log.md</code></a>, which
+at the time of writing holds numbered entries D-001 through D-042.
+<code>scripts/00_setup/audit_decisions.sh</code> re-checks each recorded
+decision against the current state of the repository.</p>
+<p>Several entries record errors caught and corrected rather than
+decisions taken cleanly — a palette that failed the project’s own
+accessibility check, a canonical results table left stale while two
+audit checks defended the staleness, and a conclusion about evidence
+convergence that was too strong on first pass and corrected. These are
+left legible on purpose.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>## R version 4.6.1 (2026-06-24)
+## Platform: x86_64-pc-linux-gnu
+## Running under: Ubuntu 24.04.4 LTS
+## 
+## Matrix products: default
+## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.0 
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.0  LAPACK version 3.12.0
+## 
+## locale:
+##  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
+##  [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   
+##  [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          
+## [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   
+## 
+## time zone: Etc/UTC
+## tzcode source: system (glibc)
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices datasets  utils     methods   base     
+## 
+## other attached packages:
+## [1] yaml_2.3.12 knitr_1.51 
+## 
+## loaded via a namespace (and not attached):
+##  [1] BiocManager_1.30.27 compiler_4.6.1      cli_3.6.6          
+##  [4] tools_4.6.1         otel_0.2.0          xfun_0.60          
+##  [7] rlang_1.3.0         renv_1.2.3          png_0.1-9          
+## [10] evaluate_1.0.5</code></pre>
+</body>
+</html>
