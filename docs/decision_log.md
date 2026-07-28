@@ -1713,3 +1713,100 @@ finding and is reported as one. What fails is the *resolution*. The convergence 
 real but too thin to name genes, and one of the two layers cannot tell the
 paralogs apart at all. That is a statement about the limits of integrating two
 thin layers, not about the absence of shared biology.
+
+---
+
+### D-042 · SCI · 2026-07-28 — M9 spatial: two of three regulons are unmeasurable; lineage dominance replicates in a third modality
+
+**Scope:** restricted orthogonal validation only (datasets.yml D5). GeoMx DSP,
+GSE261348 (IMfirst) and GSE261345 (CANTABRICO), 295 ROIs after exclusions.
+
+#### The coverage gate decided most of this
+
+The CTA panel measures ~1,800 targets, so most regulon members are simply not
+assayed. Against the config gate (≥ 20 measured genes **and** ≥ 10% of members):
+
+| paralog | measured / 500 | coverage | verdict | margin |
+|---|---|---|---|---|
+| MYC | 56 | 11.2% | **scoreable** | +1.2 pts |
+| MYCN | 42 | 8.4% | not scoreable | −1.6 pts |
+| MYCL1 | 48 | 9.6% | not scoreable | **−0.4 pts** |
+
+**Two of three paralogs cannot be scored at all**, and MYCL1 misses by 0.4
+percentage points. These are knife-edge verdicts against a threshold this project
+itself raised on 2026-07-26 (from 5 genes to 20 genes + 10%). Reported as narrow
+rather than as clean separations, because at a 9% floor MYCL1 would have passed
+and at a 12% floor nothing would have. Every spatial result below is a **56-gene
+proxy for MYC**, not a measurement of the 500-gene regulon.
+
+#### Three checks that could have stopped the analysis
+
+1. **ROI counts** match the registry exactly: 175 and 121.
+2. **The known deposit gap is unchanged.** GSE261348 annotates 184 segments and
+   deposits 175. The loader asserts that the gap is still 9 segments on slide
+   IMF-001/002 — the *same* discrepancy characterised under R-17 — and stops on a
+   different one. A new deposit anomaly must fail rather than be absorbed as
+   "some segments are missing, as expected".
+3. **Coverage**, above. If nothing had cleared the gate the script stops rather
+   than lowering the threshold.
+
+Config's `m9_action` was applied: slide IMF-001/002 excluded entirely. Its one
+deposited segment is 40× under-sequenced relative to its slide-mates and carries a
+Low Negative Probe Count flag.
+
+#### Slide is not tumour — a limit that cannot be engineered away
+
+Slides are named for two patients (`IMF-001/002`, `CAN-037 CAN-039`) and **the
+deposit carries no per-ROI patient label**. All 45/33 SegmentProperties columns
+were checked; none disambiguates. So within-slide variance is an *upper bound* on
+within-tumour variance.
+
+Only 3 IMfirst slides carry a single identifier. **CANTABRICO has none** — not one
+of its 14 slides gives an unambiguous within-tumour estimate. Reported separately
+rather than pooled, so two-patient slides cannot inflate a "within-tumour" number.
+
+#### Result 1 — coherence
+
+| cohort | subset | between-slide R² | within-slide R² |
+|---|---|---|---|
+| IMfirst | all slides (174 ROI) | 0.554 | 0.446 |
+| IMfirst | **single-patient (21 ROI)** | **0.701** | **0.299** |
+| CANTABRICO | all slides (121 ROI) | 0.528 | 0.471 |
+
+On the only interpretable subset, **~30% of the MYC regulon score varies within a
+single tumour**. The score is substantially a regional property, not a tumour-level
+one. On n = 3 slides this is an estimate, not a precise quantity.
+
+#### Result 2 — lineage dominance replicates
+
+| cohort | unique R² MYC | unique R² lineage | full R² |
+|---|---|---|---|
+| IMfirst (174 ROI) | 0.0189 | 0.4744 | 0.4744 |
+| CANTABRICO (121 ROI) | 0.0097 | 0.5076 | 0.5704 |
+
+MYC's raw association with its own regulon score is weak (+0.113, +0.142) and does
+not survive lineage adjustment: **−0.022 (p = 0.77)** and **−0.172 (p = 0.059)**.
+In CANTABRICO the residual runs *negative*, consistent with the MYC/NE antagonism
+of D-034 rather than with residual paralog signal.
+
+This is the M6/M7 result in a **third modality** — different tissue, chemistry,
+normalisation and gene panel. Bulk gave lineage 0.24–0.43 against paralog
+0.000–0.068; spatial gives lineage 0.47–0.51 against MYC 0.010–0.019. Same
+direction, wider gap.
+
+One number was checked independently before being believed: IMfirst's unique
+lineage R² equals its full model R² to four decimals, which looked like a bug. It
+is not. Pearson r(score, MYC) = 0.0029 there, so MYC alone explains R² = 0.000009;
+the unique-MYC value of 0.019 is a suppression effect appearing only once lineage
+is in the model. Recomputed from scratch, all values reproduce exactly.
+
+#### What this licenses, and what it does not
+
+It licenses: the M6/M7 null is a property of the biology as measured, not an
+artefact of bulk deconvolution or of one scoring choice.
+
+It does **not** license any statement about MYCN or MYCL1 in spatial data — they
+are unmeasurable here — nor a precise within-tumour heterogeneity figure, nor
+anything resting on the NE score beyond three markers (NCAM1, ASCL1, DLL3; the
+other seven are off-panel). Prognostic and immune-exclusion analyses remain out of
+scope (D-001).

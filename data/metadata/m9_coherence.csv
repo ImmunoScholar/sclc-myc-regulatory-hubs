@@ -1,0 +1,5 @@
+"cohort","subset","n_roi","n_slides","between_slide_r2","within_slide_r2","slide_equals_tumour"
+"GSE261348","all slides",174,18,0.5536,0.4464,FALSE
+"GSE261348","single-patient slides",21,3,0.701,0.299,TRUE
+"GSE261345","all slides",121,14,0.5285,0.4715,FALSE
+"GSE261345","single-patient slides",0,0,NA,NA,TRUE

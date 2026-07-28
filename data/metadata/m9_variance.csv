@@ -1,0 +1,3 @@
+"cohort","n_roi","unique_myc","unique_lineage","full_r2","lineage_dominates"
+"GSE261348",174,0.0189,0.4744,0.4744,TRUE
+"GSE261345",121,0.0097,0.5076,0.5704,TRUE

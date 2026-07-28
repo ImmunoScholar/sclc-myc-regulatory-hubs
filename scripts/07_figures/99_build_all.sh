@@ -25,6 +25,7 @@ FIGS=(
   fig_s02_regulatory_pipeline.R
   fig04_moes_null.R
   fig_s03_lineage_confound.R
+  fig_s04_spatial.R
 )
 
 rc=0
