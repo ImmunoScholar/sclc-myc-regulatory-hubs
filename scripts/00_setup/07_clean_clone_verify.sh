@@ -40,8 +40,15 @@ note "files" "$(git ls-files | wc -l)"
 echo
 echo "=========== 2. absolute / home paths in code ==========="
 # A path like /home/priya/... or ~/... works on this machine and nowhere else.
+#
+# This check must EXCLUDE ITSELF. The pattern it searches for necessarily appears
+# in its own source, so the first run reported the checker as the violation — the
+# same self-match that verify_config.R hit scanning its own source for removed
+# keys, and that pgrep -f hit matching its own command line. A check that flags
+# itself trains the reader to ignore it.
 bad=$(grep -rnE '"(/home/|/Users/|/mnt/[a-z]/)|"~/' \
         scripts/ R/ config/ report.qmd 2>/dev/null \
+        | grep -v '07_clean_clone_verify.sh' \
         | grep -v '^\s*#' | grep -vE '^\S+:\s*#' || true)
 if [ -n "$bad" ]; then
   echo "$bad" | head -20
@@ -52,10 +59,14 @@ fi
 
 echo
 echo "=========== 3. referenced scripts all present ==========="
+# 01_init_git.sh is excluded on purpose: it contains ELEVEN deliberately fake
+# paths as decoys for the adversarial .gitignore test, and treating those as
+# broken references would make this check permanently red.
 missing=0
 while read -r s; do
   [ -f "$s" ] || { echo "  MISSING: $s"; missing=$((missing+1)); }
-done < <(grep -rhoE 'scripts/[0-9A-Za-z_/]+\.(R|sh)' README.md report.qmd scripts/ 2>/dev/null | sort -u)
+done < <(grep -rhoE 'scripts/[0-9A-Za-z_/]+\.(R|sh)' README.md report.qmd scripts/ 2>/dev/null \
+           --exclude=01_init_git.sh --exclude=07_clean_clone_verify.sh | sort -u)
 note "referenced scripts missing" "$missing"
 [ "$missing" -eq 0 ] || rc=1
 

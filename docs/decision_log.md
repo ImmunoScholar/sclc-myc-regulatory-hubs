@@ -1950,3 +1950,67 @@ An earlier working note recorded 137 out-of-bound ranges and 526,121 pairs. Thos
 came from an ad-hoc test that used the wrong `max_distance`; against the
 configured value the figures are 54 and 274,582. The committed test reads the
 value from config so the numbers cannot drift again.
+
+---
+
+### D-045 · METH · 2026-07-28 — the clean-clone gate, run for the first time, failed
+
+**Outcome: two figures could not be rebuilt by anyone who cloned the repository.**
+Fixed, and the gate now passes.
+
+#### What it found
+
+The M11 contract gate is "a fresh `git clone` reproduces every figure — not
+'should', actually tested". Run for the first time, **6 of 8 figures rebuilt
+byte-identically and two failed**: `fig01_lineage_dominance.R` and
+`fig04_moes_null.R` read `.rds` pipeline intermediates, which are correctly
+excluded from version control. A figure depending on a gitignored file is not
+reproducible by a reader, however well it reproduces here.
+
+Both now read committed CSVs. `fig01` uses `m6_replication.csv`, whose columns
+are identical to the `.rds` slice it took. `02_moes.R` now writes
+`moes_attribution.csv` and records `n_permutations` / `n_bootstrap` in the
+diagnostics table, and `fig04` reads those plus `moes_evidence_summary.csv`.
+**No figure script reads a `.rds` file any more** — that is the property worth
+holding, not the individual fixes.
+
+The second `.rds` read in `fig04` was missed on the first pass and the gate caught
+it on the next run, which is the argument for having the gate at all.
+
+#### Three bugs in the gate itself
+
+Every one found by running it rather than trusting it.
+
+1. **Self-match.** The absolute-path scan searched for a pattern that necessarily
+   appears in its own source, and reported itself as the violation. This is the
+   third instance of this class here — `verify_config.R` scanning its own source
+   for removed keys, and `pgrep -f` matching its own command line. Excluded.
+2. **`ln -sfn` nesting.** Linking the data directory into the clone created
+   `data/data -> source` instead of replacing it, because `data/` *does* exist in
+   a clone — `data/metadata/*.csv` are tracked. Two figures then failed for the
+   wrong reason. Only gitignored subdirectories are linked now.
+3. **A false alarm on repositories.** Lockfile `Repository` values were compared
+   against the *names* of configured repos, flagging `RSPM` and a bare URL as
+   unresolvable. Those are provenance labels, not repo names. Replaced with a
+   composition report.
+
+#### What the gate does not cover, stated rather than implied
+
+It does **not** install 232 packages on a bare machine, and it does **not**
+re-download the 12 GB of source data. It links the existing data and library and
+asks whether the *code* runs from a different working directory, which is the
+failure mode a clone test exists for. The two exclusions are named in the script
+header so no reader mistakes its scope.
+
+#### Also in this milestone
+
+`scripts/run_all.sh` now exists — the README had referenced it inside a
+placeholder comment since M3. It runs the stages in dependency order and **stops
+at the first failure**, because a pipeline that continues past a failed stage
+produces outputs that look complete and are not.
+
+The README was rewritten to match reality. It still carried "results below are
+placeholders", listed a pharmacogenomics source that was never used, and
+described Aim 3 and Aim 4 as specified rather than as they turned out. Aims are
+now shown as specified **with their actual outcome**, including the two that were
+not delivered.

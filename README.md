@@ -5,10 +5,30 @@ regulatory programs from SCLC cell lines into patient tumours, and prioritises
 candidate regulatory hubs using a transparent, weight-free evidence-integration
 framework.
 
-> **Status: in development.** The environment and repository are established;
-> data acquisition and analysis are in progress. Results below are placeholders
-> until the corresponding milestone gate passes. Nothing in this repository
-> should be read as a finding until it is labelled as one.
+> **Status: analysis complete, release in preparation.** All five aims have been
+> run to a conclusion. Two of those conclusions are **negative results**, and they
+> are the main findings rather than a shortfall — see
+> [`report.html`](report.html) for the full write-up and
+> [`docs/decision_log.md`](docs/decision_log.md) for why each decision was made.
+
+## What this project found
+
+1. **Paralog-resolved regulons are internally coherent in cell-line chromatin**
+   (3 of 4 pre-registered gate criteria pass) but **lose paralog identity in
+   patient tumours.** Neuroendocrine lineage state explains the regulon scores;
+   the paralog's own expression does not. Replicated across two cohorts
+   (160 tumours) with a power analysis, and reproduced again in spatial tissue.
+2. **The evidence-integration framework returns no prioritised hub list.** Three
+   of four planned evidence domains were excluded on their own evidence. The two
+   that remain converge weakly in aggregate (~2× top-K overlap) but no individual
+   gene survives testing across 10,387 — aggregate detectable, per-gene
+   unattributable.
+3. Along the way: the MYC regulon independently reproduces the published
+   MYC-enhancer→neurogenesis link, while the **MYCN regulon does not** — a
+   discordance with the source study, which grouped them together.
+
+Both negative results were **pre-registered as reportable findings** before any
+result existed. Nothing here was adjusted until it passed.
 
 ---
 
@@ -41,9 +61,13 @@ Five aims, one coherent argument rather than five separate analyses:
 |---|---|
 | **1 · Regulatory layer** | Build a consensus accessible-region universe from ATAC-seq, quantify MYC/MYCN/MYCL1 and H3K27ac bedGraph signal over it, call active regions and super-enhancers, and link regions to genes — producing **paralog-resolved regulons** |
 | **2 · Patient translation** | Score those regulons in two independent human SCLC tumour cohorts, and test explicitly whether "paralog-specific" signal is separable from lineage-TF (ASCL1 / NEUROD1 / POU2F3) programs |
-| **3 · Functional evidence** | Selective CRISPR dependency (DepMap), drug-response association, and GENIE3 network importance |
-| **4 · Evidence integration** | Combine four evidence domains by **two-stage Robust Rank Aggregation** into a ranked, provenance-audited hub list |
-| **5 · Spatial coherence** | A restricted check of whether hub expression is spatially coherent within tumours. No prognostic claims |
+| **3 · Functional evidence** | Selective CRISPR dependency (DepMap). *GENIE3 network importance was **excluded** on both its pre-conditions — 59 lines is underpowered and MYC expression tracks lineage across them. Drug-response association was **not carried out**.* |
+| **4 · Evidence integration** | Two-stage Robust Rank Aggregation across evidence domains. *Ran on **two** of four domains; returns **no ranked hub list** — see findings above.* |
+| **5 · Spatial coherence** | A restricted check of within-tumour coherence. No prognostic claims. *Only the MYC regulon clears the panel-coverage gate.* |
+
+Aims are shown as specified, with their actual outcome in italics. An aim that
+quietly changes shape between specification and write-up is the easiest kind of
+overstatement to commit and the hardest for a reader to detect.
 
 ### Two design choices worth explaining
 
@@ -72,7 +96,7 @@ download dates in `data/metadata/`.
 | Lineage-TF ChIP-seq (confounder controls) | GSE281524 (ASCL1), GSE210113 (NEUROD1), GSE249362 (POU2F3) | |
 | Bulk tumour RNA-seq | GSE60052 (79 tumours + 7 normal); George et al. 2015 via cBioPortal | |
 | CRISPR dependency & expression | DepMap (release pinned in the manifest) | |
-| Pharmacogenomics | SCLC-CellMiner CDB | |
+| ~~Pharmacogenomics~~ | ~~SCLC-CellMiner CDB~~ | **Not used.** The drug-response association under Aim 3 was never carried out; listed here because it was specified |
 | Spatial | GSE261348, GSE261345 (GeoMx DSP) | Targeted ~1,800-gene panel |
 
 **Genome build is hg19 throughout**, mandated by the source alignment of
@@ -126,11 +150,15 @@ Every value in the report is read at render time from files the analysis wrote,
 so a stale analysis cannot produce a fresh-looking report, and the render refuses
 to run if those files are missing.
 
-<!-- Populated as milestones complete:
+Or run the whole pipeline in dependency order:
+
 ```bash
 bash scripts/run_all.sh
 ```
--->
+
+It stops at the first failing stage — a pipeline that continues past a failure
+produces outputs that look complete and are not. Pass `--with-data` to include
+the ~6 h download, or `--figures` for figures and report only.
 
 ### System requirements
 
